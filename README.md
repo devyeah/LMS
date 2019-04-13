@@ -5,7 +5,7 @@ At [Dev Yeah](https://www.DevYeah.com), we provide all levels of professional so
 
 With our own state-of-the-art [Dev Yeah! ILE](http://ile.devyeah.com/app/index.html), aka. Interactive Learning Environment, which is the all-in-one fully integrated cloud platform, students can code, build, run and explore the software development world without boundaries.
 
-We specialized in large scale distributed cloud platform architecture design, optimization and performance tuning. 
+We specialized in large scale distributed cloud platform architecture design, optimization & performance tuning. 
 
 # Commerical Version of LMS - Dev Yeah ILE
 
