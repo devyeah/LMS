@@ -63,16 +63,17 @@ Students should be able to sign up LMS by clicking the **Log Out** button.
 
 #### 2.1.6  Navigate and view course content
 
-(1) when students have logged in the website, they should be directed to the course view. Course view is the 
-place where all courses will be gathered and displayed as lists, and each individual course in the list is a card containing the basic information about the course, such as the course name, brief introduction and study period.
+(1) when students have logged in the website, they should be directed to the course view. 
 
 ![](img/LMS-Requirement-Student-Content-01.png)
+
+- Course view is the place where all courses will be gathered and displayed as lists, and each individual course in the list is a card containing the basic information about the course, such as the course name, brief introduction and study period.
 
 ![viewofcard](img/lms-requirement-courselist-item.JPG)
 
 (2) Courses displayed on course view will be organized by categories so that students can browse courses by category through category navigation bar. 
 
-![navbar](img/ms-requirement-course-navbar-01.JPG)
+![navbar](img/lms-requirement-course-navbar-01.JPG)
 
 (3) An individual course will have a landing page as an entry port. It should consist of two parts of content so that students could have a summary understanding of the course and then start learning.
 
