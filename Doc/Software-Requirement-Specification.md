@@ -56,23 +56,44 @@ Students should be able to sign up LMS by clicking the **Log Out** button.
 
 
 
-(2) Once students send a request, they should be able to reset the password by clicking **change my Password** button in the reset password email received in their email inbox.
+(2) Once students send a request, they should be able to reset the password by clicking **change my Password** button in the reset password email received in their email inbox. For security reasons, students will not receive any error message when the email address that they entered is not correct. 
 
 ![](img/LMS-Requirement-Student-ResetPasswrod-03.png)
 
 
 #### 2.1.6  Navigate and view course content
 
-(1) when students have logged in the website, they should be directed to the course view.
+(1) when students have logged in the website, they should be directed to the course view. Course view is the 
+place where all courses will be gathered and displayed as lists, and each individual course in the list is a card containing the basic information about the course, such as the course name, brief introduction and study period.
 
 ![](img/LMS-Requirement-Student-Content-01.png)
 
-(2) Once students have clicked the course that they would like to access, students should be directed to the course’s curriculum view.
+![viewofcard](img/lms-requirement-courselist-item.JPG)
+
+(2) Courses displayed on course view will be organized by categories so that students can browse courses by category through category navigation bar. 
+
+![navbar](img/ms-requirement-course-navbar-01.JPG)
+
+(3) An individual course will have a landing page as an entry port. It should consist of two parts of content so that students could have a summary understanding of the course and then start learning.
+
+- Overview
+
+The first part is the overview of course that explains course objectives and what skills will the course deliver.
+
+![overviewofcourse](img/lms-requirement-course-home-page-01.JPG)
+
+- Syllabus
+
+The other part is syllabus, which shows an expandable list of where students can start learning.
+
+![syllabusofcourse](img/lms-requirement-course-home-page-02.JPG)
+
+(4) Once students have clicked the course that they would like to access, students should be directed to the course’s curriculum view.
 
 ![](img/LMS-Requirement-Student-Content-02.png)
 
 
-(3)  In course curriculum view students should be able to view the following information
+(5)  In course curriculum view students should be able to view the following information
 
 - Course Progress
 
@@ -92,36 +113,60 @@ This provides descriptions of the instructor teaching the course.
 
 ![](img/LMS-Requirement-Student-Content-05.png)
 
-(4)  Students should be able to view each individual lecture when they click the **Start** button.
+(6)  Students should be able to view each individual lecture when they click the **Start** button.
 
 ![](img/LMS-Requirement-Student-Content-06.png)
 
 ![](img/LMS-Requirement-Student-Content-07.png)
 
-(5)  If students don’t enroll in this course, they should be redirected to the course’s sales page when they clicked the course that they would like to access.
+(7) Course presentation
+
+- A course should be made by three types of content—videos, interactive practices, and quizzes(alternative).
+
+1. Videos: The video is responsible for teaching students what they should have learned in the current section.
+
+![videolesson](img/lms-requirement-course-content-struct-01.JPG)
+
+2. Interactive practices: By completing the tasks of the interactive practices, students can gain a better understanding of what they have learned from previous video lesson.
+
+![interactivepractice](img/lms-requirement-course-content-struct-02.JPG)
+
+3. Quizzes(alternative): The quiz provides students with an opportunity to assess the outcome of the study.
+
+(8)  If students don’t enroll in this course, they should be redirected to the course’s sales page when they clicked the course that they would like to access.
 
 ![](img/LMS-Requirement-Student-Content-08.png)
 
 
-(6) If students don’t enroll in this course, they should be able to see **Lecture content locked** instead of real content when they click the **Start** button next to individual lecture on the sales page.
+(9) If students don’t enroll in this course, they should be able to see **Lecture content locked** instead of real content when they click the **Start** button next to individual lecture on the sales page.
 
 ![](img/LMS-Requirement-Student-Content-09.png)
 
-(7) Students should be redirected to the next uncompleted lecture in the course when they click **Start next lecture** button at the top of the course curriculum view.
+(10) Students should be redirected to the next uncompleted lecture in the course when they click **Start next lecture** button at the top of the course curriculum view.
 
 ![](img/LMS-Requirement-Student-Content-10.gif)
 
-(8) Students should be able to comment on individual lectures.
+(11) Students should be able to comment on individual lectures.
 
 ![](img/LMS-Requirement-Student-Content-11.gif)
 
-(9) Students should be able to go back to edit, delete own comment built before.
+(12) Students should be able to go back to edit, delete own comment built before.
 
 ![](img/LMS-Requirement-Student-Content-12.gif)
 
 ![](img/LMS-Requirement-Student-Content-13.gif)
 
-(10) Students should be able to use online quiz and get a score when they completed all quizzes.
+(13) Students should be able to use online quiz and get a score when they completed all quizzes.
 
 ![](img/LMS-Requirement-Student-Content-14.gif)
 
+![quizzes](img/lms-requirement-course-content-struct-03.png)
+
+(14) Path
+
+- Paths are in-depth structured journeys (composition of courses) that students can take 
+at their own pace and get to their desired outcome.
+
+![path1](img/lms-requirement-course-path-01.JPG)
+
+![path2](img/lms-requirement-course-path-02.JPG)
