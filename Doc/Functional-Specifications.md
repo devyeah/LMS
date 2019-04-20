@@ -15,6 +15,6 @@
 ### (1) Course Model
 
 * In course model, students can access specific course by a single page identified by an URL which contains various resources identified by unique URI including videos, quizzes, QA Feed, tutorials and so on.
-* Same resources can be used by different courses.
+* Same resource can be used by different courses.
 * Whether students can access specific course depends on two factors: course start&end time and studentID is included by specific course.
 
