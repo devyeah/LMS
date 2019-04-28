@@ -20,7 +20,7 @@ CREATE TABLE dbo.UserProfile (
   [AccountId]      UNIQUEIDENTIFIER   NOT NULL,
   [RecoveryEmail]  VARCHAR(254),
   [FullName]       NVARCHAR(256),
-  [Gender]         CHAR(1)            DEFAULT 'M',
+  [Gender]         CHAR(1),
   [BirthDate]      DATE,
   [Bio]            NVARCHAR(500),
   PRIMARY KEY ([Id])
@@ -38,12 +38,12 @@ CREATE TABLE dbo.Avatar (
 GO
 
 CREATE TABLE dbo.Course (
-  [Id]             UNIQUEIDENTIFIER  NOT NULL,
-  [InstructorId]   UNIQUEIDENTIFIER  NOT NULL,
-  [Name]           NVARCHAR(100)     NOT NULL,
-  [Overview]       NVARCHAR(800)     NOT NULL,
-  [Edition]        TINYINT           NOT NULL,
-  [AvgLearingTime] FLOAT             NOT NULL,
+  [Id]              UNIQUEIDENTIFIER  NOT NULL,
+  [InstructorId]    UNIQUEIDENTIFIER  NOT NULL,
+  [Name]            NVARCHAR(100)     NOT NULL,
+  [Overview]        NVARCHAR(800)     NOT NULL,
+  [Edition]         TINYINT           NOT NULL,
+  [AvgLearningTime] FLOAT             NOT NULL,
   PRIMARY KEY ([Id])
 )
 GO
