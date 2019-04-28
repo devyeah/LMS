@@ -19,8 +19,6 @@ CREATE TABLE dbo.UserProfile (
   [Id]             UNIQUEIDENTIFIER   NOT NULL,
   [AccountId]      UNIQUEIDENTIFIER   NOT NULL,
   [RecoveryEmail]  VARCHAR(254),
-  [SmallAvatarId]  UNIQUEIDENTIFIER,
-  [AvatarId]       UNIQUEIDENTIFIER,
   [FullName]       NVARCHAR(256),
   [Gender]         CHAR(1)            DEFAULT 'M',
   [BirthDate]      DATE,
@@ -31,6 +29,8 @@ GO
 
 CREATE TABLE dbo.Avatar (
   [Id]             UNIQUEIDENTIFIER   NOT NULL,
+  [UserProfileId]  UNIQUEIDENTIFIER   NOT NULL,
+  [Dimension]      CHAR(1)            NOT NULL,
   [MimeType]       VARCHAR(20),
   [Size]           SMALLINT,
   PRIMARY KEY ([Id])
@@ -79,7 +79,7 @@ CREATE TABLE dbo.Topic (
 )
 GO
 
-CREATE TABLE dbo.TrackTopic (
+CREATE TABLE dbo.TopicProgress (
   [AccountId]      UNIQUEIDENTIFIER  NOT NULL,
   [TopicId]        UNIQUEIDENTIFIER  NOT NULL,
   [StartTime]      DATETIME2(7)      DEFAULT SYSUTCDATETIME(),
@@ -161,14 +161,9 @@ ALTER TABLE dbo.UserProfile
   REFERENCES dbo.Account ([Id])
 GO
 
-ALTER TABLE dbo.UserProfile
-  ADD CONSTRAINT [FK_UserProfile_Avatar_Small_Avatar] FOREIGN KEY ([SmallAvatarId])
-  REFERENCES dbo.Avatar ([Id])
-GO
-
-ALTER TABLE dbo.UserProfile
-  ADD CONSTRAINT [FK_UserProfile_Avatar_Normal_Avatar] FOREIGN KEY ([AvatarId])
-  REFERENCES dbo.Avatar ([Id])
+ALTER TABLE dbo.Avatar
+  ADD CONSTRAINT [FK_Avatar_UserProfile] FOREIGN KEY ([UserProfileId])
+  REFERENCES dbo.UserProfile ([Id])
 GO
 
 ALTER TABLE dbo.Course
@@ -201,13 +196,13 @@ ALTER TABLE dbo.Topic
   REFERENCES dbo.Course ([Id])
 GO
 
-ALTER TABLE dbo.TrackTopic
-  ADD CONSTRAINT [FK_TrackTopic_Account] FOREIGN KEY ([AccountId])
+ALTER TABLE dbo.TopicProgress
+  ADD CONSTRAINT [FK_TopicProgress_Account] FOREIGN KEY ([AccountId])
   REFERENCES dbo.Account ([Id])
 GO
 
-ALTER TABLE dbo.TrackTopic
-  ADD CONSTRAINT [FK_TrackTopic_Topic] FOREIGN KEY ([TopicId])
+ALTER TABLE dbo.TopicProgress
+  ADD CONSTRAINT [FK_TopicProgress_Topic] FOREIGN KEY ([TopicId])
   REFERENCES dbo.Topic ([Id])
 GO
 
