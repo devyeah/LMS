@@ -7,6 +7,11 @@ With our own state-of-the-art [Dev Yeah! ILE](http://ile.devyeah.com/app/index.h
 
 We specialized in large scale distributed cloud platform architecture design, optimization & performance tuning. 
 
+We have two versions of the LMS:
+- Open source version: which is open-sourced here under dual licenses.
+- Commerical version: which is our online service offering: [ILE.DevYeah.com](http://ile.devyeah.com/app/index.html)
+
+
 # Commerical Version of LMS - Dev Yeah ILE
 
 ## Dashboard
