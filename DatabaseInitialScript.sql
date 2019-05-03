@@ -1,6 +1,23 @@
 USE [LMS]
 GO
 
+DROP TABLE IF EXISTS dbo.Avatar
+DROP TABLE IF EXISTS dbo.UserProfile
+DROP TABLE IF EXISTS dbo.AccountCourse
+DROP TABLE IF EXISTS dbo.CourseCategory
+DROP TABLE IF EXISTS dbo.TopicProgress
+DROP TABLE IF EXISTS dbo.VideRepo
+DROP TABLE IF EXISTS dbo.PracticeRepo
+DROP TABLE IF EXISTS dbo.FileRepo
+DROP TABLE IF EXISTS dbo.QuizRepo
+DROP TABLE IF EXISTS dbo.Resource
+DROP TABLE IF EXISTS dbo.Topic
+DROP TABLE IF EXISTS dbo.Course
+DROP TABLE IF EXISTS dbo.Category
+DROP TABLE IF EXISTS dbo.OperationHistory
+DROP TABLE IF EXISTS dbo.Account
+GO
+
 CREATE TABLE dbo.Account (
   [Id]             UNIQUEIDENTIFIER   NOT NULL,
   [UserName]       NVARCHAR(50)       NOT NULL,
@@ -43,6 +60,7 @@ CREATE TABLE dbo.Course (
   [Name]            NVARCHAR(100)     NOT NULL,
   [Overview]        NVARCHAR(800)     NOT NULL,
   [Edition]         TINYINT           NOT NULL,
+  [Level]           TINYINT           NOT NULL,
   [AvgLearningTime] FLOAT             NOT NULL,
   PRIMARY KEY ([Id])
 )
