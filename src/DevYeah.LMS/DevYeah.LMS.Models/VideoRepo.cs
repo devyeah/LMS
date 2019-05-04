@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class VideRepo
+    public partial class VideoRepo
     {
         public Guid Id { get; set; }
         public Guid ResourceId { get; set; }

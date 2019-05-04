@@ -182,6 +182,11 @@ IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_UserProfile_Account')
     REFERENCES dbo.Account ([Id])
   GO
 
+IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='UNIQ_FK_UserProfile')
+  ALTER TABLE dbo.UserProfile
+    ADD CONSTRAINT[UNIQ_FK_UserProfile] UNIQUE ([AccountId])
+  GO
+
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_Avatar_UserProfile')
   ALTER TABLE dbo.Avatar
     ADD CONSTRAINT [FK_Avatar_UserProfile] FOREIGN KEY ([UserProfileId])
@@ -248,10 +253,20 @@ IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_VideoRepo_Resource')
     REFERENCES dbo.Resource ([Id])
   GO
 
+IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='UNIQ_FK_VideoRepo')
+  ALTER TABLE dbo.VideoRepo
+    ADD CONSTRAINT[UNIQ_FK_VideoRepo] UNIQUE ([ResourceId])
+  GO
+
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_PracticeRepo_Resource')
   ALTER TABLE dbo.PracticeRepo
     ADD CONSTRAINT [FK_PracticeRepo_Resource] FOREIGN KEY ([ResourceId])
     REFERENCES dbo.Resource ([Id])
+  GO
+
+IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='UNIQ_FK_PracticeRepo')
+  ALTER TABLE dbo.PracticeRepo
+    ADD CONSTRAINT[UNIQ_FK_PracticeRepo] UNIQUE ([ResourceId])
   GO
 
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_FileRepo_Resource')
@@ -260,10 +275,20 @@ IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_FileRepo_Resource')
     REFERENCES dbo.Resource ([Id])
   GO
 
+IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='UNIQ_FK_FileRepo')
+  ALTER TABLE dbo.FileRepo
+    ADD CONSTRAINT[UNIQ_FK_FileRepo] UNIQUE ([ResourceId])
+  GO
+
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_QuizRepo_Resource')
   ALTER TABLE dbo.QuizRepo
     ADD CONSTRAINT [FK_QuizRepo_Resource] FOREIGN KEY ([ResourceId])
     REFERENCES dbo.Resource ([Id])
+  GO
+
+IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='UNIQ_FK_QuizRepo')
+  ALTER TABLE dbo.QuizRepo
+    ADD CONSTRAINT[UNIQ_FK_QuizRepo] UNIQUE ([ResourceId])
   GO
 
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_OperationHistory_Account')

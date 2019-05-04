@@ -11,7 +11,6 @@ namespace DevYeah.LMS.Models
             Course = new HashSet<Course>();
             OperationHistory = new HashSet<OperationHistory>();
             TopicProgress = new HashSet<TopicProgress>();
-            UserProfile = new HashSet<UserProfile>();
         }
 
         public Guid Id { get; set; }
@@ -24,10 +23,10 @@ namespace DevYeah.LMS.Models
         public DateTime? ActivationTime { get; set; }
         public DateTime? LastLoginTime { get; set; }
 
+        public virtual UserProfile UserProfile { get; set; }
         public virtual ICollection<AccountCourse> AccountCourse { get; set; }
         public virtual ICollection<Course> Course { get; set; }
         public virtual ICollection<OperationHistory> OperationHistory { get; set; }
         public virtual ICollection<TopicProgress> TopicProgress { get; set; }
-        public virtual ICollection<UserProfile> UserProfile { get; set; }
     }
 }
