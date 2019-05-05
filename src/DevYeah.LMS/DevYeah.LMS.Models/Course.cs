@@ -17,8 +17,9 @@ namespace DevYeah.LMS.Models
         public string Name { get; set; }
         public string Overview { get; set; }
         public byte Edition { get; set; }
-        public byte Level { get; set; }
         public double AvgLearningTime { get; set; }
+        public byte Level { get; set; }
+        public byte Grade { get; set; }
 
         public virtual Account Instructor { get; set; }
         public virtual ICollection<AccountCourse> AccountCourse { get; set; }
