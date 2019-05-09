@@ -1,16 +1,16 @@
-﻿using DevYeah.LMS.Models;
-using System;
-
+﻿using System;
+using DevYeah.LMS.Business.RequestModels;
+using DevYeah.LMS.Business.ResultModels;
 
 namespace DevYeah.LMS.Business.Interfaces
 {
     interface IAccountService
     {
         // return an Id of the account that has been created
-        Guid? SignUp(Account account);
-        Account SignIn(string email, String password);
+        ServiceResult<IdentityResultCode> SignUp(SignUpRequest request);
+        ServiceResult<IdentityResultCode> SignIn(SignInRequest request);
         void RecoverPassword(string email);
-        bool ResetPassword(Guid accountId, string newPassword);
-        void DeleteAccountByKey(Guid accountId);
+        ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request);
+        ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId);
     }
 }
