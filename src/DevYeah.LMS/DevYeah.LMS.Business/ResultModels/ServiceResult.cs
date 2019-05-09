@@ -1,6 +1,6 @@
 ﻿namespace DevYeah.LMS.Business.ResultModels
 {
-    public abstract class ServiceResult<T>
+    public class ServiceResult<T>
     {
         public bool IsSuccess { get; set; }
 
