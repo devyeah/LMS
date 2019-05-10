@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.Models", "DevYeah.LMS.Models\DevYeah.LMS.Models.csproj", "{4E9E4A4B-1FFD-480D-AEBF-F4FEF35794EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Models", "DevYeah.LMS.Models\DevYeah.LMS.Models.csproj", "{4E9E4A4B-1FFD-480D-AEBF-F4FEF35794EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.Data", "DevYeah.LMS.Data\DevYeah.LMS.Data.csproj", "{46A91B9C-964B-44E6-B5FC-E5EABE7000B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Data", "DevYeah.LMS.Data\DevYeah.LMS.Data.csproj", "{46A91B9C-964B-44E6-B5FC-E5EABE7000B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.Business", "DevYeah.LMS.Business\DevYeah.LMS.Business.csproj", "{93700DCD-B227-4D17-9D6E-426541C9AFFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Business", "DevYeah.LMS.Business\DevYeah.LMS.Business.csproj", "{93700DCD-B227-4D17-9D6E-426541C9AFFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.Common", "DevYeah.LMS.Common\DevYeah.LMS.Common.csproj", "{5956A370-A0F9-417B-993B-0DB0AA5E93A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Common", "DevYeah.LMS.Common\DevYeah.LMS.Common.csproj", "{5956A370-A0F9-417B-993B-0DB0AA5E93A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.Web", "DevYeah.LMS.Web\DevYeah.LMS.Web.csproj", "{EA39E55D-00DA-40B6-8543-BEE9E15D725A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Web", "DevYeah.LMS.Web\DevYeah.LMS.Web.csproj", "{EA39E55D-00DA-40B6-8543-BEE9E15D725A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
