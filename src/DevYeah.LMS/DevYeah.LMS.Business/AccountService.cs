@@ -36,39 +36,7 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
         {
-            var account = new Account()
-            {
-                Id = Guid.NewGuid(),
-                UserName = request.UserName,
-                Email = request.Email,
-                Password = request.Password,
-                UserProfile = new UserProfile(),
-            };
-
-            _dbContext.Account.Add(account);
-            try
-            {
-                _dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-
-                return new ServiceResult<IdentityResultCode>()
-                {
-                    IsSuccess = false,
-                    ResultCode = IdentityResultCode.AccountSaveFailure,
-                    Message = ex.Message,
-                    ResultObj = null,
-                };
-            }
-
-            return new ServiceResult<IdentityResultCode>()
-            {
-                IsSuccess = true,
-                ResultCode = IdentityResultCode.Success,
-                Message = "",
-                ResultObj = account,
-            };
+            throw new NotImplementedException();
         }
     }
 }
