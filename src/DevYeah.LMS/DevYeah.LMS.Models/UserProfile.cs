@@ -3,14 +3,13 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class UserProfile
+    public partial class UserProfile : Model
     {
         public UserProfile()
         {
             Avatar = new HashSet<Avatar>();
         }
 
-        public Guid Id { get; set; }
         public Guid AccountId { get; set; }
         public string RecoveryEmail { get; set; }
         public string FullName { get; set; }

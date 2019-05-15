@@ -6,8 +6,10 @@
         EmailConflict = 2,
         EmailError = 3,
         PasswordError = 4,
-        AccountSaveFailure = 5,
+        SignUpFailure = 5,
         AccountUpdateFailure = 6,
+        SignInFailure = 7,
+        InactivatedAccount = 8,
         BackenException = 99,
         NetworkException = 88,
     }
