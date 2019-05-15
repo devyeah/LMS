@@ -25,6 +25,21 @@ namespace DevYeah.LMS.Business
             _smtpClient = smtpClient;
             _configuration = configuration;
         }
+        public ServiceResult<IdentityResultCode> ActivateAccount(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            //var emailToken = handler.ReadJwtToken(token);
+            var secretkey = Encoding.ASCII.GetBytes(_configuration["secret"]);
+            var param = new TokenValidationParameters
+            {
+                ClockSkew = TimeSpan.FromMinutes(1),
+                ValidIssuer = "DevYeah",
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(secretkey),
+            };
+            var claims = handler.ValidateToken(token, param, out SecurityToken emailToken);
+            return null;
+        }
         public ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId)
         {
             throw new NotImplementedException();

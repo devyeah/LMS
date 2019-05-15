@@ -12,5 +12,6 @@ namespace DevYeah.LMS.Business.Interfaces
         void RecoverPassword(string email);
         ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request);
         ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId);
+        ServiceResult<IdentityResultCode> ActivateAccount(string token);
     }
 }
