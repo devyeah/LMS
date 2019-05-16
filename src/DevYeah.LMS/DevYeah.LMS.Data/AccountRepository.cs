@@ -10,7 +10,7 @@ namespace DevYeah.LMS.Data
         {
         }
 
-        public Account GetAccountByEmail(string email)
+        public Account GetUniqueAccountByEmail(string email)
         {
             return this.Find(account => account.Email == email);
         }

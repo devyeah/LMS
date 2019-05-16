@@ -10,6 +10,7 @@
         AccountUpdateFailure = 6,
         SignInFailure = 7,
         InactivatedAccount = 8,
+        IncompleteArgument = 9,
         BackenException = 99,
         NetworkException = 88,
     }
