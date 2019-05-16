@@ -19,6 +19,9 @@ namespace DevYeah.LMS.Business
         private readonly IAccountRepository _repository;
         private readonly IMailClient _mailClient;
         private readonly IConfiguration _configuration;
+        private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
+        private static readonly string EmailConflictMsg = "This email has been used.";
+        private static readonly string SignUpSuccessMsg = "You has signed up successfully, please active your account through the email we sent to you.";
         public AccountService(IAccountRepository repository, IMailClient mailClient, IConfiguration configuration)
         {
             _repository = repository;
@@ -120,43 +123,19 @@ namespace DevYeah.LMS.Business
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.UserName) ||
                 string.IsNullOrWhiteSpace(request.Password))
-                return new ServiceResult<IdentityResultCode>
-                {
-                    IsSuccess = false,
-                    ResultCode = IdentityResultCode.IncompleteArgument,
-                    Message = "The necessary information is incomplete.",
-                };
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
+            var isEmailExist = CheckDuplicateEmailAddress(request);
+            if (isEmailExist)
+                return BuildResult(false, IdentityResultCode.EmailConflict, EmailConflictMsg);
 
-            try
-            {
-                var identicalAccount = _repository.GetUniqueAccountByEmail(request.Email);
-                if (identicalAccount != null)
-                    return new ServiceResult<IdentityResultCode>
-                    {
-                        IsSuccess = false,
-                        ResultCode = IdentityResultCode.EmailConflict,
-                        Message = "This email has been used.",
-                    };
-            }
-            catch (Exception)
-            {
-                return new ServiceResult<IdentityResultCode>
-                {
-                    IsSuccess = false,
-                    ResultCode = IdentityResultCode.EmailConflict,
-                    Message = "This email has been used.",
-                };
-            }
-
-            var md5HashedPws = GetMd5Hash(request.Password);
-            var sha256Pws = GetSha256Hash(md5HashedPws);
+            string hashedPassword = HashPassword(request.Password);
             var newAccount = new Account
             {
                 Id = Guid.NewGuid(),
                 UserName = request.UserName,
                 Email = request.Email,
-                Password = sha256Pws,
+                Password = hashedPassword,
                 Status = (int)AccountStatus.Inactivated,
                 Type = request.Type,
                 UserProfile = new UserProfile
@@ -169,33 +148,58 @@ namespace DevYeah.LMS.Business
             {
                 _repository.Add(newAccount);
                 _repository.SaveChanges();
-                //Todo: generate a token
-                //SecurityToken emailToken = GenerateToken(newAccount);
-
-                // send an email to new user to let he/she activate account
-                //_mailClient.Send(new MailMessage(
-                //    to: newAccount.Email,
-                //    from: "yyy@mail.com",
-                //    subject: "Test message subject",
-                //    body: string.Concat(_configuration["ActivateLink"], "?token=", emailToken.ToString())
-                //    ));
-                return new ServiceResult<IdentityResultCode>
-                {
-                    IsSuccess = true,
-                    ResultCode = IdentityResultCode.Success,
-                    Message = "You has signed up successfully, please active your account through the email we sent to you.",
-                    ResultObj = newAccount,
-                };
+                return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
             catch (Exception ex)
             {
+                return BuildResult(false, IdentityResultCode.SignUpFailure, ex.Message);
+            }
+        }
 
-                return new ServiceResult<IdentityResultCode>
-                {
-                    IsSuccess = false,
-                    ResultCode = IdentityResultCode.SignUpFailure,
-                    Message = ex.Message,
-                };
+        private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message, object resultObj = null)
+        {
+            return new ServiceResult<IdentityResultCode>
+            {
+                IsSuccess = isSuccess,
+                ResultCode = code,
+                Message = message, 
+                ResultObj = resultObj
+            };
+        }
+
+        private static string HashPassword(string password)
+        {
+            string md5Password = null;
+            string sha256Password = null;
+            byte[] data;
+            using (var md5Hash = MD5.Create())
+            {
+                data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+                md5Password = BuildHexadecimalString(data);
+            }
+
+            using (var sha256 = SHA256.Create())
+            {
+                data = sha256.ComputeHash(Encoding.UTF8.GetBytes(md5Password));
+                sha256Password =  BuildHexadecimalString(data);
+            }
+            
+            return sha256Password;
+        }
+
+        private bool CheckDuplicateEmailAddress(SignUpRequest request)
+        {
+            try
+            {
+                var identicalAccount = _repository.GetUniqueAccountByEmail(request.Email);
+                if (identicalAccount != null)
+                    return true;
+                    
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -218,24 +222,6 @@ namespace DevYeah.LMS.Business
             };
             var emailToken = handler.CreateToken(tokenDescriptor);
             return emailToken;
-        }
-
-        private static string GetMd5Hash(string input)
-        {
-            using (var md5Hash = MD5.Create())
-            {
-                var data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return BuildHexadecimalString(data);
-            }
-        }
-
-        private static string GetSha256Hash(string input)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var data = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return BuildHexadecimalString(data);
-            }
         }
 
         private static string BuildHexadecimalString(byte[] data)
