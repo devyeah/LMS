@@ -199,7 +199,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception)
             {
-                return false;
+                return true;
             }
         }
 
