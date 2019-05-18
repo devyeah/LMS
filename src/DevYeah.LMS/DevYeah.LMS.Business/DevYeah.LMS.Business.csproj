@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.3.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DevYeah.LMS.Data\DevYeah.LMS.Data.csproj" />
     <ProjectReference Include="..\DevYeah.LMS.Models\DevYeah.LMS.Models.csproj" />
   </ItemGroup>

@@ -22,6 +22,7 @@ namespace DevYeah.LMS.Business
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
         private static readonly string SignUpSuccessMsg = "You has signed up successfully, please active your account through the email we sent to you.";
+        private static readonly string ActivateMailSendFail = "Because some unknown reason, your sign up failed. Please try again later.";
         public AccountService(IAccountRepository repository, IMailClient mailClient, IConfiguration configuration)
         {
             _repository = repository;
@@ -148,12 +149,43 @@ namespace DevYeah.LMS.Business
             {
                 _repository.Add(newAccount);
                 _repository.SaveChanges();
+                var isMailSent = SendActivateEmail(newAccount);
+                if (!isMailSent)
+                {
+                    _repository.Delete(newAccount);
+                    _repository.SaveChanges();
+                    return BuildResult(false, IdentityResultCode.EmailError, ActivateMailSendFail);
+                }
                 return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
             catch (Exception ex)
             {
-                return BuildResult(false, IdentityResultCode.SignUpFailure, ex.Message);
+                return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
+        }
+
+        private bool SendActivateEmail(Account account)
+        {
+            var token = GenerateToken(account);
+
+            do
+            {
+                var loopCounter = 0;
+                var mailMessage = new MailMessage
+                (
+                    from: _configuration["OfficalEmailAddress"],
+                    to: account.Email,
+                    subject: "Thank you for signing up, Please activate your account",
+                    body: string.Concat(_configuration["AccountActivateAPI"], "?token=", token)
+
+                );
+                _mailClient.Send(mailMessage);
+                loopCounter++;
+                if (loopCounter >= 3)
+                    break;
+            } while (!_mailClient.MailSent);
+
+            return _mailClient.MailSent;
         }
 
         private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message, object resultObj = null)
@@ -205,7 +237,8 @@ namespace DevYeah.LMS.Business
 
         private SecurityToken GenerateToken(Account account)
         {
-            var secretKey = Encoding.ASCII.GetBytes(_configuration["secret"]);
+            var tokenProperties = _configuration.GetSection("TokenRelated");
+            var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
             var claims = new Claim[]
             {
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
@@ -214,8 +247,8 @@ namespace DevYeah.LMS.Business
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
-                Issuer = _configuration["Issuer"],
-                Audience = _configuration["Audience"],
+                Issuer = tokenProperties["Issuer"],
+                Audience = tokenProperties["Audience"],
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(12),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)

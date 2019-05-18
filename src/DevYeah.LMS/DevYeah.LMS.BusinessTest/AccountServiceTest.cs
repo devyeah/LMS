@@ -78,5 +78,7 @@ namespace DevYeah.LMS.BusinessTest
             var result = service.SignUp(request);
             Assert.AreEqual(IdentityResultCode.EmailConflict, result.ResultCode);
         }
+
+
     }
 }
