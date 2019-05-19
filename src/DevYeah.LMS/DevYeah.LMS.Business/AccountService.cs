@@ -27,6 +27,7 @@ namespace DevYeah.LMS.Business
         private static readonly string AccountNotExistMsg = "User is not exist.";
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
+        private static readonly string SubjectOfActivateEmail = "Thank you for signing up, Please click the link below to activate your account.";
 
         public AccountService(IAccountRepository repository, IMailClient mailClient, IConfiguration configuration)
         {
@@ -73,7 +74,7 @@ namespace DevYeah.LMS.Business
 
             var account = _repository.GetUniqueAccountByEmail(request.Email);
             if (account == null)
-                return BuildResult(false, IdentityResultCode.EmailError, AccountNotExistMsg);
+                return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
             var password = HashPassword(request.Password);
             if (!password.Equals(account.Password))
@@ -145,7 +146,7 @@ namespace DevYeah.LMS.Business
                 (
                     from: _configuration["OfficalEmailAddress"],
                     to: account.Email,
-                    subject: "Thank you for signing up, Please activate your account",
+                    subject: SubjectOfActivateEmail,
                     body: string.Concat(_configuration["AccountActivateAPI"], "?token=", token)
 
                 );

@@ -101,8 +101,8 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestSignInSuccess()
         {
-            service.SignUp(signupRequest);
-            var account = repository.GetUniqueAccountByEmail(signupRequest.Email);
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
             account.Status = (int)AccountStatus.Activated;
             repository.Update(account);
             var result = service.SignIn(signInRequest);
@@ -115,8 +115,8 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestSignInFailed()
         {
-            service.SignUp(signupRequest);
-            var account = repository.GetUniqueAccountByEmail(signupRequest.Email);
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
             account.Status = (int)AccountStatus.Activated;
             repository.Update(account);
             signInRequest.Password = "654321";
@@ -132,6 +132,32 @@ namespace DevYeah.LMS.BusinessTest
             var result = service.SignIn(signInRequest);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.InactivatedAccount, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestInvalidAccountWithEmptyArgument()
+        {
+            var result = service.InvalidAccount(Guid.Empty);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestInvalidAFakeAccount()
+        {
+            var result = service.InvalidAccount(Guid.NewGuid());
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.AccountNotExist, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestInvalidAccountSuccess()
+        {
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
+            var result = service.InvalidAccount(account.Id);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
         }
     }
 }
