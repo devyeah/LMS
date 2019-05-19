@@ -98,10 +98,7 @@ namespace DevYeah.LMS.Business
                 return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
             if (account.Status == (int)AccountStatus.Inactivated)
-            {
-                SendActivateEmail(account);
                 return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
-            }
 
             return BuildResult(true, IdentityResultCode.Success, resultObj:account);
         }
