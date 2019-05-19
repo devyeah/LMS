@@ -63,7 +63,7 @@ namespace DevYeah.LMS.Business
 
                 account.Status = (int)AccountStatus.Deleted;
                 _repository.Update(account);
-                return BuildResult(true, IdentityResultCode.Success);
+                return BuildResult(true, IdentityResultCode.Success, resultObj:account);
             }
             catch (Exception ex)
             {
