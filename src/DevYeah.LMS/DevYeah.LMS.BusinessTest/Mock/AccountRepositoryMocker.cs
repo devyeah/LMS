@@ -43,6 +43,11 @@ namespace DevYeah.LMS.BusinessTest.Mock
             return null;
         }
 
+        public Account GetAccount(Guid key)
+        {
+            return Get(key);
+        }
+
         public Account GetUniqueAccountByEmail(string email)
         {
             foreach(var account in _accounts)

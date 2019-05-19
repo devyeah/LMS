@@ -12,7 +12,7 @@
         InactivatedAccount = 8,
         IncompleteArgument = 9,
         AccountNotExist = 10,
-        BackenException = 99,
+        BackendException = 99,
         NetworkException = 88,
     }
 

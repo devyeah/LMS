@@ -23,7 +23,7 @@ namespace DevYeah.LMS.Business
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
         private static readonly string SignUpSuccessMsg = "You has signed up successfully, please active your account through the email we sent to you.";
-        private static readonly string ActivateMailSendFailMsg = "Because some unknown reason, your sign up failed. Please try again later.";
+        private static readonly string ActivateMailSendFailMsg = "your sign up failed. Please try again later.";
         private static readonly string AccountNotExistMsg = "User is not exist.";
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
@@ -52,7 +52,24 @@ namespace DevYeah.LMS.Business
         }
         public ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId)
         {
-            return null;
+            if (accountId == null || accountId.Equals(Guid.Empty))
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            try
+            {
+                var account = _repository.GetAccount(accountId);
+                if (account == null)
+                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+
+                account.Status = (int)AccountStatus.Deleted;
+                _repository.Update(account);
+                return BuildResult(true, IdentityResultCode.Success);
+            }
+            catch (Exception ex)
+            {
+
+                return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
+            }
         }
 
         public void RecoverPassword(string email)

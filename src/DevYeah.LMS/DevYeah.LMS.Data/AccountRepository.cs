@@ -1,4 +1,5 @@
-﻿using DevYeah.LMS.Data.Interfaces;
+﻿using System;
+using DevYeah.LMS.Data.Interfaces;
 using DevYeah.LMS.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,11 @@ namespace DevYeah.LMS.Data
         public Account GetUniqueAccountByEmail(string email)
         {
             return this.Find(account => account.Email == email);
+        }
+
+        public Account GetAccount(Guid key)
+        {
+            return this.Get(key);
         }
     }
 }
