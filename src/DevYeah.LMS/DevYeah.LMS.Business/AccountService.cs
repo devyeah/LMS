@@ -19,10 +19,15 @@ namespace DevYeah.LMS.Business
         private readonly IAccountRepository _repository;
         private readonly IMailClient _mailClient;
         private readonly IConfiguration _configuration;
+
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
         private static readonly string SignUpSuccessMsg = "You has signed up successfully, please active your account through the email we sent to you.";
-        private static readonly string ActivateMailSendFail = "Because some unknown reason, your sign up failed. Please try again later.";
+        private static readonly string ActivateMailSendFailMsg = "Because some unknown reason, your sign up failed. Please try again later.";
+        private static readonly string AccountNotExistMsg = "User is not exist.";
+        private static readonly string PasswordErrorMsg = "Password is not correct.";
+        private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
+
         public AccountService(IAccountRepository repository, IMailClient mailClient, IConfiguration configuration)
         {
             _repository = repository;
@@ -61,61 +66,26 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
         {
-            //if (request == null ||
-            //    string.IsNullOrWhiteSpace(request.Email) ||
-            //    string.IsNullOrWhiteSpace(request.Password))
-            //    return new ServiceResult<IdentityResultCode>
-            //    {
-            //        IsSuccess = false,
-            //        ResultCode = IdentityResultCode.SignInFailure,
-            //        Message = "The necessary information is incomplete.",
-            //    };
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password))
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
-            //var account = _repository.GetUniqueAccountByEmail(request.Email);
-            //if (account == null)
-            //    return new ServiceResult<IdentityResultCode>
-            //    {
-            //        IsSuccess = false,
-            //        ResultCode = IdentityResultCode.EmailError,
-            //        Message = "This user is not exist.",
-            //    };
+            var account = _repository.GetUniqueAccountByEmail(request.Email);
+            if (account == null)
+                return BuildResult(false, IdentityResultCode.EmailError, AccountNotExistMsg);
 
-            ////Todo: check wether or not the current user has been activated, if not sending a email
-            //if (account.Status == (int)AccountStatus.Inactivated)
-            //{
-            //    var emailToken = GenerateToken(account);
-            //    _smtpClient.SendMailAsync(new MailMessage(
-            //            to: account.Email,
-            //            from: "yyy@mail.com",
-            //            subject: "Test message subject",
-            //            body: string.Concat(_configuration["ActivateLink"], "?token=", emailToken.ToString())
-            //            ));
-            //    return new ServiceResult<IdentityResultCode>
-            //    {
-            //        IsSuccess = false,
-            //        ResultCode = IdentityResultCode.InactivatedAccount,
-            //        Message = "You need to activate your account before signing in the website."
-            //    };
-            //}
+            var password = HashPassword(request.Password);
+            if (!password.Equals(account.Password))
+                return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
-            //var md5HashedPws = GetMd5Hash(request.Password);
-            //var sha256Pws = GetSha256Hash(md5HashedPws);
-            //if (account.Password.Equals(sha256Pws))
-            //    return new ServiceResult<IdentityResultCode>
-            //    {
-            //        IsSuccess = true,
-            //        ResultCode = IdentityResultCode.Success,
-            //        Message = "",
-            //        ResultObj = account,
-            //    };
+            if (account.Status == (int)AccountStatus.Inactivated)
+            {
+                SendActivateEmail(account);
+                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
+            }
 
-            //return new ServiceResult<IdentityResultCode>
-            //{
-            //    IsSuccess = false,
-            //    ResultCode = IdentityResultCode.PasswordError,
-            //    Message = "Password is not correct.",
-            //};
-            return null;
+            return BuildResult(true, IdentityResultCode.Success, resultObj:account);
         }
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
@@ -144,7 +114,7 @@ namespace DevYeah.LMS.Business
                     Id = Guid.NewGuid(),
                 },
             };
-
+            
             try
             {
                 _repository.Add(newAccount);
@@ -154,7 +124,7 @@ namespace DevYeah.LMS.Business
                 {
                     _repository.Delete(newAccount);
                     _repository.SaveChanges();
-                    return BuildResult(false, IdentityResultCode.EmailError, ActivateMailSendFail);
+                    return BuildResult(false, IdentityResultCode.EmailError, ActivateMailSendFailMsg);
                 }
                 return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
@@ -168,6 +138,7 @@ namespace DevYeah.LMS.Business
         {
             var token = GenerateToken(account);
             var loopCounter = 0;
+            // If sending email fail then trying 2 more times
             do
             {
                 var mailMessage = new MailMessage
@@ -187,7 +158,7 @@ namespace DevYeah.LMS.Business
             return _mailClient.MailSent;
         }
 
-        private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message, object resultObj = null)
+        private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
         {
             return new ServiceResult<IdentityResultCode>
             {

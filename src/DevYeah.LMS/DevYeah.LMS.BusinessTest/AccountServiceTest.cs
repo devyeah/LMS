@@ -15,8 +15,9 @@ namespace DevYeah.LMS.BusinessTest
     public class AccountServiceTest
     {
         static IConfiguration configuration;
-        static MailClientMocker mailClient;
-        static SignUpRequest signupRequest;
+        MailClientMocker mailClient;
+        SignUpRequest signupRequest;
+        SignInRequest signInRequest;
         AccountRepositoryMocker repository;
         AccountService service;
 
@@ -34,6 +35,11 @@ namespace DevYeah.LMS.BusinessTest
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json")
                 .Build();
+        }
+
+        [TestInitialize]
+        public void Setup()
+        {
             mailClient = new MailClientMocker();
 
             signupRequest = new SignUpRequest
@@ -43,11 +49,11 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456",
                 Type = (int)AccountType.Student
             };
-        }
-
-        [TestInitialize]
-        public void Setup()
-        {
+            signInRequest = new SignInRequest
+            {
+                Email = "devyeah@gmail.com",
+                Password = "123456"
+            };
             repository = new AccountRepositoryMocker();
             service = new AccountService(repository, mailClient, configuration);
         }
@@ -60,7 +66,7 @@ namespace DevYeah.LMS.BusinessTest
         }
 
         [TestMethod]
-        public void TestSignUpPass()
+        public void TestSignUpSuccess()
         {
             var result = service.SignUp(signupRequest);
             var newAccount = result.ResultObj as Account;
@@ -85,5 +91,47 @@ namespace DevYeah.LMS.BusinessTest
             Assert.AreEqual(IdentityResultCode.EmailError, result.ResultCode);
         }
 
+        [TestMethod]
+        public void TestSignInWithNullArguments()
+        {
+            var result = service.SignIn(null);
+            Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestSignInSuccess()
+        {
+            service.SignUp(signupRequest);
+            var account = repository.GetUniqueAccountByEmail(signupRequest.Email);
+            account.Status = (int)AccountStatus.Activated;
+            repository.Update(account);
+            var result = service.SignIn(signInRequest);
+            var signInAccount = result.ResultObj as Account;
+            Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual("devyeah@gmail.com", signInAccount.Email);
+        }
+
+        [TestMethod]
+        public void TestSignInFailed()
+        {
+            service.SignUp(signupRequest);
+            var account = repository.GetUniqueAccountByEmail(signupRequest.Email);
+            account.Status = (int)AccountStatus.Activated;
+            repository.Update(account);
+            signInRequest.Password = "654321";
+            var result = service.SignIn(signInRequest);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.PasswordError, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestInactivatedUserSignIn()
+        {
+            service.SignUp(signupRequest);
+            var result = service.SignIn(signInRequest);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.InactivatedAccount, result.ResultCode);
+        }
     }
 }
