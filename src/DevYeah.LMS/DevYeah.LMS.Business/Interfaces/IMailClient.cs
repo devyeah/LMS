@@ -4,7 +4,7 @@ namespace DevYeah.LMS.Business.Interfaces
 {
     public interface IMailClient
     {
-        bool MailSent { get; set; }
+        bool MailSent { get; }
         void Send(MailMessage message);
     }
 }

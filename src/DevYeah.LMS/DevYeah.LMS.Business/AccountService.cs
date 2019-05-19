@@ -167,10 +167,9 @@ namespace DevYeah.LMS.Business
         private bool SendActivateEmail(Account account)
         {
             var token = GenerateToken(account);
-
+            var loopCounter = 0;
             do
             {
-                var loopCounter = 0;
                 var mailMessage = new MailMessage
                 (
                     from: _configuration["OfficalEmailAddress"],

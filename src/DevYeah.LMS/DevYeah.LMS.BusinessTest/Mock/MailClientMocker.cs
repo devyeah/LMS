@@ -5,11 +5,15 @@ namespace DevYeah.LMS.BusinessTest.Mock
 {
     public class MailClientMocker : IMailClient
     {
+        public MailClientMocker()
+        {
+            MailSent = true;
+        }
         public bool MailSent { get; set; }
 
         public void Send(MailMessage message)
         {
-            MailSent = true;
+            
         }
     }
 }

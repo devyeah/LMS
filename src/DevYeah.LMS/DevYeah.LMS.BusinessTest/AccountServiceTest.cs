@@ -14,15 +14,15 @@ namespace DevYeah.LMS.BusinessTest
     [TestClass]
     public class AccountServiceTest
     {
-        static AccountRepositoryMocker repository;
         static IConfiguration configuration;
         static MailClientMocker mailClient;
+        static SignUpRequest signupRequest;
+        AccountRepositoryMocker repository;
+        AccountService service;
 
         [ClassInitialize]
-        public static void Setup(TestContext context)
+        public static void TestFixtureSetup(TestContext context)
         {
-            repository = new AccountRepositoryMocker();
-
             #region resolve config file path
             var binDir = $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}";
             var fullDir = Assembly.GetCallingAssembly().Location;
@@ -35,12 +35,26 @@ namespace DevYeah.LMS.BusinessTest
                 .AddJsonFile("appsettings.json")
                 .Build();
             mailClient = new MailClientMocker();
+
+            signupRequest = new SignUpRequest
+            {
+                UserName = "devyeah",
+                Email = "devyeah@gmail.com",
+                Password = "123456",
+                Type = (int)AccountType.Student
+            };
+        }
+
+        [TestInitialize]
+        public void Setup()
+        {
+            repository = new AccountRepositoryMocker();
+            service = new AccountService(repository, mailClient, configuration);
         }
 
         [TestMethod]
         public void TestSignUpArgumentIsNull()
         {
-            var service = new AccountService(repository, mailClient, configuration);
             var result = service.SignUp(null);
             Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
         }
@@ -48,15 +62,7 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestSignUpPass()
         {
-            var service = new AccountService(repository, mailClient, configuration);
-            var request = new SignUpRequest
-            {
-                UserName = "devyeah",
-                Email = "devyeah@gmail.com",
-                Password = "123456",
-                Type = (int)AccountType.Student
-            };
-            var result = service.SignUp(request);
+            var result = service.SignUp(signupRequest);
             var newAccount = result.ResultObj as Account;
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
             Assert.AreEqual("devyeah", newAccount.UserName);
@@ -66,19 +72,18 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestSignUpIdenticalAccount()
         {
-            var service = new AccountService(repository, mailClient, configuration);
-            var request = new SignUpRequest
-            {
-                UserName = "devyeah",
-                Email = "devyeah@gmail.com",
-                Password = "123456",
-                Type = (int)AccountType.Student
-            };
-            service.SignUp(request);
-            var result = service.SignUp(request);
+            service.SignUp(signupRequest);
+            var result = service.SignUp(signupRequest);
             Assert.AreEqual(IdentityResultCode.EmailConflict, result.ResultCode);
         }
 
+        [TestMethod]
+        public void TestSignUpFailCausedByActivatedMail()
+        {
+            mailClient.MailSent = false;
+            var result = service.SignUp(signupRequest);
+            Assert.AreEqual(IdentityResultCode.EmailError, result.ResultCode);
+        }
 
     }
 }

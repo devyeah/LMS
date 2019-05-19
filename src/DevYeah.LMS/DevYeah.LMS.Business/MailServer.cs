@@ -11,7 +11,7 @@ namespace DevYeah.LMS.Business
         {
             _smtpClient = smtpClient;
         }
-        public bool MailSent { get; set; }
+        public bool MailSent { get; private set; }
 
         public void Send(MailMessage message)
         {
