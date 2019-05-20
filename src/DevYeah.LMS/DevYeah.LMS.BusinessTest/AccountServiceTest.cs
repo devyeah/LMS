@@ -172,15 +172,10 @@ namespace DevYeah.LMS.BusinessTest
             Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
         }
 
-        private string GenerateToken(Account account)
+        private string GenerateToken(Claim[] claims)
         {
             var tokenProperties = configuration.GetSection("TokenRelated");
             var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
-            var claims = new Claim[]
-            {
-                new Claim(ClaimTypes.Name, account.Id.ToString()),
-                new Claim(ClaimTypes.Authentication, "false"),
-            };
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -199,7 +194,12 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            var token = GenerateToken(account);
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Authentication, "false"),
+            };
+            var token = GenerateToken(claims);
             token = token.Replace('e', 'f');
             var result = service.ActivateAccount(token);
             Assert.AreEqual(false, result.IsSuccess);
@@ -211,8 +211,62 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            var token = GenerateToken(account);
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Authentication, "false"),
+            };
+            var token = GenerateToken(claims);
             var result = service.ActivateAccount(token);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestResetPasswordWithNullArgument()
+        {
+            var result = service.ResetPassword(null);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestResetPasswordWithInvalidToken()
+        {
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Email, account.Email)
+            };
+            var token = GenerateToken(claims);
+            token = token.Replace('e', 'f');
+            var request = new ResetPasswordRequest
+            {
+                Token = token,
+                NewPassword = "456789"
+            };
+            var result = service.ResetPassword(request);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.InvalidToken, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestResetPasswordSuccess()
+        {
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Email, account.Email)
+            };
+            var token = GenerateToken(claims);
+            var request = new ResetPasswordRequest
+            {
+                Token = token,
+                NewPassword = "456789"
+            };
+            var result = service.ResetPassword(request);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
         }
