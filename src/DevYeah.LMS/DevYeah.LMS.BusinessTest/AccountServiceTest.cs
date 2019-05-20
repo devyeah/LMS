@@ -199,8 +199,8 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            string token = GenerateToken(account).ToString();
-            token.Replace('e', 'f');
+            var token = GenerateToken(account);
+            token = token.Replace('e', 'f');
             var result = service.ActivateAccount(token);
             Assert.AreEqual(false, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.InvalidToken, result.ResultCode);
@@ -211,7 +211,7 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            string token = GenerateToken(account);
+            var token = GenerateToken(account);
             var result = service.ActivateAccount(token);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);

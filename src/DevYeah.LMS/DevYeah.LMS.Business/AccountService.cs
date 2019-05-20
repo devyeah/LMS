@@ -280,7 +280,7 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        private SecurityToken GenerateToken(Account account)
+        private string GenerateToken(Account account)
         {
             var tokenProperties = _configuration.GetSection("TokenRelated");
             var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
@@ -299,7 +299,7 @@ namespace DevYeah.LMS.Business
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
             var emailToken = handler.CreateToken(tokenDescriptor);
-            return emailToken;
+            return handler.WriteToken(emailToken);
         }
 
         private static string BuildHexadecimalString(byte[] data)
