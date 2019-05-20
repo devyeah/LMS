@@ -19,4 +19,10 @@
     <ProjectReference Include="..\DevYeah.LMS.Models\DevYeah.LMS.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.IdentityModel.Tokens.Jwt">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.identitymodel.tokens.jwt\5.3.0\lib\netstandard2.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

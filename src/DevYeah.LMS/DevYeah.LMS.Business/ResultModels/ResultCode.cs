@@ -12,6 +12,8 @@
         InactivatedAccount = 8,
         IncompleteArgument = 9,
         AccountNotExist = 10,
+        InvalidToken = 11,
+        ActivateFailure = 12,
         BackendException = 99,
         NetworkException = 88,
     }

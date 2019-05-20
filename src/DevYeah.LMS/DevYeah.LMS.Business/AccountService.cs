@@ -28,6 +28,8 @@ namespace DevYeah.LMS.Business
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
         private static readonly string SubjectOfActivateEmail = "Thank you for signing up, Please click the link below to activate your account.";
+        private static readonly string InvalidTokenMsg = "The token is invalid.";
+        private static readonly string ActivationFailMsg = "Your account was not able to be activated, please try again later.";
 
         public AccountService(IAccountRepository repository, IMailClient mailClient, IConfiguration configuration)
         {
@@ -37,19 +39,77 @@ namespace DevYeah.LMS.Business
         }
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
         {
-            //var handler = new JwtSecurityTokenHandler();
-            ////var emailToken = handler.ReadJwtToken(token);
-            //var secretkey = Encoding.ASCII.GetBytes(_configuration["secret"]);
-            //var param = new TokenValidationParameters
-            //{
-            //    ClockSkew = TimeSpan.FromMinutes(1),
-            //    ValidIssuer = "DevYeah",
-            //    ValidateLifetime = true,
-            //    IssuerSigningKey = new SymmetricSecurityKey(secretkey),
-            //};
-            //var claims = handler.ValidateToken(token, param, out SecurityToken emailToken);
-            return null;
+            if (string.IsNullOrWhiteSpace(token))
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            Claim keyClaim = GetAccountIdFromToken(token);
+            if (keyClaim == null)
+                return BuildResult(false, IdentityResultCode.InvalidToken, InvalidTokenMsg);
+
+            try
+            {
+                var account = _repository.GetAccount(Guid.Parse(keyClaim.Value));
+                if (account == null)
+                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+
+                account.Status = (int)AccountStatus.Activated;
+                _repository.Update(account);
+                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+            }
+            catch (Exception ex)
+            {
+
+                return BuildResult(false, IdentityResultCode.ActivateFailure, ex.Message);
+            }
         }
+
+        private Claim GetAccountIdFromToken(string token)
+        {
+            var principal = GetClaimsPrincipal(token);
+            if (principal == null)
+                return null;
+
+            ClaimsIdentity identity = null;
+            try
+            {
+                identity = principal.Identity as ClaimsIdentity;
+            }
+            catch (NullReferenceException)
+            {
+
+                return null;
+            }
+
+            return identity.FindFirst(ClaimTypes.Name);
+        }
+
+        private ClaimsPrincipal GetClaimsPrincipal(string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var tokenProperties = _configuration.GetSection("TokenRelated");
+                var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
+                var validationParameters = new TokenValidationParameters
+                {
+                    RequireExpirationTime = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                    ValidIssuer = tokenProperties["Issuer"],
+                    ValidAudience = tokenProperties["Audience"]
+                };
+
+                var principal = handler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
+                return principal;
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+        }
+
         public ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId)
         {
             if (accountId == null || accountId.Equals(Guid.Empty))

@@ -1,12 +1,16 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Reflection;
+using System.Security.Claims;
+using System.Text;
 using DevYeah.LMS.Business;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.BusinessTest.Mock;
 using DevYeah.LMS.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevYeah.LMS.BusinessTest
@@ -156,6 +160,59 @@ namespace DevYeah.LMS.BusinessTest
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
             var result = service.InvalidAccount(account.Id);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestActivateAccountWithNullArgument()
+        {
+            var result = service.ActivateAccount(null);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
+        }
+
+        private string GenerateToken(Account account)
+        {
+            var tokenProperties = configuration.GetSection("TokenRelated");
+            var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Authentication, "false"),
+            };
+            var handler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Issuer = tokenProperties["Issuer"],
+                Audience = tokenProperties["Audience"],
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(12),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var emailToken = handler.CreateToken(tokenDescriptor);
+            return handler.WriteToken(emailToken);
+        }
+
+        [TestMethod]
+        public void TestActivateAccountWithInvalidToken()
+        {
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
+            string token = GenerateToken(account).ToString();
+            token.Replace('e', 'f');
+            var result = service.ActivateAccount(token);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.InvalidToken, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestActivatedAccountSuccess()
+        {
+            var signUpResult = service.SignUp(signupRequest);
+            var account = signUpResult.ResultObj as Account;
+            string token = GenerateToken(account);
+            var result = service.ActivateAccount(token);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
         }
