@@ -5,11 +5,13 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using DevYeah.LMS.Business;
+using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.BusinessTest.Mock;
 using DevYeah.LMS.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,6 +21,9 @@ namespace DevYeah.LMS.BusinessTest
     public class AccountServiceTest
     {
         static IConfiguration configuration;
+        static IOptions<TokenManagement> tokenManagement;
+        static IOptions<ApiManagement> apiManagement;
+        static IOptions<ContactManagement> contactManagement;
         MailClientMocker mailClient;
         SignUpRequest signupRequest;
         SignInRequest signInRequest;
@@ -39,6 +44,18 @@ namespace DevYeah.LMS.BusinessTest
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json")
                 .Build();
+
+            var tokenConfigModel = new TokenManagement();
+            configuration.GetSection("TokenManagement").Bind(tokenConfigModel);
+            tokenManagement = Options.Create(tokenConfigModel);
+
+            var apiConfigModel = new ApiManagement();
+            configuration.GetSection("ApiManagement").Bind(apiConfigModel);
+            apiManagement = Options.Create(apiConfigModel);
+
+            var contactConfigModel = new ContactManagement();
+            configuration.GetSection("ContactManagement").Bind(contactConfigModel);
+            contactManagement = Options.Create(contactConfigModel);
         }
 
         [TestInitialize]
@@ -59,7 +76,7 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456"
             };
             repository = new AccountRepositoryMocker();
-            service = new AccountService(repository, mailClient, configuration);
+            service = new AccountService(repository, mailClient, tokenManagement, apiManagement, contactManagement);
         }
 
         [TestMethod]
@@ -174,13 +191,12 @@ namespace DevYeah.LMS.BusinessTest
 
         private string GenerateToken(Claim[] claims)
         {
-            var tokenProperties = configuration.GetSection("TokenRelated");
-            var secretKey = Encoding.ASCII.GetBytes(tokenProperties["Secret"]);
+            var secretKey = Encoding.ASCII.GetBytes(tokenManagement.Value.Secret);
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
-                Issuer = tokenProperties["Issuer"],
-                Audience = tokenProperties["Audience"],
+                Issuer = tokenManagement.Value.Issuer,
+                Audience = tokenManagement.Value.Audience,
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(12),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
