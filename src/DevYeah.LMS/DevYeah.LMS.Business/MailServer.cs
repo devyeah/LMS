@@ -4,10 +4,10 @@ using DevYeah.LMS.Business.Interfaces;
 
 namespace DevYeah.LMS.Business
 {
-    public class MailServer : IMailClient
+    public class MailClient : IMailClient
     {
         private readonly SmtpClient _smtpClient;
-        public MailServer(SmtpClient smtpClient)
+        public MailClient(SmtpClient smtpClient)
         {
             _smtpClient = smtpClient;
         }

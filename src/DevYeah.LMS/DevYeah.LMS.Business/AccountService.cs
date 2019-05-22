@@ -164,9 +164,11 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
         {
-            if (request == null || 
-                string.IsNullOrWhiteSpace(request.Token) || 
-                string.IsNullOrWhiteSpace(request.NewPassword))
+            var isRequestNull = request == null;
+            var isTokenEmpty = string.IsNullOrWhiteSpace(request.Token);
+            var isNewPasswordEmpty = string.IsNullOrWhiteSpace(request.NewPassword);
+
+            if (isRequestNull || isTokenEmpty || isNewPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             Claim emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
@@ -192,9 +194,11 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
         {
-            if (request == null ||
-                string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrWhiteSpace(request.Password))
+            var isRequestNull = request == null;
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+
+            if (isRequestNull || isEmailEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var account = _repository.GetUniqueAccountByEmail(request.Email);
@@ -213,10 +217,12 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
         {
-            if (request == null ||
-                string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrWhiteSpace(request.UserName) ||
-                string.IsNullOrWhiteSpace(request.Password))
+            var isRequestNull = request == null;
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+
+            if (isRequestNull || isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isEmailExist = CheckDuplicateEmailAddress(request);
@@ -320,26 +326,6 @@ namespace DevYeah.LMS.Business
             };
         }
 
-        private static string HashPassword(string password)
-        {
-            string md5Password = null;
-            string sha256Password = null;
-            byte[] data;
-            using (var md5Hash = MD5.Create())
-            {
-                data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-                md5Password = BuildHexadecimalString(data);
-            }
-
-            using (var sha256 = SHA256.Create())
-            {
-                data = sha256.ComputeHash(Encoding.UTF8.GetBytes(md5Password));
-                sha256Password =  BuildHexadecimalString(data);
-            }
-            
-            return sha256Password;
-        }
-
         private bool CheckDuplicateEmailAddress(SignUpRequest request)
         {
             try
@@ -373,6 +359,19 @@ namespace DevYeah.LMS.Business
             return handler.WriteToken(emailToken);
         }
 
+        private static string HashPassword(string password)
+        {
+            string hashedPassword = null;
+            using (var md5Hash = MD5.Create())
+            using (var sha256 = SHA256.Create())
+            {
+                var md5Password = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+                var sha256Password = sha256.ComputeHash(md5Password);
+                hashedPassword = BuildHexadecimalString(sha256Password);
+            }
+            return hashedPassword;
+        }
+
         private static string BuildHexadecimalString(byte[] data)
         {
             var strBuilder = new StringBuilder();
@@ -380,7 +379,6 @@ namespace DevYeah.LMS.Business
             foreach (var character in data)
             {
                 strBuilder.Append(character.ToString("x2"));
-
             }
 
             return strBuilder.ToString();
