@@ -4,8 +4,8 @@ using System.Text;
 
 namespace DevYeah.LMS.Models
 {
-    public abstract class Model
+    interface IModel
     {
-        public Guid Id { get; set; }
+        Guid Id { get; set; }
     }
 }

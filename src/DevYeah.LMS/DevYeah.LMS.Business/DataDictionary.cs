@@ -2,8 +2,8 @@
 {
     public enum AccountStatus
     {
-        Inactivated = 1,
-        Activated = 2,
+        Inactive = 1,
+        Active = 2,
         Deleted = 9,
     }
 

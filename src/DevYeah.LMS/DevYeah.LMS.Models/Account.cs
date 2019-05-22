@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class Account : Model
+    public partial class Account : IModel
     {
         public Account()
         {
@@ -13,6 +13,7 @@ namespace DevYeah.LMS.Models
             TopicProgress = new HashSet<TopicProgress>();
         }
 
+        public Guid Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }

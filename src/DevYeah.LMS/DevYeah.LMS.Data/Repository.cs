@@ -20,9 +20,9 @@ namespace DevYeah.LMS.Data
         
         public void Add(T entity) => _dbContext.Add<T>(entity);
         
-        public T Find(Expression<Func<T, bool>> expression) => _dbContext.Set<T>().Where(expression).Single();
+        public T Find(Expression<Func<T, bool>> expression) => _dbContext.Set<T>().Where(expression).FirstOrDefault();
         
-        public IEnumerable<T> FindAll(Expression<Func<T, bool>> expression) => _dbContext.Set<T>().Where(expression).ToList();
+        public IEnumerable<T> FindAll(Expression<Func<T, bool>> expression) => _dbContext.Set<T>().Where(expression);
         
         public void Update(T entity) => _dbContext.Update<T>(entity);
         

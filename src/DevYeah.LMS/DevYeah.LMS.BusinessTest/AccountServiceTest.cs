@@ -124,7 +124,7 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            account.Status = (int)AccountStatus.Activated;
+            account.Status = (int)AccountStatus.Active;
             repository.Update(account);
             var result = service.SignIn(signInRequest);
             var signInAccount = result.ResultObj as Account;
@@ -138,7 +138,7 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            account.Status = (int)AccountStatus.Activated;
+            account.Status = (int)AccountStatus.Active;
             repository.Update(account);
             signInRequest.Password = "654321";
             var result = service.SignIn(signInRequest);
@@ -158,7 +158,7 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestInvalidAccountWithEmptyArgument()
         {
-            var result = service.InvalidAccount(Guid.Empty);
+            var result = service.DeleteAccount(Guid.Empty);
             Assert.AreEqual(false, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.IncompleteArgument, result.ResultCode);
         }
@@ -166,7 +166,7 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestInvalidAFakeAccount()
         {
-            var result = service.InvalidAccount(Guid.NewGuid());
+            var result = service.DeleteAccount(Guid.NewGuid());
             Assert.AreEqual(false, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.AccountNotExist, result.ResultCode);
         }
@@ -176,7 +176,7 @@ namespace DevYeah.LMS.BusinessTest
         {
             var signUpResult = service.SignUp(signupRequest);
             var account = signUpResult.ResultObj as Account;
-            var result = service.InvalidAccount(account.Id);
+            var result = service.DeleteAccount(account.Id);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
         }

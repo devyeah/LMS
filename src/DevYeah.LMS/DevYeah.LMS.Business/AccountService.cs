@@ -46,6 +46,7 @@ namespace DevYeah.LMS.Business
             _apiManagement = apiManagement.Value;
             _contactManagement = contactManagement.Value;
         }
+
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
@@ -61,7 +62,7 @@ namespace DevYeah.LMS.Business
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
-                account.Status = (int)AccountStatus.Activated;
+                account.Status = (int)AccountStatus.Active;
                 _repository.Update(account);
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
@@ -118,7 +119,7 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        public ServiceResult<IdentityResultCode> InvalidAccount(Guid accountId)
+        public ServiceResult<IdentityResultCode> DeleteAccount(Guid accountId)
         {
             if (accountId == null || accountId.Equals(Guid.Empty))
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
@@ -209,7 +210,7 @@ namespace DevYeah.LMS.Business
             if (!password.Equals(account.Password))
                 return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
-            if (account.Status == (int)AccountStatus.Inactivated)
+            if ((AccountStatus)account.Status == AccountStatus.Inactive)
                 return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
 
             return BuildResult(true, IdentityResultCode.Success, resultObj:account);
@@ -236,7 +237,7 @@ namespace DevYeah.LMS.Business
                 UserName = request.UserName,
                 Email = request.Email,
                 Password = hashedPassword,
-                Status = (int)AccountStatus.Inactivated,
+                Status = (int)AccountStatus.Inactive,
                 Type = request.Type,
                 UserProfile = new UserProfile
                 {
@@ -352,7 +353,7 @@ namespace DevYeah.LMS.Business
                 Issuer = _tokenManagement.Issuer,
                 Audience = _tokenManagement.Audience,
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(12),
+                Expires = _tokenManagement.Expires,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
             var emailToken = handler.CreateToken(tokenDescriptor);
