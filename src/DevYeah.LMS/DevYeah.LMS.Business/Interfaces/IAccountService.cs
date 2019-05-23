@@ -6,7 +6,6 @@ namespace DevYeah.LMS.Business.Interfaces
 {
     interface IAccountService
     {
-        // return an Id of the account that has been created
         ServiceResult<IdentityResultCode> SignUp(SignUpRequest request);
         ServiceResult<IdentityResultCode> SignIn(SignInRequest request);
         void RecoverPassword(string email);

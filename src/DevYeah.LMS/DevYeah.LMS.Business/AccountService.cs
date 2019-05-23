@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using DevYeah.LMS.Business.ConfigurationModels;
+using DevYeah.LMS.Business.Helpers;
 using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
@@ -79,7 +80,7 @@ namespace DevYeah.LMS.Business
             if (principal == null)
                 return null;
 
-            ClaimsIdentity identity = null;
+            ClaimsIdentity identity;
             try
             {
                 identity = principal.Identity as ClaimsIdentity;
@@ -159,7 +160,9 @@ namespace DevYeah.LMS.Business
             {
                 new Claim(ClaimTypes.Email, email)
             };
-            var token = GenerateToken(claims);
+            var token = Identityhelper
+                .GenerateToken(_tokenManagement.Secret, _tokenManagement.Issuer, 
+                _tokenManagement.Audience, claims, _tokenManagement.Expires);
             return token;
         }
 
@@ -181,7 +184,7 @@ namespace DevYeah.LMS.Business
                 var account = _repository.GetUniqueAccountByEmail(emailClaim.Value);
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
-                var hashedNewPassword = HashPassword(request.NewPassword);
+                var hashedNewPassword = Identityhelper.HashPassword(request.NewPassword);
                 account.Password = hashedNewPassword;
                 _repository.Update(account);
 
@@ -206,8 +209,8 @@ namespace DevYeah.LMS.Business
             if (account == null)
                 return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
-            var password = HashPassword(request.Password);
-            if (!password.Equals(account.Password))
+            var password = Identityhelper.HashPassword(request.Password);
+            if (password != account.Password)
                 return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
             if ((AccountStatus)account.Status == AccountStatus.Inactive)
@@ -230,7 +233,7 @@ namespace DevYeah.LMS.Business
             if (isEmailExist)
                 return BuildResult(false, IdentityResultCode.EmailConflict, EmailConflictMsg);
 
-            string hashedPassword = HashPassword(request.Password);
+            string hashedPassword = Identityhelper.HashPassword(request.Password);
             var newAccount = new Account
             {
                 Id = Guid.NewGuid(),
@@ -312,7 +315,9 @@ namespace DevYeah.LMS.Business
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = GenerateToken(claims);
+            var token = Identityhelper
+                .GenerateToken(_tokenManagement.Secret, _tokenManagement.Issuer, 
+                _tokenManagement.Audience, claims, _tokenManagement.Expires);
             return token;
         }
 
@@ -343,46 +348,6 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        private string GenerateToken(Claim[] claims)
-        {
-            var secretKey = Encoding.ASCII.GetBytes(_tokenManagement.Secret);
-            
-            var handler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Issuer = _tokenManagement.Issuer,
-                Audience = _tokenManagement.Audience,
-                Subject = new ClaimsIdentity(claims),
-                Expires = _tokenManagement.Expires,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var emailToken = handler.CreateToken(tokenDescriptor);
-            return handler.WriteToken(emailToken);
-        }
-
-        private static string HashPassword(string password)
-        {
-            string hashedPassword = null;
-            using (var md5Hash = MD5.Create())
-            using (var sha256 = SHA256.Create())
-            {
-                var md5Password = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var sha256Password = sha256.ComputeHash(md5Password);
-                hashedPassword = BuildHexadecimalString(sha256Password);
-            }
-            return hashedPassword;
-        }
-
-        private static string BuildHexadecimalString(byte[] data)
-        {
-            var strBuilder = new StringBuilder();
-
-            foreach (var character in data)
-            {
-                strBuilder.Append(character.ToString("x2"));
-            }
-
-            return strBuilder.ToString();
-        }
+        
     }
 }
