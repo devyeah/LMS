@@ -9,7 +9,7 @@ namespace DevYeah.LMS.Business.Helpers
 {
     public class Identityhelper
     {
-        public static string GenerateToken(string key, string issuer, string audience, Claim[] claims, DateTime expires)
+        public static string GenerateToken(string key, string issuer, string audience, Claim[] claims, double expires)
         {
             var secretKey = Encoding.ASCII.GetBytes(key);
 
@@ -19,7 +19,7 @@ namespace DevYeah.LMS.Business.Helpers
                 Issuer = issuer,
                 Audience = audience,
                 Subject = new ClaimsIdentity(claims),
-                Expires = expires,
+                Expires = DateTime.UtcNow.AddHours(expires),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
             var emailToken = handler.CreateToken(tokenDescriptor);

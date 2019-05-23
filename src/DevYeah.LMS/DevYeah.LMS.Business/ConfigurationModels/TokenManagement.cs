@@ -7,7 +7,6 @@ namespace DevYeah.LMS.Business.ConfigurationModels
         public string Issuer { get; set; }
         public string Audience { get; set; }
         public string Secret { get; set; }
-        public int AvailablePeriod { private get; set; }
-        public DateTime Expires { get { return DateTime.UtcNow.AddHours(AvailablePeriod); } }
+        public int Expires { get; set; }
     }
 }

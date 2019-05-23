@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DevYeah.LMS.Data
 {
     public abstract class Repository<T> : IRepository<T>
-        where T : Model
+        where T : class, IModel
     {
         private readonly DbContext _dbContext;
         public Repository(DbContext dbContext)

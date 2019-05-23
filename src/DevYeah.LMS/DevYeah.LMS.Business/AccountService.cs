@@ -168,11 +168,14 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
         {
-            var isRequestNull = request == null;
+            var isRequestNull = (request == null);
+            if (isRequestNull)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
             var isTokenEmpty = string.IsNullOrWhiteSpace(request.Token);
             var isNewPasswordEmpty = string.IsNullOrWhiteSpace(request.NewPassword);
-
-            if (isRequestNull || isTokenEmpty || isNewPasswordEmpty)
+         
+            if (isTokenEmpty || isNewPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             Claim emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
@@ -199,10 +202,13 @@ namespace DevYeah.LMS.Business
         public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
         {
             var isRequestNull = request == null;
+            if (isRequestNull)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
             var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
             var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
 
-            if (isRequestNull || isEmailEmpty || isPasswordEmpty)
+            if (isEmailEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var account = _repository.GetUniqueAccountByEmail(request.Email);
@@ -222,11 +228,14 @@ namespace DevYeah.LMS.Business
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
         {
             var isRequestNull = request == null;
+            if (isRequestNull)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
             var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
             var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
             var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
 
-            if (isRequestNull || isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
+            if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isEmailExist = CheckDuplicateEmailAddress(request);

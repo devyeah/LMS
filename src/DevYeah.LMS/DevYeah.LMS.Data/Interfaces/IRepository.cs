@@ -5,7 +5,7 @@ using DevYeah.LMS.Models;
 
 namespace DevYeah.LMS.Data.Interfaces
 {
-    public interface IRepository<T> where T : Model
+    public interface IRepository<T> where T : IModel
     {
         T Get(Guid key);
         void Add(T entity);
