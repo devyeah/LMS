@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace DevYeah.LMS.Business.ConfigurationModels
+﻿namespace DevYeah.LMS.Business.ConfigurationModels
 {
-    public class TokenManagement
+    public class TokenSettings
     {
         public string Issuer { get; set; }
         public string Audience { get; set; }

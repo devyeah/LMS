@@ -11,9 +11,9 @@ namespace DevYeah.LMS.BusinessTest
     public class TestBase
     {
         protected static IConfiguration configuration;
-        protected static IOptions<TokenManagement> tokenManagement;
-        protected static IOptions<ApiManagement> apiManagement;
-        protected static IOptions<ContactManagement> contactManagement;
+        protected static IOptions<TokenSettings> tokenSettings;
+        protected static IOptions<ApiSettings> apiSettings;
+        protected static IOptions<EmailSettings> emailSettings;
 
         [ClassInitialize]
         protected static void BaseSetup(TestContext context)
@@ -30,17 +30,17 @@ namespace DevYeah.LMS.BusinessTest
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var tokenConfigModel = new TokenManagement();
-            configuration.GetSection("TokenManagement").Bind(tokenConfigModel);
-            tokenManagement = Options.Create(tokenConfigModel);
+            var tokenConfigModel = new TokenSettings();
+            configuration.GetSection("TokenSettings").Bind(tokenConfigModel);
+            tokenSettings = Options.Create(tokenConfigModel);
 
-            var apiConfigModel = new ApiManagement();
-            configuration.GetSection("ApiManagement").Bind(apiConfigModel);
-            apiManagement = Options.Create(apiConfigModel);
+            var apiConfigModel = new ApiSettings();
+            configuration.GetSection("ApiSettings").Bind(apiConfigModel);
+            apiSettings = Options.Create(apiConfigModel);
 
-            var contactConfigModel = new ContactManagement();
-            configuration.GetSection("ContactManagement").Bind(contactConfigModel);
-            contactManagement = Options.Create(contactConfigModel);
+            var contactConfigModel = new EmailSettings();
+            configuration.GetSection("EmailSettings").Bind(contactConfigModel);
+            emailSettings = Options.Create(contactConfigModel);
         }
     }
 }
