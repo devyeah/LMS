@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Common", "DevYe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevYeah.LMS.Web", "DevYeah.LMS.Web\DevYeah.LMS.Web.csproj", "{EA39E55D-00DA-40B6-8543-BEE9E15D725A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevYeah.LMS.BusinessTest", "DevYeah.LMS.BusinessTest\DevYeah.LMS.BusinessTest.csproj", "{936D1D96-5073-48F7-A81C-E65B62EC8DED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{EA39E55D-00DA-40B6-8543-BEE9E15D725A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA39E55D-00DA-40B6-8543-BEE9E15D725A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA39E55D-00DA-40B6-8543-BEE9E15D725A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{936D1D96-5073-48F7-A81C-E65B62EC8DED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{936D1D96-5073-48F7-A81C-E65B62EC8DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{936D1D96-5073-48F7-A81C-E65B62EC8DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{936D1D96-5073-48F7-A81C-E65B62EC8DED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

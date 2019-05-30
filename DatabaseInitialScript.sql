@@ -175,6 +175,11 @@ IF NOT EXISTS (SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'C
 	  ADD [Level] TINYINT NOT NULL
   GO
 
+IF NOT EXISTS (SELECT NULL FROM sys.indexes WHERE NAME='IX_Account_Email')
+  CREATE UNIQUE INDEX [IX_Account_Email]
+    ON dbo.Account ([Email])
+  GO
+
 /** Constraints **/
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_UserProfile_Account')
   ALTER TABLE dbo.UserProfile 

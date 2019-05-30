@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class UserProfile
+    public partial class UserProfile : IModel
     {
         public UserProfile()
         {

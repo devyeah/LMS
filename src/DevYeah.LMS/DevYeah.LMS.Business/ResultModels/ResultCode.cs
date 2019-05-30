@@ -6,9 +6,15 @@
         EmailConflict = 2,
         EmailError = 3,
         PasswordError = 4,
-        AccountSaveFailure = 5,
+        SignUpFailure = 5,
         AccountUpdateFailure = 6,
-        BackenException = 99,
+        SignInFailure = 7,
+        InactivatedAccount = 8,
+        IncompleteArgument = 9,
+        AccountNotExist = 10,
+        InvalidToken = 11,
+        ActivateFailure = 12,
+        BackendException = 99,
         NetworkException = 88,
     }
 

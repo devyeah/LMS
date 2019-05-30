@@ -2,22 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.3.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DevYeah.LMS.Business\DevYeah.LMS.Business.csproj" />
     <ProjectReference Include="..\DevYeah.LMS.Data\DevYeah.LMS.Data.csproj" />
     <ProjectReference Include="..\DevYeah.LMS.Models\DevYeah.LMS.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.IdentityModel.Tokens">
-      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.identitymodel.tokens\5.3.0\lib\netstandard2.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
-    </Reference>
     <Reference Include="System.IdentityModel.Tokens.Jwt">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.identitymodel.tokens.jwt\5.3.0\lib\netstandard2.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>

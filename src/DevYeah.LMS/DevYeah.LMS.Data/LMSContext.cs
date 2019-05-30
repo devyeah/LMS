@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DevYeah.LMS.Models;
 
-namespace DevYeah.LMS.Data.Models
+namespace DevYeah.LMS.Data
 {
     public partial class LMSContext : DbContext
     {
