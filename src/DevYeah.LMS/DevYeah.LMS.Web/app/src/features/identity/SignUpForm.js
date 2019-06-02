@@ -28,7 +28,6 @@ function getClassName(error, touched){
 export default function SignUpForm(props) {
   return (
     <Formik
-      mapProps
       initialValues={{ username: '', email: '', password: '', userType: '' }} 
       validationSchema={signUpValidation} 
       onSubmit={props.submitHandler}
