@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DevYeah.LMS.Business.Helpers
 {
-    public class Identityhelper
+    public class IdentityHelper
     {
         public static string GenerateToken(string key, string issuer, string audience, Claim[] claims, double expires)
         {
