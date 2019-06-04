@@ -44,11 +44,11 @@ export default function SignUpForm(props) {
         <div className="card form-signup">
         <form className="bg-white mb-4" onSubmit={handleSubmit}>
           <div className="text-center mb-4">
-            <h1 className="h2 mb-4">Dev Yeah!</h1>
-            <p className="mb-3 font-weight-bold">Start learning with Dev Yeah!</p>
+            <h1 id="title" className="h2 mb-4">Dev Yeah!</h1>
+            <p id="subtitle" className="mb-3 font-weight-bold">Start learning with Dev Yeah!</p>
           </div>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label id="usernameLabel" htmlFor="username">Username</label>
             <input
               type="text"
               className={getClassName(errors.username, touched.username)}
@@ -58,10 +58,11 @@ export default function SignUpForm(props) {
               onChange={handleChange}
               onBlur={handleBlur}
             />            
-            {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+            {errors.username 
+              && <div id="usernameError" className="invalid-feedback">{errors.username}</div>}
           </div>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label id="emailLabel" htmlFor="email">Email</label>
             <input
               type="email"
               className={getClassName(errors.email, touched.email)}
@@ -71,10 +72,11 @@ export default function SignUpForm(props) {
               onChange={handleChange}
               onBlur={handleBlur}
             />
-            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+            {errors.email 
+              && <div id="emailError" className="invalid-feedback">{errors.email}</div>}
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label id="passwordLabel" htmlFor="password">Password</label>
             <input
               type="password"
               className={getClassName(errors.password, touched.password)}
@@ -84,12 +86,14 @@ export default function SignUpForm(props) {
               onChange={handleChange}
               onBlur={handleBlur}
             />
-            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+            {errors.password 
+              && <div id="passwordError" className="invalid-feedback">{errors.password}</div>}
           </div>
           <div className="form-group">
-            <label htmlFor="userType">User Type</label>
+            <label id="userTypeLabel" htmlFor="userType">User Type</label>
             <select 
-              className="form-control" id="userType" 
+              className="form-control" 
+              id="userType" 
               value={values.userType} 
               onChange={handleChange} 
               onBlur={handleBlur}
@@ -98,9 +102,16 @@ export default function SignUpForm(props) {
               <option value="1">Student</option>
               <option value="2">Teacher</option>
             </select>
-            {errors.userType && <div className="d-block invalid-feedback">{errors.userType}</div>}
+            {errors.userType 
+              && <div id="userTypeError" className="d-block invalid-feedback">{errors.userType}</div>}
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={isSubmitting}>Sign Up</button>    
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-block" 
+            disabled={isSubmitting}
+          >
+            Sign Up
+          </button>    
         </form>
         </div>
       )}

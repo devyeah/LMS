@@ -14,7 +14,9 @@ function App() {
       </main>
       <footer className="footer text-center">
         <div className="container">
-          <p className="text-muted">Dev Yean! &copy; 2018</p>
+          <span id="copyright" className="text-muted">
+            Dev Yean! &copy; {new Date().getFullYear()}
+          </span>
         </div>
       </footer>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from '../../logo.png';
+import './header.css';
 
 export default function Navbar() {
   return (
@@ -7,17 +8,17 @@ export default function Navbar() {
       <div className="container">
         <div>
           <a className="navbar-brand font-weight-bold" href="#">
-            <img src={logo} width="30" height="30" className="d-inline-block align-top" alt="logo" />
+            <img id="logo" src={logo} className="d-inline-block align-top" alt="logo" />
             Dev Yeah!
           </a>
         </div>
         <div id="signButton" >
           <ul className="navbar-nav flex-row">
             <li className="nav-item mr-2">
-              <a className="btn btn-outline-primary">Sign In</a>
+              <a id="signInBtn" className="btn btn-outline-primary">Sign In</a>
             </li>
             <li className="nav-item">
-              <a className="btn btn-success" href="#">Sign Up</a>
+              <a id="signUpBtn" className="btn btn-success" href="#">Sign Up</a>
             </li>
           </ul>
         </div>
