@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../../logo.png';
 import './header.css';
 
@@ -7,10 +8,10 @@ export default function Navbar() {
     <nav className="navbar navbar-light bg-light">
       <div className="container">
         <div>
-          <a className="navbar-brand font-weight-bold" href="#">
+          <Link className="navbar-brand font-weight-bold" to="/">
             <img id="logo" src={logo} className="d-inline-block align-top" alt="logo" />
             Dev Yeah!
-          </a>
+          </Link>
         </div>
         <div id="signButton" >
           <ul className="navbar-nav flex-row">
@@ -18,7 +19,13 @@ export default function Navbar() {
               <a id="signInBtn" className="btn btn-outline-primary">Sign In</a>
             </li>
             <li className="nav-item">
-              <a id="signUpBtn" className="btn btn-success" href="#">Sign Up</a>
+              <Link 
+                to="/signup"
+                id="signUpBtn" 
+                className="btn btn-success"
+              >
+                Sign Up
+              </Link>
             </li>
           </ul>
         </div>
