@@ -1,16 +1,16 @@
 import React from 'react';
 import 'jest-dom/extend-expect';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import SignUpPage from '../SignUpPage';
+import SignUp from '../components/SignUp';
 
 afterEach(cleanup);
 
 const setup = () => {
-  const result = render(<SignUpPage />);
+  const result = render(<SignUp />);
   return result;
 };
 
-test('test SignUpPage component renderring', () => {
+it('test SignUp component renderring without crashing', () => {
   const {getByLabelText} = setup();
   const usernameNode = getByLabelText('Username');
   const emailNode = getByLabelText('Email');

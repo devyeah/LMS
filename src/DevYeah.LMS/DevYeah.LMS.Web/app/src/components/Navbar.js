@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../logo.png';
-import './header.css';
+import logo from '../images/logo.png';
+import '../styles/header.css';
 
 export default function Navbar() {
   return (
@@ -16,7 +16,13 @@ export default function Navbar() {
         <div id="signButton" >
           <ul className="navbar-nav flex-row">
             <li className="nav-item mr-2">
-              <a id="signInBtn" className="btn btn-outline-primary">Sign In</a>
+              <Link 
+                to="/signin" 
+                id="signInBtn" 
+                className="btn btn-outline-primary"
+              >
+                Sign In
+              </Link>
             </li>
             <li className="nav-item">
               <Link 

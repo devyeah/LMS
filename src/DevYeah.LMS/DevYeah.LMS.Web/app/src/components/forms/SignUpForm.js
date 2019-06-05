@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { getClassName } from '../../common/utilities';
 
 const signUpValidation = yup.object().shape({
   username: yup.string()
@@ -19,12 +20,6 @@ const signUpValidation = yup.object().shape({
     .required('Required!'),
 });
 
-function getClassName(error, touched){
-  let name = 'form-control';
-  if (error && touched) name += ' is-invalid';
-  return name;
-}
-
 export default function SignUpForm(props) {
   return (
     <Formik
@@ -41,7 +36,7 @@ export default function SignUpForm(props) {
         handleSubmit,
         isSubmitting,
       }) => (
-        <div className="card form-signup">
+        <div className="card form-center">
         <form className="bg-white mb-4" onSubmit={handleSubmit}>
           <div className="text-center mb-4">
             <h1 id="title" className="h2 mb-4">Dev Yeah!</h1>
@@ -108,6 +103,7 @@ export default function SignUpForm(props) {
           <button 
             type="submit" 
             className="btn btn-primary btn-block" 
+            id="signupBtn"
             disabled={isSubmitting}
           >
             Sign Up

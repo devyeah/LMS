@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import SignUpForm from './SignUpForm';
-import './identity.css';
+import SignUpForm from './forms/SignUpForm';
+import '../styles/identity.css';
 
-export default class SignUpPage extends Component {
+export default class SignUp extends Component {
   constructor(props){
     super(props);
 
@@ -10,11 +10,9 @@ export default class SignUpPage extends Component {
   }
 
   submitHandler(values, actions){
-    setTimeout(() => {
-      console.log(JSON.stringify(values));
-      actions.setSubmitting(false);
-      actions.resetForm();
-    }, 1000);
+    //todo: submit values to backend server
+    actions.setSubmitting(false);
+    actions.resetForm();
   }
 
   render(){

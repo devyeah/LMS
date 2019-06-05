@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import SignUpPage from './features/identity/SignUpPage';
-import Navbar from './features/common/Navbar';
-import PageBuilding from './features/common/PageBuilding';
-import './index.css';
+import SignUp from './SignUp';
+import SignIn from './SignIn';
+import Navbar from './Navbar';
+import PageBuilding from './PageBuilding';
+import '../index.css';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
         <main role="main">
           <Switch>
             <Route path="/" exact component={PageBuilding} />
-            <Route path="/signup" component={SignUpPage} />
+            <Route path="/signup" component={SignUp} />
+            <Route path="/signin" component={SignIn} />
           </Switch>
         </main>
         <footer className="footer text-center">
