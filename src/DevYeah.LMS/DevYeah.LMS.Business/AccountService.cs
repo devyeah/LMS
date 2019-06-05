@@ -38,14 +38,14 @@ namespace DevYeah.LMS.Business
 
         public AccountService(IAccountRepository repository, IEmailClient mailClient,
             IOptions<TokenSettings> tokenSettings, IOptions<ApiSettings> apiSettings,
-            IOptions<EmailSettings> emailSettings, EmailTemplate emailTemplate)
+            IOptions<EmailSettings> emailSettings, IOptions<EmailTemplate> emailTemplate)
         {
             _repository = repository;
             _mailClient = mailClient;
             _tokenSettings = tokenSettings.Value;
             _apiSettings = apiSettings.Value;
             _emailSettings = emailSettings.Value;
-            _emailTemplate = emailTemplate;
+            _emailTemplate = emailTemplate.Value;
         }
 
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
