@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.Interfaces;
 using MailKit.Net.Smtp;
@@ -23,16 +24,45 @@ namespace DevYeah.LMS.Business
             if (string.IsNullOrWhiteSpace(content)) throw new ArgumentNullException(nameof(content));
 
             var message = WrappingEmail(email, subject, content);
+            RetryAction(() => Sending(message), _emailSettings.MaxRetryCount);
+        }
+
+        private void Sending(MimeMessage message)
+        {
             var host = _emailSettings.Host;
             var port = _emailSettings.Port;
             var isUseSSL = _emailSettings.UseSsl;
+            var accountName = _emailSettings.AccountName;
+            var password = _emailSettings.Password;
             using (var client = new SmtpClient())
             {
                 client.Connect(host, port, isUseSSL);
-                client.Authenticate("name", "password");
+                client.Authenticate(accountName, password);
                 client.Send(message);
                 client.Disconnect(true);
             }
+        }
+
+        private void RetryAction(Action logic, int maxRetryCounter, Action logImportant = null, Action logError = null)
+        {
+            var loopCounter = 0;
+            // If sending email fail then trying another 2 times
+            do
+            {
+                loopCounter++;
+                try
+                {
+                    logic?.Invoke();
+                    break;
+                }
+                catch (Exception)
+                {
+                    logImportant?.Invoke();
+                    Thread.Sleep(1000);
+                }
+            } while (loopCounter < maxRetryCounter);
+            if (loopCounter > 1)
+                logError?.Invoke();
         }
 
         private MimeMessage WrappingEmail(string email, string subject, string content)

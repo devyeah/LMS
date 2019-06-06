@@ -2,7 +2,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.Helpers;
 using DevYeah.LMS.Business.Interfaces;
@@ -20,31 +19,25 @@ namespace DevYeah.LMS.Business
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
         private static readonly string SignUpSuccessMsg = "You has signed up successfully, please active your account through the email we sent to you.";
-        private static readonly string ActivateMailSendFailMsg = "your sign up failed. Please try again later.";
         private static readonly string AccountNotExistMsg = "User is not exist.";
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
-        private static readonly string SubjectOfActivateEmail = "Thank you for signing up, Please click the link below to activate your account.";
-        private static readonly string PasswordRecoveryEmail = "Please click the link below to reset your password.";
         private static readonly string InvalidTokenMsg = "The token is invalid.";
-        private static readonly string ActivationFailMsg = "Your account was not able to be activated, please try again later.";
 
         private readonly IAccountRepository _repository;
         private readonly IEmailClient _mailClient;
         private readonly TokenSettings _tokenSettings;
         private readonly ApiSettings _apiSettings;
-        private readonly EmailSettings _emailSettings;
         private readonly EmailTemplate _emailTemplate;
 
         public AccountService(IAccountRepository repository, IEmailClient mailClient,
             IOptions<TokenSettings> tokenSettings, IOptions<ApiSettings> apiSettings,
-            IOptions<EmailSettings> emailSettings, IOptions<EmailTemplate> emailTemplate)
+            IOptions<EmailTemplate> emailTemplate)
         {
             _repository = repository;
             _mailClient = mailClient;
             _tokenSettings = tokenSettings.Value;
             _apiSettings = apiSettings.Value;
-            _emailSettings = emailSettings.Value;
             _emailTemplate = emailTemplate.Value;
         }
 
@@ -115,7 +108,6 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception)
             {
-
                 return null;
             }
         }
@@ -137,7 +129,6 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
-
                 return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
             }
         }
@@ -151,10 +142,9 @@ namespace DevYeah.LMS.Business
             if (account == null)
                 return;
 
-            var message = BuildPasswordRecoveryMail(account);
             var subject = _emailTemplate.PasswordRecoveryMailSubject;
             var content = BuildPasswordRecoveryMail(account);
-            SendEmail(() => _mailClient.SendEmail(email, subject, content), _emailSettings.MaxRetryCount);
+            _mailClient.SendEmail(email, subject, content);
         }
 
         private string GeneratePasswordRecoveryToken(string email)
@@ -259,15 +249,15 @@ namespace DevYeah.LMS.Business
                     Id = Guid.NewGuid(),
                 },
             };
-            
+
             try
             {
                 _repository.Add(newAccount);
                 _repository.SaveChanges();
                 var subject = _emailTemplate.SignUpMailSubject;
                 var content = BuildAccountActivationMail(newAccount);
-                SendEmail(() => _mailClient.SendEmail(newAccount.Email, subject, content), _emailSettings.MaxRetryCount);
-                
+                _mailClient.SendEmail(newAccount.Email, subject, content);
+
                 return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
             catch (Exception ex)
@@ -294,27 +284,6 @@ namespace DevYeah.LMS.Business
             var template = _emailTemplate.PasswordRecoveryMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
             return content;
-        }
-
-        private void SendEmail(Action logic, int maxRetryCounter, Action logImportant = null, Action logError = null)
-        {
-            var loopCounter = 0;
-            // If sending email fail then trying another 2 times
-            do
-            {
-                loopCounter++;
-                try
-                {
-                    logic?.Invoke();
-                    break;
-                }
-                catch (Exception)
-                {
-                    logImportant?.Invoke();
-                }
-            } while (loopCounter < maxRetryCounter);
-            if (loopCounter > 1)
-                logError?.Invoke();
         }
 
         private string GenerateAccountActivationToken(Account account)
@@ -356,7 +325,5 @@ namespace DevYeah.LMS.Business
                 return true;
             }
         }
-
-
     }
 }

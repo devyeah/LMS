@@ -44,7 +44,7 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456"
             };
             repository = new AccountRepositoryMocker();
-            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailSettings, emailTemplate);
+            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailTemplate);
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),
