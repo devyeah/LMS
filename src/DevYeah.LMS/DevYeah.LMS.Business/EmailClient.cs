@@ -19,6 +19,7 @@ namespace DevYeah.LMS.Business
         public void SendEmail(string email, string subject, string content)
         {
             if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException(nameof(email));
+            if (string.IsNullOrWhiteSpace(subject)) throw new ArgumentNullException(nameof(subject));
             if (string.IsNullOrWhiteSpace(content)) throw new ArgumentNullException(nameof(content));
 
             var message = WrappingEmail(email, subject, content);
@@ -40,10 +41,7 @@ namespace DevYeah.LMS.Business
             message.From.Add(new MailboxAddress(_emailSettings.OfficialEmailAddress));
             message.To.Add(new MailboxAddress(email));
             message.Subject = subject;
-            message.Body = new TextPart("plain")
-            {
-                Text = content
-            };
+            message.Body = new TextPart("plain") { Text = content };
             return message;
         }
     }

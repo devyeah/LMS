@@ -44,7 +44,7 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456"
             };
             repository = new AccountRepositoryMocker();
-            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailSettings);
+            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailSettings, emailTemplate);
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),
@@ -80,15 +80,6 @@ namespace DevYeah.LMS.BusinessTest
         {
             var result = service.SignUp(signupRequest);
             Assert.AreEqual(IdentityResultCode.EmailConflict, result.ResultCode);
-        }
-
-        [TestMethod]
-        public void TestSignUpFailCausedByActivatedMail()
-        {
-            signupRequest.Email = "test@gmail.com";
-            mailClient.MailSent = false;
-            var result = service.SignUp(signupRequest);
-            Assert.AreEqual(IdentityResultCode.EmailError, result.ResultCode);
         }
 
         [TestMethod]
@@ -168,7 +159,7 @@ namespace DevYeah.LMS.BusinessTest
                 new Claim(ClaimTypes.Name, testAccount.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = Identityhelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
             token = token.Replace('e', 'f');
             var result = service.ActivateAccount(token);
             Assert.AreEqual(false, result.IsSuccess);
@@ -183,7 +174,7 @@ namespace DevYeah.LMS.BusinessTest
                 new Claim(ClaimTypes.Name, testAccount.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = Identityhelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
             var result = service.ActivateAccount(token);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
@@ -204,7 +195,7 @@ namespace DevYeah.LMS.BusinessTest
             {
                 new Claim(ClaimTypes.Email, testAccount.Email)
             };
-            var token = Identityhelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
             token = token.Replace('e', 'f');
             var request = new ResetPasswordRequest
             {
@@ -223,7 +214,7 @@ namespace DevYeah.LMS.BusinessTest
             {
                 new Claim(ClaimTypes.Email, testAccount.Email)
             };
-            var token = Identityhelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
             var request = new ResetPasswordRequest
             {
                 Token = token,

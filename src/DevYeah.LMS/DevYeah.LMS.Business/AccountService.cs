@@ -153,7 +153,8 @@ namespace DevYeah.LMS.Business
 
             var message = BuildPasswordRecoveryMail(account);
             var subject = _emailTemplate.PasswordRecoveryMailSubject;
-            SendEmail(email, subject, message);
+            var content = BuildPasswordRecoveryMail(account);
+            SendEmail(() => _mailClient.SendEmail(email, subject, content), _emailSettings.MaxRetryCount);
         }
 
         private string GeneratePasswordRecoveryToken(string email)
@@ -258,18 +259,15 @@ namespace DevYeah.LMS.Business
                     Id = Guid.NewGuid(),
                 },
             };
-
+            
             try
             {
                 _repository.Add(newAccount);
                 _repository.SaveChanges();
-                var isMailSent = SendEmail(newAccount.Email, _emailTemplate.SignUpMailSubject, BuildAccountActivationMail(newAccount));
-                if (!isMailSent)
-                {
-                    _repository.Delete(newAccount);
-                    _repository.SaveChanges();
-                    return BuildResult(false, IdentityResultCode.EmailError, ActivateMailSendFailMsg);
-                }
+                var subject = _emailTemplate.SignUpMailSubject;
+                var content = BuildAccountActivationMail(newAccount);
+                SendEmail(() => _mailClient.SendEmail(newAccount.Email, subject, content), _emailSettings.MaxRetryCount);
+                
                 return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
             catch (Exception ex)
@@ -298,31 +296,25 @@ namespace DevYeah.LMS.Business
             return content;
         }
 
-        private bool SendEmail(string emailAddress, string subject, string content)
+        private void SendEmail(Action logic, int maxRetryCounter, Action logImportant = null, Action logError = null)
         {
             var loopCounter = 0;
-            var isSuccess = false;
             // If sending email fail then trying another 2 times
             do
             {
                 loopCounter++;
                 try
                 {
-                    _mailClient.SendEmail(emailAddress, subject, content);
+                    logic?.Invoke();
+                    break;
                 }
                 catch (Exception)
                 {
-                    if (loopCounter < 3)
-                        continue;
-                    else
-                        break;
+                    logImportant?.Invoke();
                 }
-                isSuccess = true;
-                if (isSuccess == true)
-                    break;
-            } while (loopCounter < 3);
-            
-            return isSuccess;
+            } while (loopCounter < maxRetryCounter);
+            if (loopCounter > 1)
+                logError?.Invoke();
         }
 
         private string GenerateAccountActivationToken(Account account)
