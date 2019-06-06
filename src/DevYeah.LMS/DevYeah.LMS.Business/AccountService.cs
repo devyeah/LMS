@@ -62,7 +62,6 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
-
                 return BuildResult(false, IdentityResultCode.ActivateFailure, ex.Message);
             }
         }
@@ -80,7 +79,6 @@ namespace DevYeah.LMS.Business
             }
             catch (NullReferenceException)
             {
-
                 return null;
             }
 
