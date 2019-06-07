@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import SignUp from './SignUp';
-import SignIn from './SignIn';
-import Navbar from './Navbar';
-import PageBuilding from './PageBuilding';
-import '../index.css';
+import SignUp from './identity/SignUp';
+import SignIn from './identity/SignIn';
+import Navbar from './header/Navbar';
+import PageBuilding from './common/PageBuilding';
+import './index.css';
 
 function App() {
   return (

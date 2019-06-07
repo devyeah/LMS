@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
-import { getClassName } from '../../common/utilities';
+import { getClassName } from '../common/utilities';
 
 const signInValidation = yup.object().shape({
   email: yup.string()

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SignInForm from './forms/SignInForm';
+import SignInForm from './SignInForm';
 
 export default class SignIn extends Component {
   constructor(props){
