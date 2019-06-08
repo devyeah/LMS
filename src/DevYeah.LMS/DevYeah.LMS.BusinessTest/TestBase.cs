@@ -14,6 +14,7 @@ namespace DevYeah.LMS.BusinessTest
         protected static IOptions<TokenSettings> tokenSettings;
         protected static IOptions<ApiSettings> apiSettings;
         protected static IOptions<EmailSettings> emailSettings;
+        protected static IOptions<EmailTemplate> emailTemplate;
 
         [ClassInitialize]
         protected static void BaseSetup(TestContext context)
@@ -41,6 +42,11 @@ namespace DevYeah.LMS.BusinessTest
             var contactConfigModel = new EmailSettings();
             configuration.GetSection("EmailSettings").Bind(contactConfigModel);
             emailSettings = Options.Create(contactConfigModel);
+
+            var emailTemplateConfigModel = new EmailTemplate();
+            configuration.GetSection("EmailTemplate").Bind(emailTemplateConfigModel);
+            emailTemplate = Options.Create(emailTemplateConfigModel);
+
         }
     }
 }

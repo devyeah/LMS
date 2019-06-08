@@ -18,9 +18,6 @@ namespace DevYeah.LMS.Business.Helpers
             return result;
         }
 
-        public static string Parse(string templateKey, string template, TemplateModel model)
-        {
-            return ParseAsync(templateKey, template, model).GetAwaiter().GetResult();
-        }
+        public static string Parse(string templateKey, string template, TemplateModel model) => ParseAsync(templateKey, template, model).GetAwaiter().GetResult();
     }
 }

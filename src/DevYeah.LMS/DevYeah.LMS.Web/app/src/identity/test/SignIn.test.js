@@ -2,7 +2,7 @@ import React from 'react';
 import 'jest-dom/extend-expect';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import SignIn from '../components/SignIn';
+import SignIn from '../SignIn';
 
 afterEach(cleanup);
 
