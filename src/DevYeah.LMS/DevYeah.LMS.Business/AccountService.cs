@@ -46,7 +46,7 @@ namespace DevYeah.LMS.Business
             if (string.IsNullOrWhiteSpace(token))
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
-            Claim keyClaim = GetClaimFromToken(token, ClaimTypes.Name);
+            var keyClaim = GetClaimFromToken(token, ClaimTypes.Name);
             if (keyClaim == null)
                 return BuildResult(false, IdentityResultCode.InvalidToken, InvalidTokenMsg);
 
