@@ -23,11 +23,11 @@ namespace DevYeah.LMS.Business
             if (string.IsNullOrWhiteSpace(subject)) throw new ArgumentNullException(nameof(subject));
             if (string.IsNullOrWhiteSpace(content)) throw new ArgumentNullException(nameof(content));
 
-            var message = WrappingEmail(email, subject, content);
-            RetryAction(() => Sending(message), _emailSettings.MaxRetryCount);
+            var message = CreateEmailMessage(email, subject, content);
+            RetryAction(() => SendEmail(message), _emailSettings.MaxRetryCount);
         }
 
-        private void Sending(MimeMessage message)
+        private void SendEmail(MimeMessage message)
         {
             var host = _emailSettings.Host;
             var port = _emailSettings.Port;
@@ -65,7 +65,7 @@ namespace DevYeah.LMS.Business
                 logError?.Invoke();
         }
 
-        private MimeMessage WrappingEmail(string email, string subject, string content)
+        private MimeMessage CreateEmailMessage(string email, string subject, string content)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_emailSettings.OfficialEmailAddress));

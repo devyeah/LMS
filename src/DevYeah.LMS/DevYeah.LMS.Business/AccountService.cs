@@ -82,7 +82,7 @@ namespace DevYeah.LMS.Business
                 return null;
             }
 
-            return identity.FindFirst(claimType);
+            return identity?.FindFirst(claimType);
         }
 
         private ClaimsPrincipal GetClaimsPrincipal(string token)
@@ -101,7 +101,7 @@ namespace DevYeah.LMS.Business
                     ValidAudience = _tokenSettings.Audience
                 };
 
-                var principal = handler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
+                var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
                 return principal;
             }
             catch (Exception)
@@ -147,7 +147,7 @@ namespace DevYeah.LMS.Business
 
         private string GeneratePasswordRecoveryToken(string email)
         {
-            var claims = new Claim[]
+            var claims = new []
             {
                 new Claim(ClaimTypes.Email, email)
             };
@@ -159,17 +159,15 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
         {
-            var isRequestNull = (request == null);
-            if (isRequestNull)
+            if (request == null)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isTokenEmpty = string.IsNullOrWhiteSpace(request.Token);
             var isNewPasswordEmpty = string.IsNullOrWhiteSpace(request.NewPassword);
-
             if (isTokenEmpty || isNewPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
-            Claim emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
+            var emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
             if (emailClaim == null)
                 return BuildResult(false, IdentityResultCode.InvalidToken, InvalidTokenMsg);
 
@@ -192,13 +190,11 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
         {
-            var isRequestNull = request == null;
-            if (isRequestNull)
+            if (request == null)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
             var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-
             if (isEmailEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
@@ -218,14 +214,12 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
         {
-            var isRequestNull = request == null;
-            if (isRequestNull)
+            if (request == null)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
             var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
             var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-
             if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
@@ -255,7 +249,6 @@ namespace DevYeah.LMS.Business
                 var subject = _emailTemplate.SignUpMailSubject;
                 var content = BuildAccountActivationMail(newAccount);
                 _mailClient.SendEmail(newAccount.Email, subject, content);
-
                 return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
             }
             catch (Exception ex)
@@ -286,7 +279,7 @@ namespace DevYeah.LMS.Business
 
         private string GenerateAccountActivationToken(Account account)
         {
-            var claims = new Claim[]
+            var claims = new []
             {
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
