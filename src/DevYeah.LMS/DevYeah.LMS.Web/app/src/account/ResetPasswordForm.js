@@ -37,8 +37,8 @@ export default function ResetPasswordForm({ submitHandler }) {
                 and we’ll email you a link to reset your password.
               </p>
             </div>
-            <div className="form-group mb-4">
-              <label id="emailInput" className="font-weight-bold" htmlFor="email">Email address</label>
+            <div className="form-group font-weight-bold mb-4">
+              <label id="emailInput" htmlFor="email">Email address</label>
               <input 
                 type="email" 
                 className={getClassName(errors.email, touched.email)}
@@ -50,11 +50,10 @@ export default function ResetPasswordForm({ submitHandler }) {
               {errors.email 
                 && <div id="emailError" className="d-block invalid-feedback">{errors.email}</div>}
             </div>
-            <div className="form-group">
+            <div className="form-group font-weight-bold">
               <Link 
                 to="/signIn"
                 id="backToSignInBtn"
-                className="font-weight-bold"
               >
               &#60; Back to Sign In
               </Link>
