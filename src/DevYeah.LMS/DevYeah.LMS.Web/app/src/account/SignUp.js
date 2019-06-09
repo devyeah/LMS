@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SignUpForm from './SignUpForm';
-import './identity.css';
+import './account.css';
 
 export default class SignUp extends Component {
   constructor(props){
@@ -17,7 +17,7 @@ export default class SignUp extends Component {
 
   render(){
     return (
-      <div className="signup-page-color">
+      <div className="bg-color">
         <SignUpForm submitHandler={this.submitHandler} />
       </div>
     );

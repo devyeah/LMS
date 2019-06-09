@@ -16,7 +16,7 @@ export default class SignIn extends Component {
 
   render() {
     return (
-      <div className="signup-page-color">
+      <div className="bg-color">
         <SignInForm submitHandler={this.submitHandler} />
       </div>
     );

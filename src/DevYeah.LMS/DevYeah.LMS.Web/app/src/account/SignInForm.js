@@ -32,7 +32,7 @@ export default function SignInForm({ submitHandler }) {
         isSubmitting,
       }) => (
         <div className="card form-center">
-          <form className="bg-white mb-4" onSubmit={handleSubmit}>
+          <form className="bg-white mb-4 font-weight-bold" onSubmit={handleSubmit}>
             <div className="text-center mb-4">
               <h1 id="title" className="h2 mb-4">Dev Yeah!</h1>
             </div>
@@ -66,7 +66,7 @@ export default function SignInForm({ submitHandler }) {
             </div>
             <button
               type="submit"
-              className="btn btn-primary btn-block"
+              className="btn btn-primary btn-block font-weight-bold"
               id="signinBtn"
               disabled={isSubmitting}
             >
@@ -74,7 +74,9 @@ export default function SignInForm({ submitHandler }) {
             </button>
             <hr />
             <span id="passwordForget">
-              <Link to="">
+              <Link 
+                to="/resetPassword"
+              >
                 Forget Password
               </Link>
             </span>

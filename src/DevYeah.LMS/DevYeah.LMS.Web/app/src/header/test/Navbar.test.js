@@ -12,6 +12,6 @@ test('render the Navbar', () => {
   );
   const signUpBtnNode = getByText("Sign Up");
   const signInBtnNode = getByText('Sign In');
-  expect(signUpBtnNode.className).toBe('btn btn-success');
-  expect(signInBtnNode.className).toBe('btn btn-outline-primary');
+  expect(signUpBtnNode.className).toBe('btn btn-success font-weight-bold');
+  expect(signInBtnNode.className).toBe('btn btn-outline-primary font-weight-bold');
 })
