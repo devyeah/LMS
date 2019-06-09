@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import ResetPasswordForm from './ResetPasswordForm';
+import ResetPasswordForm from './ForgetPasswordForm';
 import './account.css';
 
-export default class ResetPassword extends Component {
+export default class ForgetPassword extends Component {
   constructor(props){
     super(props);
 

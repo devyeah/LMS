@@ -66,7 +66,7 @@ export default function SignInForm({ submitHandler }) {
             </div>
             <button
               type="submit"
-              className="btn btn-primary btn-block font-weight-bold"
+              className="btn btn-danger btn-block font-weight-bold"
               id="signinBtn"
               disabled={isSubmitting}
             >
@@ -75,9 +75,9 @@ export default function SignInForm({ submitHandler }) {
             <hr />
             <span id="passwordForget">
               <Link 
-                to="/resetPassword"
+                to="/forgetPassword"
               >
-                Forget Password
+                Forget Password?
               </Link>
             </span>
           </form>

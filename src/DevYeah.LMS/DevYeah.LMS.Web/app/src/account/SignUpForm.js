@@ -102,7 +102,7 @@ export default function SignUpForm(props) {
           </div>
           <button 
             type="submit" 
-            className="btn btn-primary btn-block font-weight-bold" 
+            className="btn btn-danger btn-block font-weight-bold" 
             id="signupBtn"
             disabled={isSubmitting}
           >

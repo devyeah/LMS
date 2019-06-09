@@ -12,7 +12,7 @@ const resetPasswordValidation = yup.object().shape({
     .required('Required!'),
 });
 
-export default function ResetPasswordForm({ submitHandler }) {
+export default function ForgetPasswordForm({ submitHandler }) {
   return (
     <Formik 
       initialValues={{email:''}}
@@ -73,6 +73,6 @@ export default function ResetPasswordForm({ submitHandler }) {
   );
 }
 
-ResetPasswordForm.propTypes = {
+ForgetPasswordForm.propTypes = {
   submitHandler: PropTypes.func.isRequired
 }
