@@ -12,7 +12,7 @@ const signInValidation = yup.object().shape({
   password: yup.string()
     .min(8, 'Too Short!')
     .max(16, 'Too Long!')
-    .required('Required'),
+    .required('Required!'),
 });
 
 export default function SignInForm({ submitHandler }) {
@@ -33,8 +33,8 @@ export default function SignInForm({ submitHandler }) {
       }) => (
         <div className="card form-center">
           <form className="bg-white mb-4 font-weight-bold" onSubmit={handleSubmit}>
-            <div className="text-center mb-4">
-              <h1 id="title" className="h2 mb-4">Dev Yeah!</h1>
+            <div className="text-center">
+              <h1 id="title" className="h2">Dev Yeah!</h1>
             </div>
             <div className="form-group">
               <label id="emailInput" htmlFor="email">Email</label>

@@ -15,7 +15,7 @@ const signUpValidation = yup.object().shape({
   password: yup.string()
     .min(8, 'Too Short!')
     .max(16, 'Too Long!')
-    .required('Required'),
+    .required('Required!'),
   userType: yup.string()
     .required('Required!'),
 });
@@ -38,9 +38,9 @@ export default function SignUpForm(props) {
       }) => (
         <div className="card form-center">
         <form className="bg-white mb-4 font-weight-bold" onSubmit={handleSubmit}>
-          <div className="text-center mb-4">
-            <h1 id="title" className="h2 mb-4">Dev Yeah!</h1>
-            <p id="subtitle" className="mb-3">Start learning with Dev Yeah!</p>
+          <div className="text-center">
+            <h1 id="title" className="h2">Dev Yeah!</h1>
+            <p id="subtitle">Start learning with Dev Yeah!</p>
           </div>
           <div className="form-group">
             <label  id="usernameInput" htmlFor="username">Username</label>

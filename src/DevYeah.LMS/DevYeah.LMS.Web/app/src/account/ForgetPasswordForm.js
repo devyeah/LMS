@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import { getClassName } from '../common/utilities';
 import './account.css';
 
-const resetPasswordValidation = yup.object().shape({
+const resetEmailValidation = yup.object().shape({
   email: yup.string()
     .email('Invalid email address')
     .required('Required!'),
@@ -16,7 +16,7 @@ export default function ForgetPasswordForm({ submitHandler }) {
   return (
     <Formik 
       initialValues={{email:''}}
-      validationSchema={ resetPasswordValidation }
+      validationSchema={ resetEmailValidation }
       onSubmit={submitHandler}
     >
       {({
@@ -30,14 +30,14 @@ export default function ForgetPasswordForm({ submitHandler }) {
       }) => (
         <div className="card form-center">
           <form className="bg-white mb-4" onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <h1 id="resetPwd" className="h4 mb-4">Reset password</h1>
+            <div>
+              <h1 id="resetPwd" className="h4">Reset password</h1>
               <p id="resetPwdTips">
                 Enter the email address associated with your account, 
                 and we’ll email you a link to reset your password.
               </p>
             </div>
-            <div className="form-group font-weight-bold mb-4">
+            <div className="form-group font-weight-bold">
               <label id="emailInput" htmlFor="email">Email address</label>
               <input 
                 type="email" 
@@ -60,7 +60,7 @@ export default function ForgetPasswordForm({ submitHandler }) {
               <button
                 type="submit" 
                 className="btn btn-danger float-sm-right font-weight-bold" 
-                id="resetPasswordBtn"
+                id="forgetPasswordBtn"
                 disabled={isSubmitting}
               >
                 Send Reset Link

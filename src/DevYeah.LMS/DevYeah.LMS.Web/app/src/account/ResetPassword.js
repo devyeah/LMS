@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import SignInForm from './SignInForm';
+import ResetPasswordForm from './ResetPasswordForm';
 
-export default class SignIn extends Component {
-  constructor(props){
+export default class ResetPassword extends Component {
+  constructor(props) {
     super(props);
 
     this.submitHandler = this.submitHandler.bind(this);
@@ -10,15 +10,14 @@ export default class SignIn extends Component {
 
   submitHandler(values, actions) {
     //todo: submit values to backend server
+    console.log(values);
     actions.setSubmitting(false);
     actions.resetForm();
   }
 
   render() {
     return (
-      <div>
-        <SignInForm submitHandler={this.submitHandler} />
-      </div>
+      <ResetPasswordForm submitHandler={this.submitHandler} />
     );
   }
 }
