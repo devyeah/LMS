@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import SignUpForm from './SignUpForm';
-import './identity.css';
+import { formMeta, formValidation} from './formMeta/signUpFormMeta';
+import DynamicForm from './DynamicForm';
 
 export default class SignUp extends Component {
   constructor(props){
@@ -17,8 +17,13 @@ export default class SignUp extends Component {
 
   render(){
     return (
-      <div className="signup-page-color">
-        <SignUpForm submitHandler={this.submitHandler} />
+      <div>
+        <DynamicForm 
+          formName="signUpForm"
+          submitHandler={this.submitHandler} 
+          formValidation={formValidation}
+          formMeta={formMeta}
+        />
       </div>
     );
   }

@@ -24,7 +24,7 @@ it('test SignUp component renderring without crashing', () => {
 
 it('test input error help message', async () => {
   const {getByPlaceholderText, findAllByText} = setup();
-  const emailNode = getByPlaceholderText('Email Address');
+  const emailNode = getByPlaceholderText('Email address');
   fireEvent.blur(emailNode);
   expect(emailNode.id).toBe('email');
   expect(await findAllByText('Required!')).not.toBeNull();

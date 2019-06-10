@@ -19,7 +19,7 @@ export default function Navbar() {
               <Link 
                 to="/signin" 
                 id="signInBtn" 
-                className="btn btn-outline-primary"
+                className="btn btn-outline-primary font-weight-bold"
               >
                 Sign In
               </Link>
@@ -28,7 +28,7 @@ export default function Navbar() {
               <Link 
                 to="/signup"
                 id="signUpBtn" 
-                className="btn btn-success"
+                className="btn btn-success font-weight-bold"
               >
                 Sign Up
               </Link>
