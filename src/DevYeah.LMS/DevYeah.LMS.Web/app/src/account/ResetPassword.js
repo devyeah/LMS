@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import ResetPasswordForm from './ResetPasswordForm';
+import {formMeta, formValidation} from './formMeta/resetPasswordFormMeta';
+import DynamicForm from './DynamicForm';
 
 export default class ResetPassword extends Component {
   constructor(props) {
@@ -10,14 +11,18 @@ export default class ResetPassword extends Component {
 
   submitHandler(values, actions) {
     //todo: submit values to backend server
-    console.log(values);
-    actions.setSubmitting(false);
     actions.resetForm();
+    actions.setSubmitting(true);
   }
 
   render() {
     return (
-      <ResetPasswordForm submitHandler={this.submitHandler} />
+      <DynamicForm 
+        formName="resetPasswordForm"
+        formMeta={formMeta}
+        formValidation={formValidation}
+        submitHandler={this.submitHandler} 
+      />
     );
   }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ResetPasswordForm from './ForgetPasswordForm';
-import './account.css';
+import {formMeta, formValidation} from './formMeta/forgetPasswordFormMeta';
+import DynamicForm from './DynamicForm';
 
 export default class ForgetPassword extends Component {
   constructor(props){
@@ -10,13 +10,20 @@ export default class ForgetPassword extends Component {
   }
 
   submitHandler(values, actions) {
-
+    //todo: submit values to backend server
+    actions.resetForm();
+    actions.setSubmitting(true);
   }
 
   render() {
     return (
-      <div className="bg-color">
-        <ResetPasswordForm submitHandler={this.submitHandler} />
+      <div>
+        <DynamicForm 
+          formName="forgetPasswordForm"
+          formMeta={formMeta}
+          formValidation={formValidation}
+          submitHandler={this.submitHandler} 
+        />
       </div>
     );
   }
