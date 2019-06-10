@@ -6,6 +6,7 @@ import SignIn from './account/SignIn';
 import ResetPassword from './account/ResetPassword';
 import ForgetPassword from './account/ForgetPassword'; 
 import PageBuilding from './common/PageBuilding';
+import EditProfile from './account/EditProfileLayout';
 import './index.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/signin" component={SignIn} />
             <Route path="/forgetPassword" component={ForgetPassword} />
             <Route path="/resetPassword" component={ResetPassword} />
+            <Route path="/account/editProfile" component={EditProfile} />
           </Switch>
         </main>
         <footer className="footer text-center">

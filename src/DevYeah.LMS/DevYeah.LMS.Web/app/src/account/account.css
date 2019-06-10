@@ -4,3 +4,7 @@
   padding: 15px;
   margin: 1cm auto auto auto;
 }
+
+#profileContainer {
+  max-width: 65%;
+}
