@@ -11,12 +11,12 @@ Some important functions of LMS needs to send email to users. In order for these
 1. Open appsettings.json
 2. Find out "EmailSettings" section 
 3. Set properties
-   - OfficialEmailAddress:  the email of your website; 
-   - Port: the port of your email server;
-   - UseSsl: whether to use SSL when sending email;
-   - AccountName: the name used to login your email server;
-   - Password: password used to login your email server;
-   - MaxRetryCount: the times that you intend to resend email when the email failed to send at first time;
+   - **OfficialEmailAddress:**  the email of your website; 
+   - **Port:** the port of your email server;
+   - **UseSsl:** whether to use SSL when sending email;
+   - **AccountName:** the name used to login your email server;
+   - **Password:** password used to login your email server;
+   - **MaxRetryCount:** the times that you intend to resend email when the email failed to send at first time;
 
 
 ### 1.2 Token Settings
