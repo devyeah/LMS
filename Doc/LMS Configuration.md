@@ -13,8 +13,11 @@
 To run properly, make sure all the dependencies for the LMS are installed:
 
 npm:
+
 `cd /your app folder`
+
 `npm install`
 
 yarn:
+
 `yarn`
