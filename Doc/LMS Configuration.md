@@ -6,11 +6,11 @@ Some essential settings needs to be set before starting server side software.
 
 ### 1.1 Email Settings
 
-Some important functions of LMS needs to send email to users. In order for these functions to work properly, system needs some relevant information.
+Some important functions of LMS needs to send email to users. In order for these functions to work properly, system needs some relevant information. Follow the instruction below:
 
 1. Open appsettings.json
 2. Find out "EmailSettings" section 
-3. Follow the instruction below to set properties
+3. Set properties
    - OfficialEmailAddress:  the email of your website; 
    - Port: the port of your email server;
    - UseSsl: whether to use SSL when sending email;
