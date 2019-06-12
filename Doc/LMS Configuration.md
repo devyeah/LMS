@@ -6,7 +6,7 @@ Some essential settings needs to be set before starting server side software.
 
 ### 1.1 Email Settings
 
-Some important functions of LMS needs to send email to users. In order for these functions to work properly, system needs some relevant information. Follow the instruction below:
+Some important functions of LMS needs to send email to users. In order for these functions to work properly, system needs some relevant information. Follow the instruction below to set them:
 
 1. Open appsettings.json
 2. Find out "EmailSettings" section 
@@ -20,6 +20,16 @@ Some important functions of LMS needs to send email to users. In order for these
 
 
 ### 1.2 Token Settings
+
+LMS uses JWT token to implement some security related features, such as login. The essential properties is following:
+
+1. Open appsettings.json
+2. Find out "TokenSettings" section 
+3. Set properties
+   - **Issuer:** issuer;
+   - **Audience:** audience;
+   - **Secret:** will be used to build SymmetricSecurityKey;
+   - **Expires:** token will expire after this;
 
 ## 2 App Config
 
