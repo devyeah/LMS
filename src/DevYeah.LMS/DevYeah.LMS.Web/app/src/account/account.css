@@ -4,3 +4,12 @@
   padding: 15px;
   margin: 1cm auto auto auto;
 }
+
+.avatar {
+  max-height: 225px;
+  max-width: 225px;
+}
+
+#profileContainer {
+  max-width: 75%;
+}
