@@ -6,6 +6,7 @@ export default class PhotoUpload extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {avatarImg: null}
     this.fileInputRef = React.createRef();
     this.openFileDialog = this.openFileDialog.bind(this);
   }
@@ -27,7 +28,7 @@ export default class PhotoUpload extends Component {
                 alt="avatar"
                 title="avatar"
                 className="avatar rounded-circle"
-                src={defaultAvatar}
+                src={this.state.avatarImg ? this.state.avatarImg : defaultAvatar}
               />
             </div>
             <div className="col-8">
