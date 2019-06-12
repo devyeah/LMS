@@ -8,6 +8,8 @@
 
 ## 2 App Config
 
+LMS is built on many open-source software that distributed via npm which is bundled with Node. Please make sure Node has been installed in the environment where you intend to run LMS on.
+
 ### 2.1 Installation
 
 To run properly, make sure all the dependencies for the LMS are installed:
