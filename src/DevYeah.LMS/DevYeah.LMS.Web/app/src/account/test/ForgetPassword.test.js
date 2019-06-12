@@ -1,6 +1,6 @@
 import React from 'react';
 import 'jest-dom/extend-expect';
-import { render, fireEvent, cleanup, findAllByText } from '@testing-library/react';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ForgetPassword from '../ForgetPassword';
 
