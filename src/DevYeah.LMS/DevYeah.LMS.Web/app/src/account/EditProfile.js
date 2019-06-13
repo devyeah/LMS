@@ -18,8 +18,8 @@ export default class EditProfile extends Component {
   render() {
     return (
       <div className="card">
-        <div className="card-header">
-          Profile details
+        <div className="card-header font-weight-bold">
+          Profile Details
         </div>
         <div className="card-body">
           <DynamicForm 

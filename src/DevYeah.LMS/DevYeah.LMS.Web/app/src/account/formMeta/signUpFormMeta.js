@@ -34,16 +34,6 @@ const formMeta = {
       type: 'password',
       placeholder: 'Password',
     },
-    {
-      element: 'select',
-      id: 'userType',
-      label: 'User Type',
-      options: [
-        {order: 0, value: '', text: 'Select a type'},
-        {order: 1, value: '1', text: 'Student'},
-        {order: 2, value: '2', text: 'Tutor'},
-      ]
-    }
   ],
   button: {
     id: 'signupBtn',
@@ -64,8 +54,6 @@ const formValidation = yup.object().shape({
   password: yup.string()
     .min(8, 'Too Short!')
     .max(16, 'Too Long!')
-    .required('Required!'),
-  userType: yup.string()
     .required('Required!'),
 });
 

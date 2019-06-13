@@ -22,45 +22,53 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
         handleSubmit,
         isSubmitting,
       }) => (
-        <div className={isEmbedded ? "" : "card form-center"}>
-          <form id={formName} className="bg-white mb-4 font-weight-bold" onSubmit={handleSubmit}>
-            {!isEmbedded 
-              && 
-              <div className={header.alignStyle}>
-                <h1 id={header.id} className={header.style}>{header.text}</h1>
-                {header.tips && <p className={header.tips.style} id={header.tips.id}>{header.tips.message}</p>}
-              </div>
-            }
-            
-            {elements.map((item, index) => {
-              if (item.element === 'select')
-                return renderSelectElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              if (item.element === 'input')
-                return renderInputElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              if (item.element === 'textarea')
-                return renderTextareaElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              return null;
-            })}
-            <button
-              type="submit" 
-              className={button.style} 
-              id={button.id}
-              disabled={isSubmitting}
-            >
-              {button.text}
-            </button>
-            {extraLink 
-              && 
-              <span id={extraLink.id}>
-                <hr />
-                <Link 
-                  to={extraLink.target}
+        <div className={isEmbedded ? "" : "row align-items-center h-100"}>
+          <div className={isEmbedded ? "" : "col-6 mx-auto"}>
+            <div className={isEmbedded ? "" : "card form-center h-100 justify-content-center"}>
+              <form 
+                id={formName} 
+                className={"bg-white mb-4 " + (isEmbedded ? "" : "font-weight-bold")} 
+                onSubmit={handleSubmit}
+              >
+                {!isEmbedded 
+                  && 
+                  <div className={header.alignStyle}>
+                    <h1 id={header.id} className={header.style}>{header.text}</h1>
+                    {header.tips && <p className={header.tips.style} id={header.tips.id}>{header.tips.message}</p>}
+                  </div>
+                }
+                
+                {elements.map((item, index) => {
+                  if (item.element === 'select')
+                    return renderSelectElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
+                  if (item.element === 'input')
+                    return renderInputElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
+                  if (item.element === 'textarea')
+                    return renderTextareaElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
+                  return null;
+                })}
+                <button
+                  type="submit" 
+                  className={button.style} 
+                  id={button.id}
+                  disabled={isSubmitting}
                 >
-                  {extraLink.text}
-                </Link>
-              </span>
-            }
-          </form>
+                  {button.text}
+                </button>
+                {extraLink 
+                  && 
+                  <span id={extraLink.id}>
+                    <hr />
+                    <Link 
+                      to={extraLink.target}
+                    >
+                      {extraLink.text}
+                    </Link>
+                  </span>
+                }
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </Formik>

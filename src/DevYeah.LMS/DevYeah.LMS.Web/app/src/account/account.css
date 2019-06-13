@@ -1,8 +1,7 @@
 .form-center {
-  width: 100%;
   max-width: 530px;
   padding: 15px;
-  margin: 1cm auto auto auto;
+  margin: auto;
 }
 
 .avatar {

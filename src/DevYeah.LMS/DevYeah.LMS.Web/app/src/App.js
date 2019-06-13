@@ -12,11 +12,11 @@ import './index.css';
 function App() {
   return (
     <Router>
-      <div>
+      <div id="app">
         <header>
           <Navbar />
         </header>
-        <main role="main">
+        <main role="main" className="h-100">
           <Switch>
             <Route path="/" exact component={PageBuilding} />
             <Route path="/signup" component={SignUp} />
@@ -29,7 +29,7 @@ function App() {
         <footer className="footer text-center">
           <div className="container">
             <span id="copyright" className="text-muted">
-              Dev Yean! &copy; {new Date().getFullYear()}
+              Dev Yean! &copy; 2018 - {new Date().getFullYear()}
             </span>
           </div>
         </footer>

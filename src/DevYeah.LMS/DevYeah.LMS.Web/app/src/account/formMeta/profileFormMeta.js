@@ -26,7 +26,7 @@ const formMeta = {
       id: 'gender',
       label: 'I Am',
       options: [
-        {order: 0, value: '', text: 'Gender'},
+        {order: 0, value: '', text: '(Gender)'},
         {order: 1, value: 'M', text: 'Male'},
         {order: 2, value: 'F', text: 'Female'},
         {order: 3, value: 'O', text: 'Other'},
@@ -48,7 +48,7 @@ const formMeta = {
   button: {
     id: 'saveProfileBtn',
     text: 'Save',
-    style: 'btn btn-danger btn-block font-weight-bold'
+    style: 'btn btn-danger font-weight-bold'
   }
 }
 
