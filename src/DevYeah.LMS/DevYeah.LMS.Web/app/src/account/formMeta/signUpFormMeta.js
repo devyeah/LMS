@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 const formMeta = {
-  initialValues: { username: '', email: '', password: '', userType: '' },  
+  initialValues: { username: '', email: '', password: '', userType: '1' },  
   header: {
     id:'title',
     alignStyle: 'text-center',
@@ -34,6 +34,10 @@ const formMeta = {
       type: 'password',
       placeholder: 'Password',
     },
+    {
+      element: 'hidden',
+      id: 'userType',
+    }
   ],
   button: {
     id: 'signupBtn',

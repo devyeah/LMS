@@ -45,6 +45,8 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
                     return renderInputElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
                   if (item.element === 'textarea')
                     return renderTextareaElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
+                  if (item.element === 'hidden')
+                    return renderHiddenElement(item, index, values, handleChange);
                   return null;
                 })}
                 <button
@@ -82,6 +84,18 @@ function renderLinkElement(link, index) {
     >
       {link.text}
     </Link>
+  );
+}
+
+function renderHiddenElement(item, key, values, handleChange) {
+  return (
+    <input 
+      key={key} 
+      type="text" 
+      value={values[item.id]} 
+      onChange={handleChange}
+      hidden 
+    />
   );
 }
 

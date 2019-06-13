@@ -11,6 +11,7 @@ export default class SignUp extends Component {
 
   submitHandler(values, actions){
     //todo: submit values to backend server
+    console.log(values);
     actions.setSubmitting(false);
     actions.resetForm();
   }
