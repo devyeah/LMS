@@ -40,7 +40,13 @@ const formMeta = {
     text: 'Sign Up',
     style: 'btn btn-danger btn-block font-weight-bold'
   },
-  extraLink: null,
+  extraLink: [
+    {
+      id: 'toSignIn',
+      target: '/signin',
+      text: 'Back to Sign In',
+    },
+  ]
 }
 
 const formValidation = yup.object().shape({

@@ -59,11 +59,9 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
                   && 
                   <span id={extraLink.id}>
                     <hr />
-                    <Link 
-                      to={extraLink.target}
-                    >
-                      {extraLink.text}
-                    </Link>
+                    {extraLink.map((link, index) => (
+                      renderLinkElement(link, index)
+                    ))}
                   </span>
                 }
               </form>
@@ -72,6 +70,18 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
         </div>
       )}
     </Formik>
+  );
+}
+
+function renderLinkElement(link, index) {
+  return (
+    <Link 
+      key={index}
+      to={link.target}
+      className={link.style}
+    >
+      {link.text}
+    </Link>
   );
 }
 

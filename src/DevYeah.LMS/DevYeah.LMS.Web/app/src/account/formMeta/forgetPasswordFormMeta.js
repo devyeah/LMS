@@ -33,11 +33,13 @@ const formMeta = {
     text: 'Send Reset Link',
     style: 'btn btn-danger btn-block font-weight-bold'
   },
-  extraLink: {
-    id: 'backToSignInBtn',
-    target: '/signIn',
-    text: '< Back to Sign In',
-  }
+  extraLink: [
+    {
+      id: 'backToSignInBtn',
+      target: '/signIn',
+      text: '< Back to Sign In',
+    }
+  ]
 }
 
 export {formMeta, formValidation}
