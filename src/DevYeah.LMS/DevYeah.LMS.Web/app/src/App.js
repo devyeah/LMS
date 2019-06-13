@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import Navbar from './header/Navbar';
 import SignUp from './account/SignUp';
 import SignIn from './account/SignIn';
@@ -23,6 +23,7 @@ function App() {
             <Route path="/signin" component={SignIn} />
             <Route path="/forgetPassword" component={ForgetPassword} />
             <Route path="/resetPassword" component={ResetPassword} />
+            <Redirect path="/account/editProfile" exact to="/account/editProfile/profile" />
             <Route path="/account/editProfile" component={EditProfile} />
           </Switch>
         </main>
