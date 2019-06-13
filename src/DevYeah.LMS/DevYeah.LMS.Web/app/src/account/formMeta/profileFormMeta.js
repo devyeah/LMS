@@ -36,7 +36,8 @@ const formMeta = {
       element: 'input',
       id: 'birthDay',
       label: 'Birth Day',
-      type: 'text',
+      type: 'date',
+
     },
     {
       element: 'textarea',
