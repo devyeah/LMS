@@ -48,6 +48,7 @@ namespace DevYeah.LMS.BusinessTest
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),
+                UserName = "devyeah",
                 Email = "devyeah@gmail.com",
                 Password = "f8ec997eccf015b232ac2b97992ece6caf28060d95d0cbfa6da803064e941583",
                 Status = 2,
@@ -69,10 +70,10 @@ namespace DevYeah.LMS.BusinessTest
         {
             signupRequest.Email = "test@gmail.com";
             var result = service.SignUp(signupRequest);
-            var newAccount = result.ResultObj as Account;
+            var signInResult = result.ResultObj as SignInResult;
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
-            Assert.AreEqual("devyeah", newAccount.UserName);
-            Assert.AreEqual("test@gmail.com", newAccount.Email);
+            Assert.AreEqual("devyeah", signInResult.Username);
+ 
         }
 
         [TestMethod]
@@ -93,10 +94,10 @@ namespace DevYeah.LMS.BusinessTest
         public void TestSignInSuccess()
         {
             var result = service.SignIn(signInRequest);
-            var signInAccount = result.ResultObj as Account;
+            var signInAccount = result.ResultObj as SignInResult;
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
             Assert.AreEqual(true, result.IsSuccess);
-            Assert.AreEqual("devyeah@gmail.com", signInAccount.Email);
+            Assert.AreEqual("devyeah", signInAccount.Username);
         }
 
         [TestMethod]

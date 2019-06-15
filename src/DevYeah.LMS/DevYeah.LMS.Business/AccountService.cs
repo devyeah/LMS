@@ -66,6 +66,216 @@ namespace DevYeah.LMS.Business
             }
         }
 
+        public ServiceResult<IdentityResultCode> DeleteAccount(Guid accountId)
+        {
+            if (accountId == null || accountId.Equals(Guid.Empty))
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            try
+            {
+                var account = _repository.GetAccount(accountId);
+                if (account == null)
+                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+
+                account.Status = (int)AccountStatus.Deleted;
+                _repository.Update(account);
+                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+            }
+            catch (Exception ex)
+            {
+                return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
+            }
+        }
+
+        public void RecoverPassword(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return;
+
+            var account = _repository.GetUniqueAccountByEmail(email);
+            if (account == null)
+                return;
+
+            var subject = _emailTemplate.PasswordRecoveryMailSubject;
+            var content = BuildPasswordRecoveryMail(account);
+            _mailClient.SendEmail(email, subject, content);
+        }
+
+        public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
+        {
+            if (request == null)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            var isTokenEmpty = string.IsNullOrWhiteSpace(request.Token);
+            var isNewPasswordEmpty = string.IsNullOrWhiteSpace(request.NewPassword);
+            if (isTokenEmpty || isNewPasswordEmpty)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            var emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
+            if (emailClaim == null)
+                return BuildResult(false, IdentityResultCode.InvalidToken, InvalidTokenMsg);
+
+            try
+            {
+                var account = _repository.GetUniqueAccountByEmail(emailClaim.Value);
+                if (account == null)
+                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+                var hashedNewPassword = IdentityHelper.HashPassword(request.NewPassword);
+                account.Password = hashedNewPassword;
+                _repository.Update(account);
+
+                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+            }
+            catch (Exception ex)
+            {
+                return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
+            }
+        }
+
+        public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
+        {
+            var isRequestValid = ValidateSignInRequest(request);
+            if (!isRequestValid)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            var account = _repository.GetUniqueAccountByEmail(request.Email);
+            if (account == null)
+                return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+
+            var password = IdentityHelper.HashPassword(request.Password);
+            if (password != account.Password)
+                return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
+
+            if ((AccountStatus)account.Status == AccountStatus.Inactive)
+                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
+
+            var authToken = GenerateAuthenticatedToken(account);
+            return BuildResult(true, IdentityResultCode.Success, resultObj: new SignInResult { Identity = account.Id, Username = account.UserName, AuthenticatedToken = authToken });
+        }
+
+        public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
+        {
+            var isRequestValid = ValidateSignUpRequest(request);
+            if (!isRequestValid)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
+
+            var isEmailExist = CheckDuplicateEmailAddress(request);
+            if (isEmailExist)
+                return BuildResult(false, IdentityResultCode.EmailConflict, EmailConflictMsg);
+
+            string hashedPassword = IdentityHelper.HashPassword(request.Password);
+            var newAccount = new Account
+            {
+                Id = Guid.NewGuid(),
+                UserName = request.UserName,
+                Email = request.Email,
+                Password = hashedPassword,
+                Status = (int)AccountStatus.Inactive,
+                Type = request.Type,
+                UserProfile = new UserProfile { Id = Guid.NewGuid() },
+            };
+
+            try
+            {
+                _repository.Add(newAccount);
+                _repository.SaveChanges();
+                var subject = _emailTemplate.SignUpMailSubject;
+                var content = BuildAccountActivationMail(newAccount);
+                _mailClient.SendEmail(newAccount.Email, subject, content);
+                var authToken = GenerateAuthenticatedToken(newAccount);
+                return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, new SignInResult { Identity = newAccount.Id, Username = newAccount.UserName, AuthenticatedToken = authToken });
+            }
+            catch (Exception ex)
+            {
+                return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
+            }
+        }
+
+        private bool ValidateSignInRequest(SignInRequest request)
+        {
+            if (request == null)
+                return false;
+
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+            if (isEmailEmpty || isPasswordEmpty)
+                return false;
+
+            return true;
+        }
+
+        private bool ValidateSignUpRequest(SignUpRequest request)
+        {
+            if (request == null)
+                return false;
+
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+            if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
+                return false;
+
+            return true;
+        }
+
+        private string BuildAccountActivationMail(Account account)
+        {
+            var token = GenerateAccountActivationToken(account);
+            var link = string.Concat(_apiSettings.AccountActivationAPI, "?token=", token);
+            var templateKey = nameof(_emailTemplate.SignUpMailContent);
+            var template = _emailTemplate.SignUpMailContent;
+            var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
+            return content;
+        }
+
+        private string BuildPasswordRecoveryMail(Account account)
+        {
+            var token = GeneratePasswordRecoveryToken(account.Email);
+            var link = string.Concat(_apiSettings.PasswordRecoveryAPI, "?token=", token);
+            var templateKey = nameof(_emailTemplate.PasswordRecoveryMailContent);
+            var template = _emailTemplate.PasswordRecoveryMailContent;
+            var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
+            return content;
+        }
+
+        private string GenerateAuthenticatedToken(Account account)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Email, account.Email),
+            };
+            
+            return MakeToken(claims);
+        }
+
+        private string GenerateAccountActivationToken(Account account)
+        {
+            var claims = new []
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Authentication, "false"),
+            };
+            
+            return MakeToken(claims);
+        }
+
+        private string GeneratePasswordRecoveryToken(string email)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Email, email)
+            };
+            
+            return MakeToken(claims);
+        }
+
+        private string MakeToken(Claim[] claims)
+        {
+            return IdentityHelper.GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
+                _tokenSettings.Audience, claims, _tokenSettings.Expires);
+        }
+
         private Claim GetClaimFromToken(string token, string claimType)
         {
             var principal = GetClaimsPrincipal(token);
@@ -108,186 +318,6 @@ namespace DevYeah.LMS.Business
             {
                 return null;
             }
-        }
-
-        public ServiceResult<IdentityResultCode> DeleteAccount(Guid accountId)
-        {
-            if (accountId == null || accountId.Equals(Guid.Empty))
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            try
-            {
-                var account = _repository.GetAccount(accountId);
-                if (account == null)
-                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
-
-                account.Status = (int)AccountStatus.Deleted;
-                _repository.Update(account);
-                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
-            }
-            catch (Exception ex)
-            {
-                return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
-            }
-        }
-
-        public void RecoverPassword(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                return;
-
-            var account = _repository.GetUniqueAccountByEmail(email);
-            if (account == null)
-                return;
-
-            var subject = _emailTemplate.PasswordRecoveryMailSubject;
-            var content = BuildPasswordRecoveryMail(account);
-            _mailClient.SendEmail(email, subject, content);
-        }
-
-        private string GeneratePasswordRecoveryToken(string email)
-        {
-            var claims = new []
-            {
-                new Claim(ClaimTypes.Email, email)
-            };
-            var token = IdentityHelper
-                .GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
-                _tokenSettings.Audience, claims, _tokenSettings.Expires);
-            return token;
-        }
-
-        public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
-        {
-            if (request == null)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isTokenEmpty = string.IsNullOrWhiteSpace(request.Token);
-            var isNewPasswordEmpty = string.IsNullOrWhiteSpace(request.NewPassword);
-            if (isTokenEmpty || isNewPasswordEmpty)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var emailClaim = GetClaimFromToken(request.Token, ClaimTypes.Email);
-            if (emailClaim == null)
-                return BuildResult(false, IdentityResultCode.InvalidToken, InvalidTokenMsg);
-
-            try
-            {
-                var account = _repository.GetUniqueAccountByEmail(emailClaim.Value);
-                if (account == null)
-                    return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
-                var hashedNewPassword = IdentityHelper.HashPassword(request.NewPassword);
-                account.Password = hashedNewPassword;
-                _repository.Update(account);
-
-                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
-            }
-            catch (Exception ex)
-            {
-                return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
-            }
-        }
-
-        public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
-        {
-            if (request == null)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
-            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-            if (isEmailEmpty || isPasswordEmpty)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var account = _repository.GetUniqueAccountByEmail(request.Email);
-            if (account == null)
-                return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
-
-            var password = IdentityHelper.HashPassword(request.Password);
-            if (password != account.Password)
-                return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
-
-            if ((AccountStatus)account.Status == AccountStatus.Inactive)
-                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
-
-            return BuildResult(true, IdentityResultCode.Success, resultObj: account);
-        }
-
-        public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
-        {
-            if (request == null)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
-            var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
-            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-            if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isEmailExist = CheckDuplicateEmailAddress(request);
-            if (isEmailExist)
-                return BuildResult(false, IdentityResultCode.EmailConflict, EmailConflictMsg);
-
-            string hashedPassword = IdentityHelper.HashPassword(request.Password);
-            var newAccount = new Account
-            {
-                Id = Guid.NewGuid(),
-                UserName = request.UserName,
-                Email = request.Email,
-                Password = hashedPassword,
-                Status = (int)AccountStatus.Inactive,
-                Type = request.Type,
-                UserProfile = new UserProfile
-                {
-                    Id = Guid.NewGuid(),
-                },
-            };
-
-            try
-            {
-                _repository.Add(newAccount);
-                _repository.SaveChanges();
-                var subject = _emailTemplate.SignUpMailSubject;
-                var content = BuildAccountActivationMail(newAccount);
-                _mailClient.SendEmail(newAccount.Email, subject, content);
-                return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
-            }
-            catch (Exception ex)
-            {
-                return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
-            }
-        }
-
-        private string BuildAccountActivationMail(Account account)
-        {
-            var token = GenerateAccountActivationToken(account);
-            var link = string.Concat(_apiSettings.AccountActivationAPI, "?token=", token);
-            var templateKey = nameof(_emailTemplate.SignUpMailContent);
-            var template = _emailTemplate.SignUpMailContent;
-            var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
-            return content;
-        }
-
-        private string BuildPasswordRecoveryMail(Account account)
-        {
-            var token = GeneratePasswordRecoveryToken(account.Email);
-            var link = string.Concat(_apiSettings.PasswordRecoveryAPI, "?token=", token);
-            var templateKey = nameof(_emailTemplate.PasswordRecoveryMailContent);
-            var template = _emailTemplate.PasswordRecoveryMailContent;
-            var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
-            return content;
-        }
-
-        private string GenerateAccountActivationToken(Account account)
-        {
-            var claims = new []
-            {
-                new Claim(ClaimTypes.Name, account.Id.ToString()),
-                new Claim(ClaimTypes.Authentication, "false"),
-            };
-            var token = IdentityHelper
-                .GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
-                _tokenSettings.Audience, claims, _tokenSettings.Expires);
-            return token;
         }
 
         private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
