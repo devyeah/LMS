@@ -19,7 +19,7 @@ export default function Navbar() {
               <Link 
                 to="/signin" 
                 id="signInBtn" 
-                className="btn btn-outline-primary font-weight-bold"
+                className="btn btn-link font-weight-bold"
               >
                 Sign In
               </Link>

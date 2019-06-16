@@ -1,0 +1,28 @@
+.features-clear-style {
+  list-style-type: none;
+}
+
+.container-space {
+  margin: 5rem 0rem;
+}
+
+.features-item {
+  width: 50%;
+  padding: 24px;
+}
+
+.box-title {
+  margin: 0 auto 2rem;
+}
+
+.title-underline {
+  border-bottom: 3px solid;
+}
+
+.features-font {
+  font-size: 1.125em;
+}
+
+.oval-btn {
+  border-radius: 40px;
+}

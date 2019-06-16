@@ -5,7 +5,7 @@ import SignUp from './account/SignUp';
 import SignIn from './account/SignIn';
 import ResetPassword from './account/ResetPassword';
 import ForgetPassword from './account/ForgetPassword'; 
-import PageBuilding from './common/PageBuilding';
+import LandingPage from './common/LandingPage';
 import EditProfile from './account/EditProfileLayout';
 import './index.css';
 
@@ -18,7 +18,7 @@ function App() {
         </header>
         <main role="main" className="h-100">
           <Switch>
-            <Route path="/" exact component={PageBuilding} />
+            <Route path="/" exact component={LandingPage} />
             <Route path="/signup" component={SignUp} />
             <Route path="/signin" component={SignIn} />
             <Route path="/forgetPassword" component={ForgetPassword} />

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DevYeah.LMS.Business;
 using DevYeah.LMS.Business.RequestModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevYeah.LMS.Web.Controllers
@@ -24,28 +20,40 @@ namespace DevYeah.LMS.Web.Controllers
         [HttpPost("signup")]
         public IActionResult SignUp([FromBody] SignUpRequest request)
         {
-            throw new NotImplementedException();
+            var result = _accountService.SignUp(request);
+            if (result.IsSuccess)
+                return Ok(result.ResultObj);
+
+            return BadRequest(result.Message);
         }
 
         // POST api/v1/identity/signin
         [HttpPost("signin")]
         public IActionResult SignIn([FromBody] SignInRequest request)
         {
-            throw new NotImplementedException();
+            var result = _accountService.SignIn(request);
+            if (result.IsSuccess)
+                return Ok(result.ResultObj);
+
+            return BadRequest(result.Message);
         }
 
         // POST api/v1/identity/recoverypassword
         [HttpPost("recoverypassword")]
         public void RecoveryPassword([FromBody] string email)
         {
-
+            _accountService.RecoverPassword(email);
         }
 
         // POST api/v1/identity/resetpassword
         [HttpPost("resetpassword")]
         public IActionResult ResetPassword([FromBody] ResetPasswordRequest request)
         {
-            throw new NotImplementedException();
+            var result = _accountService.ResetPassword(request);
+            if (result.IsSuccess)
+                return Ok();
+
+            return BadRequest(result.Message);
         }
     }
 }
