@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './common.css';
 import structuredImg from '../images/feature-structured.svg';
 import practiceImg from '../images/feature-practice.svg';
@@ -68,14 +67,6 @@ export default function() {
               </div>
             </li>
           </ul>
-          <span className="text-center">
-            <Link
-              to="/signup"
-              className="btn btn-success btn-lg oval-btn"
-            >
-              Get Started
-            </Link>
-          </span>
         </div>
       </div>
     </div>
