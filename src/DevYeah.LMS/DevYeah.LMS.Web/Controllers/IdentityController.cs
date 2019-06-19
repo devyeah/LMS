@@ -1,24 +1,25 @@
 ﻿using System;
-using DevYeah.LMS.Business;
+using System.Collections.Generic;
+using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevYeah.LMS.Web.Controllers
 {
-    [Route("api/v1/[identity]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class IdentityController : ControllerBase
     {
-        private readonly AccountService _accountService;
+        private readonly IAccountService _accountService;
 
-        public IdentityController(AccountService accountService)
+        public IdentityController(IAccountService accountService)
         {
             _accountService = accountService;
         }
 
         // POST api/v1/identity/signup
         [HttpPost("signup")]
-        public IActionResult SignUp([FromBody] SignUpRequest request)
+        public IActionResult SignUp(SignUpRequest request)
         {
             var result = _accountService.SignUp(request);
             if (result.IsSuccess)
@@ -29,11 +30,22 @@ namespace DevYeah.LMS.Web.Controllers
 
         // POST api/v1/identity/signin
         [HttpPost("signin")]
-        public IActionResult SignIn([FromBody] SignInRequest request)
+        public IActionResult SignIn(SignInRequest request)
         {
             var result = _accountService.SignIn(request);
             if (result.IsSuccess)
                 return Ok(result.ResultObj);
+
+            return BadRequest(result.Message);
+        }
+
+        // Get api/v1/identity/activate
+        [HttpGet("activate")]
+        public IActionResult Activate(string token)
+        {
+            var result = _accountService.ActivateAccount(token);
+            if (result.IsSuccess)
+                return Ok();
 
             return BadRequest(result.Message);
         }

@@ -180,6 +180,11 @@ IF NOT EXISTS (SELECT NULL FROM sys.indexes WHERE NAME='IX_Account_Email')
     ON dbo.Account ([Email])
   GO
 
+IF EXISTS (SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Account' AND COLUMN_NAME = 'Password')
+  ALTER TABLE dbo.Account
+    ALTER COLUMN [Password] NVARCHAR(100) NOT NULL
+  GO
+
 /** Constraints **/
 IF NOT EXISTS (SELECT NULL FROM sys.objects WHERE NAME='FK_UserProfile_Account')
   ALTER TABLE dbo.UserProfile 

@@ -4,7 +4,7 @@ using DevYeah.LMS.Business.ResultModels;
 
 namespace DevYeah.LMS.Business.Interfaces
 {
-    interface IAccountService
+    public interface IAccountService
     {
         ServiceResult<IdentityResultCode> SignUp(SignUpRequest request);
         ServiceResult<IdentityResultCode> SignIn(SignInRequest request);

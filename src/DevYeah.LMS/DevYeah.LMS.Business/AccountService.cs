@@ -146,11 +146,12 @@ namespace DevYeah.LMS.Business
             if (password != account.Password)
                 return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
-            if ((AccountStatus)account.Status == AccountStatus.Inactive)
-                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
-
             var authToken = GenerateAuthenticatedToken(account);
-            return BuildResult(true, IdentityResultCode.Success, resultObj: new SignInResult { Identity = account.Id, Username = account.UserName, AuthenticatedToken = authToken });
+            var resultObject = new SignInResult { Identity = account.Id, Username = account.UserName, AuthenticatedToken = authToken };
+            if ((AccountStatus)account.Status == AccountStatus.Inactive)
+                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, resultObject);
+            
+            return BuildResult(true, IdentityResultCode.Success, resultObj: resultObject);
         }
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
