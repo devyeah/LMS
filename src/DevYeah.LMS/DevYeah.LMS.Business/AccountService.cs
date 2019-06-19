@@ -283,16 +283,7 @@ namespace DevYeah.LMS.Business
             if (principal == null)
                 return null;
 
-            ClaimsIdentity identity;
-            try
-            {
-                identity = principal.Identity as ClaimsIdentity;
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-
+            ClaimsIdentity identity = principal.Identity as ClaimsIdentity;
             return identity?.FindFirst(claimType);
         }
 

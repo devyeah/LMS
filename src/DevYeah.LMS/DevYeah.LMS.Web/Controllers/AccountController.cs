@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DevYeah.LMS.Business;
-using DevYeah.LMS.Web.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,9 +30,9 @@ namespace DevYeah.LMS.Web.Controllers
 
         // POST api/v1/identity/uploadphoto
         [HttpPost("uploadphoto")]
-        public IActionResult UploadPhoto()
+        public IActionResult UploadImage()
         {
-            var image = Request.Form.Files?[0];
+            var image = Request.Form.Files.FirstOrDefault();
             if (image == null || image.Length == 0)
                 return BadRequest(EmptyFileErrorMsg);
 
@@ -40,23 +40,23 @@ namespace DevYeah.LMS.Web.Controllers
             if (imageName == null)
                 return BadRequest(ImageUploadFailMsg);
 
-            var uploadResult = RetryUpload(UploadImage, localPath, imageName, 3);
+            var uploadResult = RetryUpload(() => UploadImage(localPath, imageName), 3);
             if (uploadResult == null)
                 return BadRequest(ImageUploadFailMsg);
 
             return Ok(uploadResult.JsonObj);
         }
 
-        private ImageUploadResult RetryUpload(Func<string, string, ImageUploadResult> logic, string path, string name, int maxRetryCounter, Action logImportant = null, Action logError = null)
+        private ImageUploadResult RetryUpload(Func<ImageUploadResult> logic, int maxRetryCounter, Action logImportant = null, Action logError = null)
         {
             var loopCounter = 0;
-            // If sending email fail then trying another 2 times
+            // If uploading image fail then trying another 2 times
             do
             {
                 loopCounter++;
                 try
                 {
-                    var result = logic?.Invoke(path, name);
+                    var result = logic?.Invoke();
                     if (result != null)
                         return result;
                 }
@@ -83,8 +83,8 @@ namespace DevYeah.LMS.Web.Controllers
 
         private string SaveImage(IFormFile image, out string imageName)
         {
-            var suffix = ImageUploadHelper.GetImageSuffix(image);
-            imageName = $"{Guid.NewGuid().ToString()}.{suffix}";
+            var suffix = Path.GetExtension(image.FileName);
+            imageName = $"{Guid.NewGuid().ToString()}{suffix}";
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), imageName);
             try
             {
