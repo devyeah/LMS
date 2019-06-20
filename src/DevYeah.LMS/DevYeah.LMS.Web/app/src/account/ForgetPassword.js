@@ -17,14 +17,12 @@ export default class ForgetPassword extends Component {
 
   render() {
     return (
-      <div>
-        <DynamicForm 
-          formName="forgetPasswordForm"
-          formMeta={formMeta}
-          formValidation={formValidation}
-          submitHandler={this.submitHandler} 
-        />
-      </div>
+      <DynamicForm 
+        formName="forgetPasswordForm"
+        formMeta={formMeta}
+        formValidation={formValidation}
+        submitHandler={this.submitHandler} 
+      />
     );
   }
 }

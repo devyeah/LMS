@@ -66,50 +66,6 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        private Claim GetClaimFromToken(string token, string claimType)
-        {
-            var principal = GetClaimsPrincipal(token);
-            if (principal == null)
-                return null;
-
-            ClaimsIdentity identity;
-            try
-            {
-                identity = principal.Identity as ClaimsIdentity;
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-
-            return identity?.FindFirst(claimType);
-        }
-
-        private ClaimsPrincipal GetClaimsPrincipal(string token)
-        {
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var secretKey = Encoding.ASCII.GetBytes(_tokenSettings.Secret);
-                var validationParameters = new TokenValidationParameters
-                {
-                    RequireExpirationTime = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
-                    ValidIssuer = _tokenSettings.Issuer,
-                    ValidAudience = _tokenSettings.Audience
-                };
-
-                var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
-                return principal;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
         public ServiceResult<IdentityResultCode> DeleteAccount(Guid accountId)
         {
             if (accountId == null || accountId.Equals(Guid.Empty))
@@ -145,18 +101,6 @@ namespace DevYeah.LMS.Business
             _mailClient.SendEmail(email, subject, content);
         }
 
-        private string GeneratePasswordRecoveryToken(string email)
-        {
-            var claims = new []
-            {
-                new Claim(ClaimTypes.Email, email)
-            };
-            var token = IdentityHelper
-                .GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
-                _tokenSettings.Audience, claims, _tokenSettings.Expires);
-            return token;
-        }
-
         public ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request)
         {
             if (request == null)
@@ -190,12 +134,8 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<IdentityResultCode> SignIn(SignInRequest request)
         {
-            if (request == null)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
-            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-            if (isEmailEmpty || isPasswordEmpty)
+            var isRequestValid = ValidateSignInRequest(request);
+            if (!isRequestValid)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var account = _repository.GetUniqueAccountByEmail(request.Email);
@@ -206,21 +146,18 @@ namespace DevYeah.LMS.Business
             if (password != account.Password)
                 return BuildResult(false, IdentityResultCode.PasswordError, PasswordErrorMsg);
 
+            var authToken = GenerateAuthenticatedToken(account);
+            var resultObject = new SignInResult { Identity = account.Id, Username = account.UserName, AuthenticatedToken = authToken };
             if ((AccountStatus)account.Status == AccountStatus.Inactive)
-                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, account);
-
-            return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+                return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, resultObject);
+            
+            return BuildResult(true, IdentityResultCode.Success, resultObj: resultObject);
         }
 
         public ServiceResult<IdentityResultCode> SignUp(SignUpRequest request)
         {
-            if (request == null)
-                return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
-
-            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
-            var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
-            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
-            if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
+            var isRequestValid = ValidateSignUpRequest(request);
+            if (!isRequestValid)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
             var isEmailExist = CheckDuplicateEmailAddress(request);
@@ -236,10 +173,7 @@ namespace DevYeah.LMS.Business
                 Password = hashedPassword,
                 Status = (int)AccountStatus.Inactive,
                 Type = request.Type,
-                UserProfile = new UserProfile
-                {
-                    Id = Guid.NewGuid(),
-                },
+                UserProfile = new UserProfile { Id = Guid.NewGuid() },
             };
 
             try
@@ -249,12 +183,40 @@ namespace DevYeah.LMS.Business
                 var subject = _emailTemplate.SignUpMailSubject;
                 var content = BuildAccountActivationMail(newAccount);
                 _mailClient.SendEmail(newAccount.Email, subject, content);
-                return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, newAccount);
+                var authToken = GenerateAuthenticatedToken(newAccount);
+                return BuildResult(true, IdentityResultCode.Success, SignUpSuccessMsg, new SignInResult { Identity = newAccount.Id, Username = newAccount.UserName, AuthenticatedToken = authToken });
             }
             catch (Exception ex)
             {
                 return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
+        }
+
+        private bool ValidateSignInRequest(SignInRequest request)
+        {
+            if (request == null)
+                return false;
+
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+            if (isEmailEmpty || isPasswordEmpty)
+                return false;
+
+            return true;
+        }
+
+        private bool ValidateSignUpRequest(SignUpRequest request)
+        {
+            if (request == null)
+                return false;
+
+            var isEmailEmpty = string.IsNullOrWhiteSpace(request.Email);
+            var isUserNameEmpty = string.IsNullOrWhiteSpace(request.UserName);
+            var isPasswordEmpty = string.IsNullOrWhiteSpace(request.Password);
+            if (isEmailEmpty || isUserNameEmpty || isPasswordEmpty)
+                return false;
+
+            return true;
         }
 
         private string BuildAccountActivationMail(Account account)
@@ -277,6 +239,17 @@ namespace DevYeah.LMS.Business
             return content;
         }
 
+        private string GenerateAuthenticatedToken(Account account)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Email, account.Email),
+            };
+            
+            return MakeToken(claims);
+        }
+
         private string GenerateAccountActivationToken(Account account)
         {
             var claims = new []
@@ -284,10 +257,59 @@ namespace DevYeah.LMS.Business
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = IdentityHelper
-                .GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
+            
+            return MakeToken(claims);
+        }
+
+        private string GeneratePasswordRecoveryToken(string email)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Email, email)
+            };
+            
+            return MakeToken(claims);
+        }
+
+        private string MakeToken(Claim[] claims)
+        {
+            return IdentityHelper.GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
                 _tokenSettings.Audience, claims, _tokenSettings.Expires);
-            return token;
+        }
+
+        private Claim GetClaimFromToken(string token, string claimType)
+        {
+            var principal = GetClaimsPrincipal(token);
+            if (principal == null)
+                return null;
+
+            ClaimsIdentity identity = principal.Identity as ClaimsIdentity;
+            return identity?.FindFirst(claimType);
+        }
+
+        private ClaimsPrincipal GetClaimsPrincipal(string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var secretKey = Encoding.ASCII.GetBytes(_tokenSettings.Secret);
+                var validationParameters = new TokenValidationParameters
+                {
+                    RequireExpirationTime = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                    ValidIssuer = _tokenSettings.Issuer,
+                    ValidAudience = _tokenSettings.Audience
+                };
+
+                var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
+                return principal;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)

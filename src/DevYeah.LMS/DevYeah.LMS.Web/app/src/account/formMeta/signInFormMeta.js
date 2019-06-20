@@ -40,11 +40,19 @@ const formMeta = {
     text: 'Sign In',
     style: 'btn btn-danger btn-block font-weight-bold'
   },
-  extraLink: {
-    id: 'passwordForget',
-    target: '/forgetPassword',
-    text: 'Forget Password?',
-  }  
+  extraLink: [
+    {
+      id: 'passwordForget',
+      target: '/forgetPassword',
+      text: 'Forget Password?',
+    },
+    {
+      id: 'goToSignUp',
+      target: 'signup',
+      text: 'Don’t Have an Account?',
+      style: 'float-right'
+    }
+  ]
 }
 
 export {formMeta, formValidation}

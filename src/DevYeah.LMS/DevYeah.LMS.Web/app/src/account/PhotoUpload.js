@@ -18,7 +18,7 @@ export default class PhotoUpload extends Component {
   render() {
     return (
       <div className="card">
-        <div className="card-header">
+        <div className="card-header font-weight-bold">
           Profile Photo
         </div>
         <div className="card-body container">

@@ -17,14 +17,12 @@ export default class SignIn extends Component {
 
   render() {
     return (
-      <div>
-        <DynamicForm 
-          formName="signInForm"
-          formMeta={formMeta}
-          formValidation={formValidation}
-          submitHandler={this.submitHandler} 
-        />
-      </div>
+      <DynamicForm 
+        formName="signInForm"
+        formMeta={formMeta}
+        formValidation={formValidation}
+        submitHandler={this.submitHandler} 
+      />
     );
   }
 }

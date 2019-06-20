@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import DropDownMenu from './DropDownMenu';
 import logo from '../images/logo.png';
 import './header.css';
 
@@ -14,12 +15,13 @@ export default function Navbar() {
           </Link>
         </div>
         <div id="signButton" >
+          {false && <DropDownMenu />}
           <ul className="navbar-nav flex-row">
             <li className="nav-item mr-2">
               <Link 
                 to="/signin" 
                 id="signInBtn" 
-                className="btn btn-outline-primary font-weight-bold"
+                className="btn btn-link font-weight-bold"
               >
                 Sign In
               </Link>

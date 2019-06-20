@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 const formMeta = {
-  initialValues: { username: '', email: '', password: '', userType: '' },  
+  initialValues: { username: '', email: '', password: '', userType: '1' },  
   header: {
     id:'title',
     alignStyle: 'text-center',
@@ -35,14 +35,8 @@ const formMeta = {
       placeholder: 'Password',
     },
     {
-      element: 'select',
+      element: 'hidden',
       id: 'userType',
-      label: 'User Type',
-      options: [
-        {order: 0, value: '', text: 'Select a type'},
-        {order: 1, value: '1', text: 'Student'},
-        {order: 2, value: '2', text: 'Tutor'},
-      ]
     }
   ],
   button: {
@@ -50,7 +44,13 @@ const formMeta = {
     text: 'Sign Up',
     style: 'btn btn-danger btn-block font-weight-bold'
   },
-  extraLink: null,
+  extraLink: [
+    {
+      id: 'toSignIn',
+      target: '/signin',
+      text: 'Back to Sign In',
+    },
+  ]
 }
 
 const formValidation = yup.object().shape({
@@ -64,8 +64,6 @@ const formValidation = yup.object().shape({
   password: yup.string()
     .min(8, 'Too Short!')
     .max(16, 'Too Long!')
-    .required('Required!'),
-  userType: yup.string()
     .required('Required!'),
 });
 

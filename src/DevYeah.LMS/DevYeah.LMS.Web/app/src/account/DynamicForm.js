@@ -22,54 +22,124 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
         handleSubmit,
         isSubmitting,
       }) => (
-        <div className={isEmbedded ? "" : "card form-center"}>
-          <form id={formName} className="bg-white mb-4 font-weight-bold" onSubmit={handleSubmit}>
-            {!isEmbedded 
-              && 
-              <div className={header.alignStyle}>
-                <h1 id={header.id} className={header.style}>{header.text}</h1>
-                {header.tips && <p className={header.tips.style} id={header.tips.id}>{header.tips.message}</p>}
-              </div>
-            }
-            
-            {elements.map((item, index) => {
-              if (item.element === 'select')
-                return renderSelectElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              if (item.element === 'input')
-                return renderInputElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              if (item.element === 'textarea')
-                return renderTextareaElement(item, index, errors, touched, values, handleChange, handleBlur, isEmbedded);
-              return null;
-            })}
-            <button
-              type="submit" 
-              className={button.style} 
-              id={button.id}
-              disabled={isSubmitting}
-            >
-              {button.text}
-            </button>
-            {extraLink 
-              && 
-              <span id={extraLink.id}>
-                <hr />
-                <Link 
-                  to={extraLink.target}
+        <div className={isEmbedded ? "" : "row align-items-center h-100"}>
+          <div className={isEmbedded ? "" : "col-6 mx-auto"}>
+            <div className={isEmbedded ? "" : "card form-center h-100 justify-content-center"}>
+              <form 
+                id={formName} 
+                className={"bg-white mb-4 " + (isEmbedded ? "" : "font-weight-bold")} 
+                onSubmit={handleSubmit}
+              >
+                {!isEmbedded 
+                  && 
+                  <FormHeader header={header} />
+                }
+                
+                {elements.map((item, index) => {
+                  if (item.element === 'select')
+                    return (<SelectElement 
+                              key={item.id} 
+                              item={item} 
+                              errors={errors} 
+                              values={values} 
+                              handleChange={handleChange} 
+                              handleBlur={handleBlur} 
+                              isEmbedded={isEmbedded} 
+                            />);
+                  if (item.element === 'input')
+                    return (<InputElement 
+                              key={item.id} 
+                              item={item}
+                              errors={errors} 
+                              touched={touched} 
+                              values={values} 
+                              handleChange={handleChange} 
+                              handleBlur={handleBlur} 
+                              isEmbedded={isEmbedded} 
+                            />);
+                  if (item.element === 'textarea')
+                    return (<TextareaElement 
+                              key={item.id} 
+                              item={item} 
+                              errors={errors} 
+                              touched={touched} 
+                              values={values} 
+                              handleChange={handleChange} 
+                              handleBlur={handleBlur} 
+                              isEmbedded={isEmbedded} 
+                            />);
+                  if (item.element === 'hidden')
+                    return (<HiddenElement 
+                              key={item.id} 
+                              item={item} 
+                              values={values} 
+                              handleChange={handleChange} 
+                            />);
+                  return null;
+                })}
+                <button
+                  type="submit" 
+                  className={button.style} 
+                  id={button.id}
+                  disabled={isSubmitting}
                 >
-                  {extraLink.text}
-                </Link>
-              </span>
-            }
-          </form>
+                  {button.text}
+                </button>
+                {extraLink 
+                  && 
+                  <ExtraLinks 
+                    links={extraLink}
+                  />
+                }
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </Formik>
   );
 }
 
-function renderSelectElement(item, key, errors, touched, values, handleChange, handleBlur, isEmbedded) {
+function FormHeader({ header }) {
   return (
-    <div key={key} className={"form-group " + (isEmbedded ? "row" : "")}>
+    <div className={header.alignStyle}>
+      <h1 id={header.id} className={header.style}>{header.text}</h1>
+      {header.tips && <p className={header.tips.style} id={header.tips.id}>{header.tips.message}</p>}
+    </div>
+  );
+}
+
+function ExtraLinks({ links }) {
+  return (
+    <span>
+      <hr />
+      {links.map((item) => (
+        <Link 
+        key={item.id}
+        to={item.target}
+        className={item.style}
+        >
+          {item.text}
+        </Link>
+      ))}
+    </span>
+  );
+}
+
+function HiddenElement({ item, values, handleChange }) {
+  return (
+    <input 
+      type="text" 
+      value={values[item.id]} 
+      onChange={handleChange}
+      hidden 
+    />
+  );
+}
+
+function SelectElement({ item, errors, values, handleChange, handleBlur, isEmbedded }) {
+  return (
+    <div className={"form-group " + (isEmbedded ? "row" : "")}>
       <label 
         id={`${item.id}Input`} 
         htmlFor={item.id}
@@ -94,9 +164,9 @@ function renderSelectElement(item, key, errors, touched, values, handleChange, h
   );
 }
 
-function renderInputElement(item, key, errors, touched, values, handleChange, handleBlur, isEmbedded) {
+function InputElement({item, errors, touched, values, handleChange, handleBlur, isEmbedded}) {
   return (
-    <div key={key} className={"form-group " + (isEmbedded ? "row" : "")}>
+    <div className={"form-group " + (isEmbedded ? "row" : "")}>
       <label  
         id={`${item.id}Input`} 
         htmlFor={item.id}
@@ -121,9 +191,9 @@ function renderInputElement(item, key, errors, touched, values, handleChange, ha
   );
 }
 
-function renderTextareaElement(item, key, errors, touched, values, handleChange, handleBlur, isEmbedded) {
+function TextareaElement({ item, errors, touched, values, handleChange, handleBlur, isEmbedded }) {
   return (
-    <div key={key} className={"form-group " + (isEmbedded ? "row" : "")}>
+    <div className={"form-group " + (isEmbedded ? "row" : "")}>
       <label  
         id={`${item.id}Input`} 
         htmlFor={item.id}
