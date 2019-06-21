@@ -235,30 +235,22 @@ namespace DevYeah.LMS.BusinessTest
         public void TestUploadImageFailWithNullArgument()
         {
             // arrangement
-            var memoryStream = new MemoryStream();
-            var length = 0L;
+            var formFiles = new FormFileCollection();
             using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
             {
-                length = fileStream.Length;
-                fileStream.CopyTo(memoryStream);
+                var imageFile = new Mock<IFormFile>();
+                imageFile.Setup(f => f.FileName).Returns("hot-air-ballooning.jpg");
+                imageFile.Setup(f => f.Length).Returns(fileStream.Length);
+                imageFile.Setup(f => f.OpenReadStream()).Returns(fileStream);
+                formFiles.Add(imageFile.Object);
             }
-            var formFiles = new FormFileCollection();
-            formFiles.Add(GetMockImageFile(memoryStream, length, "hot-air-ballooning.jpg"));
 
             // action
             var result = service.UploadImage(new UploadImageRequest { Files = formFiles });
+
             // assertion
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreNotEqual(result.ResultObj, null);
-        }
-
-        private IFormFile GetMockImageFile(MemoryStream stream, long length, string filename)
-        {
-            var imageFile = new Mock<IFormFile>();
-            imageFile.Setup(f => f.FileName).Returns(filename);
-            imageFile.Setup(f => f.Length).Returns(length);
-            imageFile.Setup(f => f.OpenReadStream()).Returns(stream);
-            return imageFile.Object;
         }
     }
 }
