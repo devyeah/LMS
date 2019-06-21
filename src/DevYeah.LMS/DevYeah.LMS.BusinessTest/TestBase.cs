@@ -15,6 +15,8 @@ namespace DevYeah.LMS.BusinessTest
         protected static IOptions<ApiSettings> apiSettings;
         protected static IOptions<EmailSettings> emailSettings;
         protected static IOptions<EmailTemplate> emailTemplate;
+        protected static IOptions<HostEnvironment> hostEnvironment;
+        protected static IOptions<CloudinarySettings> cloudinarySettings;
 
         [ClassInitialize]
         protected static void BaseSetup(TestContext context)
@@ -47,6 +49,13 @@ namespace DevYeah.LMS.BusinessTest
             configuration.GetSection("EmailTemplate").Bind(emailTemplateConfigModel);
             emailTemplate = Options.Create(emailTemplateConfigModel);
 
+            var hostEnvironmentModel = new HostEnvironment();
+            configuration.GetSection("HostEnvironment").Bind(hostEnvironmentModel);
+            hostEnvironment = Options.Create(hostEnvironmentModel);
+
+            var cloudinarySettingsModel = new CloudinarySettings();
+            configuration.GetSection("CloudinarySettings").Bind(cloudinarySettingsModel);
+            cloudinarySettings = Options.Create(cloudinarySettingsModel);
         }
     }
 }

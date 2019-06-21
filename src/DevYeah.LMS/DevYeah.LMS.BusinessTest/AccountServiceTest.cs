@@ -1,12 +1,17 @@
 using System;
 using System.Security.Claims;
+using Moq;
 using DevYeah.LMS.Business;
 using DevYeah.LMS.Business.Helpers;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.BusinessTest.Mock;
 using DevYeah.LMS.Models;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using CloudinaryDotNet.Actions;
 
 namespace DevYeah.LMS.BusinessTest
 {
@@ -44,7 +49,7 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456"
             };
             repository = new AccountRepositoryMocker();
-            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailTemplate);
+            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailTemplate, hostEnvironment, cloudinarySettings);
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),
@@ -224,6 +229,36 @@ namespace DevYeah.LMS.BusinessTest
             var result = service.ResetPassword(request);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
+        }
+
+        [TestMethod]
+        public void TestUploadImageFailWithNullArgument()
+        {
+            // arrangement
+            var memoryStream = new MemoryStream();
+            var length = 0L;
+            using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
+            {
+                length = fileStream.Length;
+                fileStream.CopyTo(memoryStream);
+            }
+            var formFiles = new FormFileCollection();
+            formFiles.Add(GetMockImageFile(memoryStream, length, "hot-air-ballooning.jpg"));
+
+            // action
+            var result = service.UploadImage(new UploadImageRequest { Files = formFiles });
+            // assertion
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreNotEqual(result.ResultObj, null);
+        }
+
+        private IFormFile GetMockImageFile(MemoryStream stream, long length, string filename)
+        {
+            var imageFile = new Mock<IFormFile>();
+            imageFile.Setup(f => f.FileName).Returns(filename);
+            imageFile.Setup(f => f.Length).Returns(length);
+            imageFile.Setup(f => f.OpenReadStream()).Returns(stream);
+            return imageFile.Object;
         }
     }
 }

@@ -14,6 +14,8 @@
         AccountNotExist = 10,
         InvalidToken = 11,
         ActivateFailure = 12,
+        SaveImageFailure = 13,
+        UploadImageFailure = 14,
         BackendException = 99,
         NetworkException = 88,
     }

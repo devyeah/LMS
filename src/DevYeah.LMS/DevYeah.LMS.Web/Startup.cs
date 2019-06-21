@@ -40,6 +40,12 @@ namespace DevYeah.LMS.Web
             //Email Template settings
             var templateSettingsSection = Configuration.GetSection("EmailTemplate");
             services.Configure<EmailTemplate>(templateSettingsSection);
+            // Template Folder settings
+            var hostEnvironmentSection = Configuration.GetSection("TemplateFolderSettings");
+            services.Configure<HostEnvironment>(hostEnvironmentSection);
+            // Cloudinary settings
+            var cloudinarySettingsSection = Configuration.GetSection("CloudinarySettings");
+            services.Configure<CloudinarySettings>(cloudinarySettingsSection);
             #endregion
 
             #region IOC Setting
@@ -47,7 +53,6 @@ namespace DevYeah.LMS.Web
             services.AddScoped<IEmailClient, EmailClient>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
-
             #endregion
         }
 

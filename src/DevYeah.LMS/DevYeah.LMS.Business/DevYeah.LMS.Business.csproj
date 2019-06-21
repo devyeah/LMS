@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.8.0" />
     <PackageReference Include="MailKit" Version="2.1.5.1" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.3.0" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.3.0" />

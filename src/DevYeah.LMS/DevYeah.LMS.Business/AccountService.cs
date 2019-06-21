@@ -1,7 +1,12 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.Helpers;
 using DevYeah.LMS.Business.Interfaces;
@@ -9,8 +14,11 @@ using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.Data.Interfaces;
 using DevYeah.LMS.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using LMSAccount = DevYeah.LMS.Models.Account;
+using CloudinaryAccount = CloudinaryDotNet.Account;
 
 namespace DevYeah.LMS.Business
 {
@@ -23,22 +31,34 @@ namespace DevYeah.LMS.Business
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
         private static readonly string InvalidTokenMsg = "The token is invalid.";
+        private readonly static string EmptyFileErrorMsg = "No file has been upload in request.";
+        private readonly static string ImageUploadFailMsg = "Uploading of image is failed";
 
         private readonly IAccountRepository _repository;
         private readonly IEmailClient _mailClient;
         private readonly TokenSettings _tokenSettings;
         private readonly ApiSettings _apiSettings;
         private readonly EmailTemplate _emailTemplate;
+        private readonly HostEnvironment _hostEnvironment;
+        private readonly CloudinarySettings _cloudinarySettings;
+        private readonly Cloudinary _cloudinary;
 
         public AccountService(IAccountRepository repository, IEmailClient mailClient,
             IOptions<TokenSettings> tokenSettings, IOptions<ApiSettings> apiSettings,
-            IOptions<EmailTemplate> emailTemplate)
+            IOptions<EmailTemplate> emailTemplate, IOptions<HostEnvironment> hostEnvironment,
+            IOptions<CloudinarySettings> cloudinarySettings)
         {
             _repository = repository;
             _mailClient = mailClient;
             _tokenSettings = tokenSettings.Value;
             _apiSettings = apiSettings.Value;
             _emailTemplate = emailTemplate.Value;
+            _hostEnvironment = hostEnvironment.Value;
+            _cloudinarySettings = cloudinarySettings.Value;
+
+            var cloudinaryAccount = new CloudinaryAccount(_cloudinarySettings.CloudName, 
+                _cloudinarySettings.APIKey, _cloudinarySettings.APISecret);
+            _cloudinary = new Cloudinary(cloudinaryAccount);
         }
 
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
@@ -165,7 +185,7 @@ namespace DevYeah.LMS.Business
                 return BuildResult(false, IdentityResultCode.EmailConflict, EmailConflictMsg);
 
             string hashedPassword = IdentityHelper.HashPassword(request.Password);
-            var newAccount = new Account
+            var newAccount = new LMSAccount
             {
                 Id = Guid.NewGuid(),
                 UserName = request.UserName,
@@ -190,6 +210,23 @@ namespace DevYeah.LMS.Business
             {
                 return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
+        }
+
+        public ServiceResult<IdentityResultCode> UploadImage(UploadImageRequest request)
+        {
+            var image = request.Files.FirstOrDefault();
+            if (image == null || image.Length == 0)
+                return BuildResult(false, IdentityResultCode.IncompleteArgument, EmptyFileErrorMsg);
+
+            var localPath = SaveImage(image, out string imageName);
+            if (imageName == null)
+                return BuildResult(false, IdentityResultCode.SaveImageFailure, ImageUploadFailMsg);
+
+            var uploadResult = RetryUpload(() => UploadImage(localPath, imageName), 3);
+            if (uploadResult == null)
+                return BuildResult(false, IdentityResultCode.UploadImageFailure, ImageUploadFailMsg);
+
+            return BuildResult(true, IdentityResultCode.Success, resultObj: uploadResult.JsonObj);
         }
 
         private bool ValidateSignInRequest(SignInRequest request)
@@ -219,7 +256,7 @@ namespace DevYeah.LMS.Business
             return true;
         }
 
-        private string BuildAccountActivationMail(Account account)
+        private string BuildAccountActivationMail(LMSAccount account)
         {
             var token = GenerateAccountActivationToken(account);
             var link = string.Concat(_apiSettings.AccountActivationAPI, "?token=", token);
@@ -229,7 +266,7 @@ namespace DevYeah.LMS.Business
             return content;
         }
 
-        private string BuildPasswordRecoveryMail(Account account)
+        private string BuildPasswordRecoveryMail(LMSAccount account)
         {
             var token = GeneratePasswordRecoveryToken(account.Email);
             var link = string.Concat(_apiSettings.PasswordRecoveryAPI, "?token=", token);
@@ -239,7 +276,7 @@ namespace DevYeah.LMS.Business
             return content;
         }
 
-        private string GenerateAuthenticatedToken(Account account)
+        private string GenerateAuthenticatedToken(LMSAccount account)
         {
             var claims = new[]
             {
@@ -250,7 +287,7 @@ namespace DevYeah.LMS.Business
             return MakeToken(claims);
         }
 
-        private string GenerateAccountActivationToken(Account account)
+        private string GenerateAccountActivationToken(LMSAccount account)
         {
             var claims = new []
             {
@@ -337,6 +374,62 @@ namespace DevYeah.LMS.Business
             {
                 return true;
             }
+        }
+
+        private ImageUploadResult UploadImage(string path, string name)
+        {
+            var uploadParam = new ImageUploadParams
+            {
+                File = new FileDescription(path),
+                PublicId = $"{_cloudinarySettings.AvatarFolder}/{name}"
+            };
+            return _cloudinary.Upload(uploadParam);
+        }
+
+        private string SaveImage(IFormFile image, out string imageName)
+        {
+            imageName = null;
+            try
+            {
+                var suffix = Path.GetExtension(image.FileName);
+                imageName = $"{Guid.NewGuid().ToString()}{suffix}";
+                Directory.CreateDirectory(_hostEnvironment.ImageFolder);
+                var filePath = Path.Combine(_hostEnvironment.ImageFolder, imageName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    image.CopyTo(stream);
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                // Log exceptions
+                return null;
+            }
+        }
+
+        private ImageUploadResult RetryUpload(Func<ImageUploadResult> logic, int maxRetryCounter, Action logImportant = null, Action logError = null)
+        {
+            var loopCounter = 0;
+            // If uploading image fail then trying another 2 times
+            do
+            {
+                loopCounter++;
+                try
+                {
+                    var result = logic?.Invoke();
+                    if (result != null)
+                        return result;
+                }
+                catch (Exception)
+                {
+                    logImportant?.Invoke();
+                    Thread.Sleep(1000);
+                }
+            } while (loopCounter < maxRetryCounter);
+            if (loopCounter > 1)
+                logError?.Invoke();
+            return null;
         }
     }
 }

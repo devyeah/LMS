@@ -12,5 +12,6 @@ namespace DevYeah.LMS.Business.Interfaces
         ServiceResult<IdentityResultCode> ResetPassword(ResetPasswordRequest request);
         ServiceResult<IdentityResultCode> DeleteAccount(Guid accountId);
         ServiceResult<IdentityResultCode> ActivateAccount(string token);
+        ServiceResult<IdentityResultCode> UploadImage(UploadImageRequest request);
     }
 }
