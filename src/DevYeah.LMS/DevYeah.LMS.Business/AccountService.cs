@@ -418,7 +418,7 @@ namespace DevYeah.LMS.Business
                 try
                 {
                     var result = logic?.Invoke();
-                    if (result != null)
+                    if (string.IsNullOrEmpty(result.Error.Message))
                         return result;
                 }
                 catch (Exception)

@@ -232,9 +232,10 @@ namespace DevYeah.LMS.BusinessTest
         }
 
         [TestMethod]
-        public void TestUploadImageFailWithNullArgument()
+        public void TestUploadImageFailure()
         {
             // arrangement
+            ServiceResult<IdentityResultCode> result = null;
             var formFiles = new FormFileCollection();
             using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
             {
@@ -243,14 +244,14 @@ namespace DevYeah.LMS.BusinessTest
                 imageFile.Setup(f => f.Length).Returns(fileStream.Length);
                 imageFile.Setup(f => f.OpenReadStream()).Returns(fileStream);
                 formFiles.Add(imageFile.Object);
+
+                // action
+                result = service.UploadImage(new UploadImageRequest { Files = formFiles });
             }
 
-            // action
-            var result = service.UploadImage(new UploadImageRequest { Files = formFiles });
-
             // assertion
-            Assert.AreEqual(true, result.IsSuccess);
-            Assert.AreNotEqual(result.ResultObj, null);
+            Assert.AreEqual(false, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.UploadImageFailure, result.ResultCode);
         }
     }
 }
