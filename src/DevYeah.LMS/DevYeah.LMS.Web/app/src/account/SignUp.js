@@ -11,19 +11,20 @@ export default class SignUp extends Component {
 
   submitHandler(values, actions){
     //todo: submit values to backend server
-    console.log(values);
     actions.setSubmitting(false);
     actions.resetForm();
   }
 
   render(){
     return (
-      <DynamicForm 
-        formName="signUpForm"
-        submitHandler={this.submitHandler} 
-        formValidation={formValidation}
-        formMeta={formMeta}
-      />
+      <div className="h-100">
+        <DynamicForm 
+          formName="signUpForm"
+          submitHandler={this.submitHandler} 
+          formValidation={formValidation}
+          formMeta={formMeta}
+        />
+      </div>
     );
   }
 }
