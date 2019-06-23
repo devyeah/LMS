@@ -6,7 +6,12 @@ import {
 from "./constants";
 
 export const authenticate = (
-  state = {isVerified: false}, 
+  state = {
+    isVerified: false, 
+    account: null,
+    authPending: false,
+    authError: null
+  }, 
   action
   ) => {
     switch(action.type) {
@@ -14,18 +19,19 @@ export const authenticate = (
         return {
           ...state,
           authPending: true,
-          authError: null
         };
 
       case AUTHENTICATE_SUCCESS:
         return {
+          ...state,
           isVerified: true,
           authPending: false,
-          ...state
+          account: action.payload
         };
 
       case AUTHENTICATE_FAILURE:
         return {
+          ...state,
           isVerified: false,
           authPending: false,
           authError: action.payload
