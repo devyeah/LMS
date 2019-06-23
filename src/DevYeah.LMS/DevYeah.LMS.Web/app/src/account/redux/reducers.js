@@ -1,23 +1,30 @@
+import {
+  AUTHENTICATE_BEGIN,
+  AUTHENTICATE_SUCCESS,
+  AUTHENTICATE_FAILURE
+} 
+from "./constants";
+
 export const authenticate = (
   state = {isVerified: false}, 
   action
   ) => {
     switch(action.type) {
-      case 'AUTHENTICATE_BEGIN':
+      case AUTHENTICATE_BEGIN:
         return {
           ...state,
           authPending: true,
           authError: null
         };
 
-      case 'AUTHENTICATE_SUCCESS':
+      case AUTHENTICATE_SUCCESS:
         return {
           isVerified: true,
           authPending: false,
           ...state
         };
 
-      case 'AUTHENTICATE_FAILURE':
+      case AUTHENTICATE_FAILURE:
         return {
           isVerified: false,
           authPending: false,
