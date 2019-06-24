@@ -1,6 +1,6 @@
 import { createStore, combineReducers  } from 'redux';
 import throttle from 'lodash/throttle';
-import authenticate from './account/redux/reducers';
+import { authenticate } from '../account/redux/reducers';
 
 const loadState = () => {
   try {
@@ -23,20 +23,24 @@ const saveState = (state) => {
   }
 }
 
-const rootReducer = combineReducers({
-  authenticate
-});
-
-const persistedState = loadState();
-const store = createStore(
-  rootReducer,
-  persistedState
-  );
-
-store.subscribe(throttle(() => {
-  saveState({
-    authenticate: store.getState().authenticate
+const configureStore = () => {
+  const rootReducer = combineReducers({
+    authenticate
   });
-}, 1000)); // maxmim calling one time per second
+  
+  const persistedState = loadState();
+  const store = createStore(
+    rootReducer,
+    persistedState
+    );
+  
+  store.subscribe(throttle(() => {
+    saveState({
+      authenticate: store.getState().authenticate
+    });
+  }, 1000)); // calling once per second
 
-export default store;
+  return store;
+}
+
+export default configureStore;
