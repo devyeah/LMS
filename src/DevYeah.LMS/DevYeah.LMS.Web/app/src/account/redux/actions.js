@@ -3,4 +3,4 @@ import {
   AUTHENTICATE_SUCCESS,
   AUTHENTICATE_FAILURE
 } 
-from "./constants";
+from './constants';

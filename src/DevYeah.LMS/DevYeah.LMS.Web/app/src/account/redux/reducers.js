@@ -3,14 +3,14 @@ import {
   AUTHENTICATE_SUCCESS,
   AUTHENTICATE_FAILURE
 } 
-from "./constants";
+from './constants';
 
 export const authenticate = (
   state = {
     isVerified: false, 
-    account: null,
+    account: undefined,
     authPending: false,
-    authError: null
+    authError: undefined
   }, 
   action
   ) => {
