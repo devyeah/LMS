@@ -29,9 +29,8 @@ class SignUp extends Component {
           submitHandler={this.submitHandler} 
           formValidation={formValidation}
           formMeta={formMeta}
+          error={error ? error : undefined}
         />
-        {error 
-          && <div className="alert alert-danger" role="alert">{error}</div>}
       </div>
     );
   }
