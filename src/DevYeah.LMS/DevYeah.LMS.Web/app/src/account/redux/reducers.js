@@ -23,7 +23,7 @@ export const authenticate = (
 
       case ACCOUNT_AUTH_SUCCESS:
         return {
-          ...state,
+          errorMessage: undefined,
           isVerified: true,
           isPending: false,
           account: action.payload

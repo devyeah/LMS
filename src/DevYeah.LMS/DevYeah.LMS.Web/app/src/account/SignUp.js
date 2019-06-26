@@ -12,7 +12,6 @@ class SignUp extends Component {
   }
 
   submitHandler(values, actions){
-    //todo: submit values to backend server
     this.props.onSubmit(values);
     if (!this.props.error) {
       actions.setSubmitting(false);
@@ -21,7 +20,7 @@ class SignUp extends Component {
   }
 
   render(){
-    const { errorMessage } = this.props;
+    const { error } = this.props;
 
     return (
       <div className="h-100">
@@ -31,9 +30,8 @@ class SignUp extends Component {
           formValidation={formValidation}
           formMeta={formMeta}
         />
-        {errorMessage 
-          && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
-        
+        {error 
+          && <div className="alert alert-danger" role="alert">{error}</div>}
       </div>
     );
   }
@@ -45,13 +43,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onSubmit: signup
-  };
-}
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  {onSubmit: signup}
 )(SignUp);

@@ -8,9 +8,9 @@ import { createAccount } from '../../common/api';
 
 export const signup = (signupInfo) => (dispatch) => {
   dispatch({ 
-    ACCOUNT_AUTH_REQUEST 
+    type: ACCOUNT_AUTH_REQUEST 
   });
-
+  
   return createAccount(signupInfo).then(
     response => {
       dispatch({
@@ -21,7 +21,7 @@ export const signup = (signupInfo) => (dispatch) => {
     error => {
       dispatch({
         type: ACCOUNT_AUTH_ERROR,
-        errorMessage: error.message || 'Something went wrong.'
+        payload: error.message || 'Something went wrong.'
       })
     }
   );
