@@ -107,7 +107,12 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
 
 function Alert({error}) {
   return (
-    <div className="alert alert-danger" role="alert">{error}</div>
+    <div className="alert alert-danger" role="alert">
+      {error}
+      <button type="button" className="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
   );
 }
 
