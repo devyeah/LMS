@@ -11,10 +11,10 @@ namespace DevYeah.LMS.Business
     public class EmailClient : IEmailClient
     {
 
-        private readonly EmailSettings _emailSettings;
-        public EmailClient(IOptions<EmailSettings> emailSettings)
+        private readonly AppSettings _appSettings;
+        public EmailClient(IOptions<AppSettings> appSettings)
         {
-            _emailSettings = emailSettings.Value;
+            _appSettings = appSettings.Value;
         }
 
         public void SendEmail(string email, string subject, string content)
@@ -24,16 +24,16 @@ namespace DevYeah.LMS.Business
             if (string.IsNullOrWhiteSpace(content)) throw new ArgumentNullException(nameof(content));
 
             var message = CreateEmailMessage(email, subject, content);
-            RetryAction(() => SendEmail(message), _emailSettings.MaxRetryCount);
+            RetryAction(() => SendEmail(message), _appSettings.MaxRetryCount);
         }
 
         private void SendEmail(MimeMessage message)
         {
-            var host = _emailSettings.Host;
-            var port = _emailSettings.Port;
-            var isUseSSL = _emailSettings.UseSsl;
-            var accountName = _emailSettings.AccountName;
-            var password = _emailSettings.Password;
+            var host = _appSettings.EmailConfig.Host;
+            var port = _appSettings.EmailConfig.Port;
+            var isUseSSL = _appSettings.EmailConfig.UseSsl;
+            var accountName = _appSettings.EmailConfig.AccountName;
+            var password = _appSettings.EmailConfig.Password;
             using (var client = new SmtpClient())
             {
                 client.Connect(host, port, isUseSSL);
@@ -58,7 +58,7 @@ namespace DevYeah.LMS.Business
                 catch (Exception)
                 {
                     logImportant?.Invoke();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(_appSettings.SleepPeriod);
                 }
             } while (loopCounter < maxRetryCounter);
             if (loopCounter > 1)
@@ -68,7 +68,7 @@ namespace DevYeah.LMS.Business
         private MimeMessage CreateEmailMessage(string email, string subject, string content)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_emailSettings.OfficialEmailAddress));
+            message.From.Add(new MailboxAddress(_appSettings.EmailConfig.OfficialEmailAddress));
             message.To.Add(new MailboxAddress(email));
             message.Subject = subject;
             message.Body = new TextPart("plain") { Text = content };

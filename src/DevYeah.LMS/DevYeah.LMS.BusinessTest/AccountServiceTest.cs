@@ -11,19 +11,21 @@ using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using CloudinaryDotNet.Actions;
+using DevYeah.LMS.Business.Interfaces;
+using DevYeah.LMS.Business.ConfigurationModels;
 
 namespace DevYeah.LMS.BusinessTest
 {
     [TestClass]
     public class AccountServiceTest : TestBase
     {
-        MailClientMocker mailClient;
         SignUpRequest signupRequest;
         SignInRequest signInRequest;
-        AccountRepositoryMocker repository;
+        AccountRepositoryMocker accountRepo;
         AccountService service;
         Account testAccount;
+        Mock<IUploadFiles> fileUpload;
+        Mock<IFormFile> imageFile;
 
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
@@ -34,8 +36,17 @@ namespace DevYeah.LMS.BusinessTest
         [TestInitialize]
         public void Setup()
         {
-            mailClient = new MailClientMocker();
-
+            var mailClient = new MailClientMocker();
+            fileUpload = new Mock<IUploadFiles>();
+            imageFile = new Mock<IFormFile>();
+            using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
+            {
+                imageFile.Setup(f => f.FileName).Returns("hot-air-ballooning.jpg");
+                imageFile.Setup(f => f.Length).Returns(fileStream.Length);
+                imageFile.Setup(f => f.OpenReadStream()).Returns(fileStream);
+            }
+            fileUpload.Setup(f => f.UploadPhoto(imageFile.Object)).Returns(new PhotoUploadResult { IsSuccess = true, JsonObj = { }, ErrorMessage = null });
+            
             signupRequest = new SignUpRequest
             {
                 UserName = "devyeah",
@@ -48,8 +59,8 @@ namespace DevYeah.LMS.BusinessTest
                 Email = "devyeah@gmail.com",
                 Password = "123456"
             };
-            repository = new AccountRepositoryMocker();
-            service = new AccountService(repository, mailClient, tokenSettings, apiSettings, emailTemplate, hostEnvironment, cloudinarySettings);
+            accountRepo = new AccountRepositoryMocker();
+            service = new AccountService(accountRepo, mailClient, appSettings, fileUpload.Object);
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),
@@ -60,7 +71,7 @@ namespace DevYeah.LMS.BusinessTest
                 Type = 1,
                 UserProfile = new UserProfile { Id = Guid.NewGuid() }
             };
-            repository.Add(testAccount);
+            accountRepo.Add(testAccount);
         }
 
         [TestMethod]
@@ -117,9 +128,9 @@ namespace DevYeah.LMS.BusinessTest
         [TestMethod]
         public void TestInactivatedUserSignIn()
         {
-            var account = repository.GetUniqueAccountByEmail("devyeah@gmail.com");
+            var account = accountRepo.GetUniqueAccountByEmail("devyeah@gmail.com");
             account.Status = (int)AccountStatus.Inactive;
-            repository.Update(account);
+            accountRepo.Update(account);
             var result = service.SignIn(signInRequest);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.InactivatedAccount, result.ResultCode);
@@ -165,7 +176,8 @@ namespace DevYeah.LMS.BusinessTest
                 new Claim(ClaimTypes.Name, testAccount.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var tokenConfig = appSettings.Value.TokenConfig;
+            var token = IdentityHelper.GenerateToken(tokenConfig.Secret, tokenConfig.Issuer, tokenConfig.Audience, claims, tokenConfig.Expires);
             token = token.Replace('e', 'f');
             var result = service.ActivateAccount(token);
             Assert.AreEqual(false, result.IsSuccess);
@@ -180,7 +192,8 @@ namespace DevYeah.LMS.BusinessTest
                 new Claim(ClaimTypes.Name, testAccount.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var tokenConfig = appSettings.Value.TokenConfig;
+            var token = IdentityHelper.GenerateToken(tokenConfig.Secret, tokenConfig.Issuer, tokenConfig.Audience, claims, tokenConfig.Expires);
             var result = service.ActivateAccount(token);
             Assert.AreEqual(true, result.IsSuccess);
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
@@ -201,7 +214,8 @@ namespace DevYeah.LMS.BusinessTest
             {
                 new Claim(ClaimTypes.Email, testAccount.Email)
             };
-            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var tokenConfig = appSettings.Value.TokenConfig;
+            var token = IdentityHelper.GenerateToken(tokenConfig.Secret, tokenConfig.Issuer, tokenConfig.Audience, claims, tokenConfig.Expires);
             token = token.Replace('e', 'f');
             var request = new ResetPasswordRequest
             {
@@ -220,7 +234,8 @@ namespace DevYeah.LMS.BusinessTest
             {
                 new Claim(ClaimTypes.Email, testAccount.Email)
             };
-            var token = IdentityHelper.GenerateToken(tokenSettings.Value.Secret, tokenSettings.Value.Issuer, tokenSettings.Value.Audience, claims, tokenSettings.Value.Expires);
+            var tokenConfig = appSettings.Value.TokenConfig;
+            var token = IdentityHelper.GenerateToken(tokenConfig.Secret, tokenConfig.Issuer, tokenConfig.Audience, claims, tokenConfig.Expires);
             var request = new ResetPasswordRequest
             {
                 Token = token,
@@ -235,23 +250,17 @@ namespace DevYeah.LMS.BusinessTest
         public void TestUploadImageFailure()
         {
             // arrangement
-            ServiceResult<IdentityResultCode> result = null;
-            var formFiles = new FormFileCollection();
-            using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
+            var formFiles = new FormFileCollection
             {
-                var imageFile = new Mock<IFormFile>();
-                imageFile.Setup(f => f.FileName).Returns("hot-air-ballooning.jpg");
-                imageFile.Setup(f => f.Length).Returns(fileStream.Length);
-                imageFile.Setup(f => f.OpenReadStream()).Returns(fileStream);
-                formFiles.Add(imageFile.Object);
+                imageFile.Object
+            };
 
-                // action
-                result = service.UploadImage(new UploadImageRequest { Files = formFiles });
-            }
+            // action
+            var result = service.SetAvatar(new UploadImageRequest { Files = formFiles });
 
             // assertion
-            Assert.AreEqual(false, result.IsSuccess);
-            Assert.AreEqual(IdentityResultCode.UploadImageFailure, result.ResultCode);
+            Assert.AreEqual(true, result.IsSuccess);
+            Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
         }
     }
 }

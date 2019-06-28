@@ -11,12 +11,7 @@ namespace DevYeah.LMS.BusinessTest
     public class TestBase
     {
         protected static IConfiguration configuration;
-        protected static IOptions<TokenSettings> tokenSettings;
-        protected static IOptions<ApiSettings> apiSettings;
-        protected static IOptions<EmailSettings> emailSettings;
-        protected static IOptions<EmailTemplate> emailTemplate;
-        protected static IOptions<HostEnvironment> hostEnvironment;
-        protected static IOptions<CloudinarySettings> cloudinarySettings;
+        protected static IOptions<AppSettings> appSettings;
 
         [ClassInitialize]
         protected static void BaseSetup(TestContext context)
@@ -33,29 +28,9 @@ namespace DevYeah.LMS.BusinessTest
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var tokenConfigModel = new TokenSettings();
-            configuration.GetSection("TokenSettings").Bind(tokenConfigModel);
-            tokenSettings = Options.Create(tokenConfigModel);
-
-            var apiConfigModel = new ApiSettings();
-            configuration.GetSection("ApiSettings").Bind(apiConfigModel);
-            apiSettings = Options.Create(apiConfigModel);
-
-            var contactConfigModel = new EmailSettings();
-            configuration.GetSection("EmailSettings").Bind(contactConfigModel);
-            emailSettings = Options.Create(contactConfigModel);
-
-            var emailTemplateConfigModel = new EmailTemplate();
-            configuration.GetSection("EmailTemplate").Bind(emailTemplateConfigModel);
-            emailTemplate = Options.Create(emailTemplateConfigModel);
-
-            var hostEnvironmentModel = new HostEnvironment();
-            configuration.GetSection("HostEnvironment").Bind(hostEnvironmentModel);
-            hostEnvironment = Options.Create(hostEnvironmentModel);
-
-            var cloudinarySettingsModel = new CloudinarySettings();
-            configuration.GetSection("CloudinarySettings").Bind(cloudinarySettingsModel);
-            cloudinarySettings = Options.Create(cloudinarySettingsModel);
+            var appSettingsModel = new AppSettings();
+            configuration.GetSection("LMSConfig").Bind(appSettingsModel);
+            appSettings = Options.Create(appSettingsModel);
         }
     }
 }

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace DevYeah.LMS.Business.ConfigurationModels
 {
-    public class HostEnvironment
+    public class DbSettings
     {
-        public string ImageFolder { get; set; }
+        public string DefualtConnect { get; set; }
     }
 }

@@ -28,24 +28,8 @@ namespace DevYeah.LMS.Web
             services.AddDbContext<LMSContext>(options => options.UseSqlServer(dbConnection));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             #region Configuration Setting
-            // Token settings
-            var tokenSettingsSection = Configuration.GetSection("TokenSettings");
-            services.Configure<TokenSettings>(tokenSettingsSection);
-            // Email settings
-            var emailSettingsSection = Configuration.GetSection("EmailSettings");
-            services.Configure<EmailSettings>(emailSettingsSection);
-            // Api settings
-            var apiSettingsSection = Configuration.GetSection("ApiSettings");
-            services.Configure<ApiSettings>(apiSettingsSection);
-            //Email Template settings
-            var templateSettingsSection = Configuration.GetSection("EmailTemplate");
-            services.Configure<EmailTemplate>(templateSettingsSection);
-            // Template Folder settings
-            var hostEnvironmentSection = Configuration.GetSection("TemplateFolderSettings");
-            services.Configure<HostEnvironment>(hostEnvironmentSection);
-            // Cloudinary settings
-            var cloudinarySettingsSection = Configuration.GetSection("CloudinarySettings");
-            services.Configure<CloudinarySettings>(cloudinarySettingsSection);
+            var lmsConfig = Configuration.GetSection("LMSConfig");
+            services.Configure<AppSettings>(lmsConfig);
             #endregion
 
             #region IOC Setting

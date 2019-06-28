@@ -36,7 +36,7 @@ namespace DevYeah.LMS.Web.Controllers
 
         // POST api/v1/identity/uploadphoto
         [HttpPost("uploadphoto")]
-        public IActionResult UploadImage(UploadImageRequest request) => GetResult(() => _accountService.UploadImage(request));
+        public IActionResult UploadImage(UploadImageRequest request) => GetResult(() => _accountService.SetAvatar(request));
 
         private IActionResult GetResult(Func<ServiceResult<IdentityResultCode>> action)
         {

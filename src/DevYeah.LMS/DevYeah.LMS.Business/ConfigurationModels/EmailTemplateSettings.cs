@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DevYeah.LMS.Business.ConfigurationModels
 {
-    public class EmailTemplate
+    public class EmailTemplateSettings
     {
         public string SignUpMailSubject { get; set; }
         public string PasswordRecoveryMailSubject { get; set; }
