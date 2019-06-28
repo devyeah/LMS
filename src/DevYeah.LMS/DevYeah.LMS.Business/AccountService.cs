@@ -29,15 +29,15 @@ namespace DevYeah.LMS.Business
         private readonly IAccountRepository _accountRepo;
         private readonly IEmailClient _mailClient;
         private readonly AppSettings _appSettings;
-        private readonly IUploadFiles _uploadFiles;
+        private readonly IBlobStorage _blobStorage;
 
         public AccountService(IAccountRepository repository, IEmailClient mailClient,
-            IOptions<AppSettings> appSettings, IUploadFiles uploadFiles)
+            IOptions<AppSettings> appSettings, IBlobStorage blobStorage)
         {
             _accountRepo = repository;
             _mailClient = mailClient;
             _appSettings = appSettings.Value;
-            _uploadFiles = uploadFiles;
+            _blobStorage = blobStorage;
         }
 
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
@@ -197,7 +197,7 @@ namespace DevYeah.LMS.Business
             if (photo == null || photo.Length == 0)
                 return BuildResult(false, IdentityResultCode.SaveImageFailure, EmptyFileErrorMsg);
 
-            var uploadResult = _uploadFiles.UploadPhoto(photo);
+            var uploadResult = _blobStorage.UploadPhoto(photo);
             // Todo: update database
             if (uploadResult.IsSuccess)
                 return BuildResult(true, IdentityResultCode.Success, resultObj: uploadResult.JsonObj);

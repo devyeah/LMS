@@ -1,18 +1,17 @@
 using System;
+using System.IO;
 using System.Security.Claims;
-using Moq;
 using DevYeah.LMS.Business;
 using DevYeah.LMS.Business.Helpers;
+using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.BusinessTest.Mock;
 using DevYeah.LMS.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using DevYeah.LMS.Business.Interfaces;
-using DevYeah.LMS.Business.ConfigurationModels;
+using Moq;
 
 namespace DevYeah.LMS.BusinessTest
 {
@@ -24,7 +23,7 @@ namespace DevYeah.LMS.BusinessTest
         AccountRepositoryMocker accountRepo;
         AccountService service;
         Account testAccount;
-        Mock<IUploadFiles> fileUpload;
+        Mock<IBlobStorage> fileUpload;
         Mock<IFormFile> imageFile;
 
         [ClassInitialize]
@@ -37,16 +36,16 @@ namespace DevYeah.LMS.BusinessTest
         public void Setup()
         {
             var mailClient = new MailClientMocker();
-            fileUpload = new Mock<IUploadFiles>();
+            fileUpload = new Mock<IBlobStorage>();
             imageFile = new Mock<IFormFile>();
-            using (var fileStream = new FileStream(@"E:\LMS\src\DevYeah.LMS\DevYeah.LMS.BusinessTest\TestImages\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
+            using (var fileStream = new FileStream($"{testRootPath}\\TestImages\\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
             {
                 imageFile.Setup(f => f.FileName).Returns("hot-air-ballooning.jpg");
                 imageFile.Setup(f => f.Length).Returns(fileStream.Length);
                 imageFile.Setup(f => f.OpenReadStream()).Returns(fileStream);
             }
             fileUpload.Setup(f => f.UploadPhoto(imageFile.Object)).Returns(new PhotoUploadResult { IsSuccess = true, JsonObj = { }, ErrorMessage = null });
-            
+
             signupRequest = new SignUpRequest
             {
                 UserName = "devyeah",
@@ -89,7 +88,7 @@ namespace DevYeah.LMS.BusinessTest
             var signInResult = result.ResultObj as SignInResult;
             Assert.AreEqual(IdentityResultCode.Success, result.ResultCode);
             Assert.AreEqual("devyeah", signInResult.Username);
- 
+
         }
 
         [TestMethod]

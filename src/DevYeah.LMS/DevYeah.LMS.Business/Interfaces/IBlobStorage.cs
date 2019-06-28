@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace DevYeah.LMS.Business.Interfaces
 {
-    public interface IUploadFiles
+    public interface IBlobStorage
     {
         PhotoUploadResult UploadPhoto(IFormFile photo);
     }

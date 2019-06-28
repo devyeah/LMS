@@ -6,6 +6,6 @@ namespace DevYeah.LMS.Business.ConfigurationModels
 {
     public class DbSettings
     {
-        public string DefualtConnect { get; set; }
+        public string DefaultConnect { get; set; }
     }
 }

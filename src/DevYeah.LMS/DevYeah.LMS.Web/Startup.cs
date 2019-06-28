@@ -24,11 +24,11 @@ namespace DevYeah.LMS.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var dbConnection = Configuration.GetValue<string>("DefualtConnection");
-            services.AddDbContext<LMSContext>(options => options.UseSqlServer(dbConnection));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             #region Configuration Setting
             var lmsConfig = Configuration.GetSection("LMSConfig");
+            var dbConnection = lmsConfig.GetSection("DbConfig").GetValue<string>("DefaultConnection");
+            services.AddDbContext<LMSContext>(options => options.UseSqlServer(dbConnection));
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.Configure<AppSettings>(lmsConfig);
             #endregion
 

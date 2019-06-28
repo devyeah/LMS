@@ -12,6 +12,7 @@ namespace DevYeah.LMS.BusinessTest
     {
         protected static IConfiguration configuration;
         protected static IOptions<AppSettings> appSettings;
+        protected static string testRootPath;
 
         [ClassInitialize]
         protected static void BaseSetup(TestContext context)
@@ -21,6 +22,7 @@ namespace DevYeah.LMS.BusinessTest
             var fullDir = Assembly.GetCallingAssembly().Location;
             var indexOfPart = fullDir.IndexOf(binDir, StringComparison.OrdinalIgnoreCase);
             var basePath = fullDir.Substring(0, indexOfPart);
+            testRootPath = basePath;
             #endregion
 
             configuration = new ConfigurationBuilder()

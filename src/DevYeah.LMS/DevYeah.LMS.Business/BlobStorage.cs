@@ -12,19 +12,19 @@ using Microsoft.Extensions.Options;
 
 namespace DevYeah.LMS.Business
 {
-    class UploadFiles : IUploadFiles
+    class BlobStorage : IBlobStorage
     {
         private static readonly string INTERNAL_ERROR_MSG = "File Uploading Is Failed.";
 
         private readonly AppSettings _appSettings;
 
-        private readonly Cloudinary _cloudinary;
+        private readonly Cloudinary _cloudinaryStorage;
 
-        public UploadFiles(IOptions<AppSettings> appSettings)
+        public BlobStorage(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
             var cloudinaryAccount = new Account(_appSettings.CloudinaryConfig.CloudName, _appSettings.CloudinaryConfig.APIKey, _appSettings.CloudinaryConfig.APISecret);
-            _cloudinary = new Cloudinary(cloudinaryAccount);
+            _cloudinaryStorage = new Cloudinary(cloudinaryAccount);
         }
         public PhotoUploadResult UploadPhoto(IFormFile photo)
         {
@@ -32,7 +32,7 @@ namespace DevYeah.LMS.Business
             if (uploadParams == null)
                 return new PhotoUploadResult { IsSuccess = false, JsonObj = null, ErrorMessage = INTERNAL_ERROR_MSG };
 
-            var uploadResult = RetryUpload(() => _cloudinary.Upload(uploadParams), _appSettings.MaxRetryCount);
+            var uploadResult = RetryUpload(() => _cloudinaryStorage.Upload(uploadParams), _appSettings.MaxRetryCount);
             if (uploadResult.StatusCode == HttpStatusCode.OK)
                 return new PhotoUploadResult { IsSuccess = true, JsonObj = uploadResult.JsonObj, ErrorMessage = null };
 
