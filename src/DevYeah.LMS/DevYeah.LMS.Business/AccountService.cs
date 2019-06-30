@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using DevYeah.LMS.Business.ConfigurationModels;
@@ -23,22 +24,20 @@ namespace DevYeah.LMS.Business
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
         private static readonly string InvalidTokenMsg = "The token is invalid.";
+        private static readonly string EmptyFileErrorMsg = "No file has been upload in request.";
 
-        private readonly IAccountRepository _repository;
+        private readonly IAccountRepository _accountRepo;
         private readonly IEmailClient _mailClient;
-        private readonly TokenSettings _tokenSettings;
-        private readonly ApiSettings _apiSettings;
-        private readonly EmailTemplate _emailTemplate;
+        private readonly AppSettings _appSettings;
+        private readonly IBlobStorage _blobStorage;
 
         public AccountService(IAccountRepository repository, IEmailClient mailClient,
-            IOptions<TokenSettings> tokenSettings, IOptions<ApiSettings> apiSettings,
-            IOptions<EmailTemplate> emailTemplate)
+            IOptions<AppSettings> appSettings, IBlobStorage blobStorage)
         {
-            _repository = repository;
+            _accountRepo = repository;
             _mailClient = mailClient;
-            _tokenSettings = tokenSettings.Value;
-            _apiSettings = apiSettings.Value;
-            _emailTemplate = emailTemplate.Value;
+            _appSettings = appSettings.Value;
+            _blobStorage = blobStorage;
         }
 
         public ServiceResult<IdentityResultCode> ActivateAccount(string token)
@@ -52,12 +51,12 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var account = _repository.GetAccount(Guid.Parse(keyClaim.Value));
+                var account = _accountRepo.GetAccount(Guid.Parse(keyClaim.Value));
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
                 account.Status = (int)AccountStatus.Active;
-                _repository.Update(account);
+                _accountRepo.Update(account);
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
             catch (Exception ex)
@@ -73,12 +72,12 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var account = _repository.GetAccount(accountId);
+                var account = _accountRepo.GetAccount(accountId);
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
                 account.Status = (int)AccountStatus.Deleted;
-                _repository.Update(account);
+                _accountRepo.Update(account);
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
             catch (Exception ex)
@@ -92,11 +91,11 @@ namespace DevYeah.LMS.Business
             if (string.IsNullOrWhiteSpace(email))
                 return;
 
-            var account = _repository.GetUniqueAccountByEmail(email);
+            var account = _accountRepo.GetUniqueAccountByEmail(email);
             if (account == null)
                 return;
 
-            var subject = _emailTemplate.PasswordRecoveryMailSubject;
+            var subject = _appSettings.EmailTemplateConfig.PasswordRecoveryMailSubject;
             var content = BuildPasswordRecoveryMail(account);
             _mailClient.SendEmail(email, subject, content);
         }
@@ -117,12 +116,12 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var account = _repository.GetUniqueAccountByEmail(emailClaim.Value);
+                var account = _accountRepo.GetUniqueAccountByEmail(emailClaim.Value);
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
                 var hashedNewPassword = IdentityHelper.HashPassword(request.NewPassword);
                 account.Password = hashedNewPassword;
-                _repository.Update(account);
+                _accountRepo.Update(account);
 
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
@@ -138,7 +137,7 @@ namespace DevYeah.LMS.Business
             if (!isRequestValid)
                 return BuildResult(false, IdentityResultCode.IncompleteArgument, ArgumentNullMsg);
 
-            var account = _repository.GetUniqueAccountByEmail(request.Email);
+            var account = _accountRepo.GetUniqueAccountByEmail(request.Email);
             if (account == null)
                 return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
 
@@ -150,7 +149,7 @@ namespace DevYeah.LMS.Business
             var resultObject = new SignInResult { Identity = account.Id, Username = account.UserName, AuthenticatedToken = authToken };
             if ((AccountStatus)account.Status == AccountStatus.Inactive)
                 return BuildResult(true, IdentityResultCode.InactivatedAccount, InactivatedAccountMsg, resultObject);
-            
+
             return BuildResult(true, IdentityResultCode.Success, resultObj: resultObject);
         }
 
@@ -178,9 +177,9 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                _repository.Add(newAccount);
-                _repository.SaveChanges();
-                var subject = _emailTemplate.SignUpMailSubject;
+                _accountRepo.Add(newAccount);
+                _accountRepo.SaveChanges();
+                var subject = _appSettings.EmailTemplateConfig.SignUpMailSubject;
                 var content = BuildAccountActivationMail(newAccount);
                 _mailClient.SendEmail(newAccount.Email, subject, content);
                 var authToken = GenerateAuthenticatedToken(newAccount);
@@ -190,6 +189,20 @@ namespace DevYeah.LMS.Business
             {
                 return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
+        }
+
+        public ServiceResult<IdentityResultCode> SetAvatar(UploadImageRequest request)
+        {
+            var photo = request.Files.FirstOrDefault();
+            if (photo == null || photo.Length == 0)
+                return BuildResult(false, IdentityResultCode.SaveImageFailure, EmptyFileErrorMsg);
+
+            var uploadResult = _blobStorage.UploadPhoto(photo);
+            // Todo: update database
+            if (uploadResult.IsSuccess)
+                return BuildResult(true, IdentityResultCode.Success, resultObj: uploadResult.JsonObj);
+
+            return BuildResult(false, IdentityResultCode.SaveImageFailure, uploadResult.ErrorMessage);
         }
 
         private bool ValidateSignInRequest(SignInRequest request)
@@ -222,9 +235,9 @@ namespace DevYeah.LMS.Business
         private string BuildAccountActivationMail(Account account)
         {
             var token = GenerateAccountActivationToken(account);
-            var link = string.Concat(_apiSettings.AccountActivationAPI, "?token=", token);
-            var templateKey = nameof(_emailTemplate.SignUpMailContent);
-            var template = _emailTemplate.SignUpMailContent;
+            var link = string.Concat(_appSettings.ApiConfig.AccountActivationAPI, "?token=", token);
+            var templateKey = nameof(_appSettings.EmailTemplateConfig.SignUpMailContent);
+            var template = _appSettings.EmailTemplateConfig.SignUpMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
             return content;
         }
@@ -232,9 +245,9 @@ namespace DevYeah.LMS.Business
         private string BuildPasswordRecoveryMail(Account account)
         {
             var token = GeneratePasswordRecoveryToken(account.Email);
-            var link = string.Concat(_apiSettings.PasswordRecoveryAPI, "?token=", token);
-            var templateKey = nameof(_emailTemplate.PasswordRecoveryMailContent);
-            var template = _emailTemplate.PasswordRecoveryMailContent;
+            var link = string.Concat(_appSettings.ApiConfig.PasswordRecoveryAPI, "?token=", token);
+            var templateKey = nameof(_appSettings.EmailTemplateConfig.PasswordRecoveryMailContent);
+            var template = _appSettings.EmailTemplateConfig.PasswordRecoveryMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
             return content;
         }
@@ -246,18 +259,18 @@ namespace DevYeah.LMS.Business
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
                 new Claim(ClaimTypes.Email, account.Email),
             };
-            
+
             return MakeToken(claims);
         }
 
         private string GenerateAccountActivationToken(Account account)
         {
-            var claims = new []
+            var claims = new[]
             {
                 new Claim(ClaimTypes.Name, account.Id.ToString()),
                 new Claim(ClaimTypes.Authentication, "false"),
             };
-            
+
             return MakeToken(claims);
         }
 
@@ -267,14 +280,14 @@ namespace DevYeah.LMS.Business
             {
                 new Claim(ClaimTypes.Email, email)
             };
-            
+
             return MakeToken(claims);
         }
 
         private string MakeToken(Claim[] claims)
         {
-            return IdentityHelper.GenerateToken(_tokenSettings.Secret, _tokenSettings.Issuer,
-                _tokenSettings.Audience, claims, _tokenSettings.Expires);
+            return IdentityHelper.GenerateToken(_appSettings.TokenConfig.Secret, _appSettings.TokenConfig.Issuer,
+                _appSettings.TokenConfig.Audience, claims, _appSettings.TokenConfig.Expires);
         }
 
         private Claim GetClaimFromToken(string token, string claimType)
@@ -292,15 +305,15 @@ namespace DevYeah.LMS.Business
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var secretKey = Encoding.ASCII.GetBytes(_tokenSettings.Secret);
+                var secretKey = Encoding.ASCII.GetBytes(_appSettings.TokenConfig.Secret);
                 var validationParameters = new TokenValidationParameters
                 {
                     RequireExpirationTime = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     IssuerSigningKey = new SymmetricSecurityKey(secretKey),
-                    ValidIssuer = _tokenSettings.Issuer,
-                    ValidAudience = _tokenSettings.Audience
+                    ValidIssuer = _appSettings.TokenConfig.Issuer,
+                    ValidAudience = _appSettings.TokenConfig.Audience
                 };
 
                 var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
@@ -327,7 +340,7 @@ namespace DevYeah.LMS.Business
         {
             try
             {
-                var identicalAccount = _repository.GetUniqueAccountByEmail(request.Email);
+                var identicalAccount = _accountRepo.GetUniqueAccountByEmail(request.Email);
                 if (identicalAccount != null)
                     return true;
 

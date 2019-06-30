@@ -34,6 +34,10 @@ namespace DevYeah.LMS.Web.Controllers
         [HttpPost("updatepassword")]
         public IActionResult ResetPassword(ResetPasswordRequest request) => GetResult(() => _accountService.ResetPassword(request));
 
+        // POST api/v1/identity/uploadphoto
+        [HttpPost("uploadphoto")]
+        public IActionResult UploadImage(UploadImageRequest request) => GetResult(() => _accountService.SetAvatar(request));
+
         private IActionResult GetResult(Func<ServiceResult<IdentityResultCode>> action)
         {
             var result = action();
