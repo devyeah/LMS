@@ -45,7 +45,6 @@ export function signin(signinInfo) {
             payload: response
           })
         },
-
         error => {
           dispatch({
             type: ACCOUNT_AUTH_ERROR,
