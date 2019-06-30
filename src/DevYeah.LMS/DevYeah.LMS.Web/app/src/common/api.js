@@ -1,5 +1,9 @@
 import axios from 'axios';
 
 export const createAccount = (signupInfo) => {
-  return axios.post("https://localhost:44326/api/v1/identity/signup", signupInfo);
+  return axios.post("/identity/signup", signupInfo);
+}
+
+export const signIn = (signinInfo) => {
+  return axios.post("/identity/signin", signinInfo);
 }

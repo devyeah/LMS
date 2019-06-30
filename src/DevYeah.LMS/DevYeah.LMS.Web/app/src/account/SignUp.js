@@ -14,9 +14,11 @@ class SignUp extends Component {
   submitHandler(values, actions){
     this.props.onSubmit(values)
       .then(
-        (response) => {
+        (error) => {
           actions.setSubmitting(false);
-          actions.resetForm();
+          if (!error) {
+            actions.resetForm();
+          }
         }
       );
   }
