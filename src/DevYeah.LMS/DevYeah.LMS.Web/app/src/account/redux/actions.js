@@ -1,7 +1,8 @@
 import {
   ACCOUNT_AUTH_REQUEST,
   ACCOUNT_AUTH_SUCCESS,
-  ACCOUNT_AUTH_ERROR
+  ACCOUNT_AUTH_ERROR,
+  ACCOUNT_SIGNOUT
 } 
 from './constants';
 import * as api from '../../common/api';
@@ -42,7 +43,7 @@ export function signin(signinInfo) {
         response => {
           dispatch({
             type: ACCOUNT_AUTH_SUCCESS,
-            payload: response
+            payload: response.data
           })
         },
         error => {
@@ -54,4 +55,10 @@ export function signin(signinInfo) {
         }
       );
   }  
+}
+
+export function signout(){
+  return {
+    type: ACCOUNT_SIGNOUT
+  }
 }

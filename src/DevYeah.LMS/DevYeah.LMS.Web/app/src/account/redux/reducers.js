@@ -1,7 +1,8 @@
 import {
   ACCOUNT_AUTH_REQUEST,
   ACCOUNT_AUTH_SUCCESS,
-  ACCOUNT_AUTH_ERROR
+  ACCOUNT_AUTH_ERROR,
+  ACCOUNT_SIGNOUT
 } 
 from './constants';
 
@@ -35,6 +36,13 @@ export const authenticate = (
           isVerified: false,
           isPending: false,
           errorMessage: action.payload
+        };
+
+      case ACCOUNT_SIGNOUT:
+        return {
+          ...state,
+          isVerified: false,
+          account: undefined
         };
 
       default:

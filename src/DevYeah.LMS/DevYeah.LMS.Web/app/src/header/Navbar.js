@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import AuthenticationButtons from './AuthenticationButtons';
 import DropDownMenu from './DropDownMenu';
 import logo from '../images/logo.png';
 import './header.css';
 
-export default function Navbar() {
+function Navbar({ isLoggedIn }) {
   return (
     <nav className="navbar navbar-light bg-light">
       <div className="container">
@@ -14,30 +16,21 @@ export default function Navbar() {
             Dev Yeah!
           </Link>
         </div>
-        <div id="signButton" >
-          {false && <DropDownMenu />}
-          <ul className="navbar-nav flex-row">
-            <li className="nav-item mr-2">
-              <Link 
-                to="/signin" 
-                id="signInBtn" 
-                className="btn btn-link font-weight-bold"
-              >
-                Sign In
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/signup"
-                id="signUpBtn" 
-                className="btn btn-success font-weight-bold"
-              >
-                Sign Up
-              </Link>
-            </li>
-          </ul>
+        <div id="navbarAction" >
+          { isLoggedIn ? <DropDownMenu /> : <AuthenticationButtons /> }
         </div>
       </div>
     </nav>
   );
 }
+
+const mapStateToProps = state => {
+  return {
+    isLoggedIn : state.authenticate.isVerified
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  null
+)(Navbar);

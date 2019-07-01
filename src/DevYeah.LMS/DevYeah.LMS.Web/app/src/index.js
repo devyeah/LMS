@@ -7,7 +7,7 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 
 const store = configureStore();
-axios.defaults.baseURL = "https://localhost:44326/api/v1";
+axios.defaults.baseURL = "https://localhost:5001/api/v1";
 
 ReactDOM.render(
   <Root store={store} />, 

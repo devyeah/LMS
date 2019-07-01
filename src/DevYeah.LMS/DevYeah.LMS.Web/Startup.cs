@@ -6,6 +6,7 @@ using DevYeah.LMS.Data.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,11 +31,16 @@ namespace DevYeah.LMS.Web
             services.AddDbContext<LMSContext>(options => options.UseSqlServer(dbConnection));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.Configure<AppSettings>(lmsConfig);
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "app/build";
+            });
             #endregion
 
             #region IOC Setting
             services.AddScoped<DbContext, LMSContext>();
             services.AddScoped<IEmailClient, EmailClient>();
+            services.AddScoped<IBlobStorage, BlobStorage>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
             #endregion
@@ -54,7 +60,19 @@ namespace DevYeah.LMS.Web
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
             app.UseMvc();
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "app";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
+            });
         }
     }
 }
