@@ -45,7 +45,6 @@ class DropDownMenu extends Component {
           </Link>
           <Link 
             className="dropdown-item"
-            to="/"
             id="logoutMenu"
             onClick={this.accountSignOut}
           >
