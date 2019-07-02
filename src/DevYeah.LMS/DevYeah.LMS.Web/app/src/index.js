@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-
 import Root from './Root';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 
-axios.defaults.baseURL = "https://localhost:5001/api/v1";
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 
 ReactDOM.render(
   <Root />, 
