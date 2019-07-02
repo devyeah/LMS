@@ -57,7 +57,7 @@ export function signin(signinInfo) {
   }  
 }
 
-export function signout(){
+export function signout() {
   return {
     type: ACCOUNT_SIGNOUT
   }

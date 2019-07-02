@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { signout } from '../account/redux/actions';
 
@@ -13,7 +13,6 @@ class DropDownMenu extends Component {
 
   accountSignOut() {
     this.props.signout();
-    this.history.push("/");
   }
 
   render() {
@@ -46,6 +45,7 @@ class DropDownMenu extends Component {
           <Link 
             className="dropdown-item"
             id="logoutMenu"
+            to="/"
             onClick={this.accountSignOut}
           >
             Log out
@@ -63,7 +63,7 @@ const mapStateToProps = state => {
   }
 }
 
-export default withRouter(connect(
+export default connect(
   mapStateToProps,
-  signout
-)(DropDownMenu));
+  {signout}
+)(DropDownMenu);
