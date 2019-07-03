@@ -29,15 +29,20 @@ export default class ActiveAccount extends Component {
 
   handleActiveAccount() {
     this.setState({
-      isTouched: true,
-      isTriggered: true
+      isTouched: true
     });
     const token = this.props.match.params.token;
     api.activeAccount({token: token})
       .then(
         response => {
           this.setState({
-            isActiveSuccess: true
+            isActiveSuccess: true,
+            isTriggered: true
+          });
+        },
+        error => {
+          this.setState({
+            isTriggered: true
           });
         }
       );
