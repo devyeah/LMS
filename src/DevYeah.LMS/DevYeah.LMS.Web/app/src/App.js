@@ -7,6 +7,8 @@ import ResetPassword from './account/ResetPassword';
 import ForgetPassword from './account/ForgetPassword'; 
 import LandingPage from './common/LandingPage';
 import EditProfile from './account/EditProfileLayout';
+import ActiveAccount from './account/ActiveAccount';
+import IllegalActiveAccount from './account/IllegalActiveAccount';
 import './index.css';
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
             <Route path="/signin" component={SignIn} />
             <Route path="/forgetPassword" component={ForgetPassword} />
             <Route path="/resetPassword" component={ResetPassword} />
+            <Route path="/account/active/:token" component={ActiveAccount} />
+            <Route path="/account/active" component={IllegalActiveAccount} />
             <Redirect path="/account/editProfile" exact to="/account/editProfile/profile" />
             <Route path="/account/editProfile" component={EditProfile} />
           </Switch>

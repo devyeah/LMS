@@ -235,7 +235,7 @@ namespace DevYeah.LMS.Business
         private string BuildAccountActivationMail(Account account)
         {
             var token = GenerateAccountActivationToken(account);
-            var link = string.Concat(_appSettings.ApiConfig.AccountActivationAPI, "?token=", token);
+            var link = string.Concat(_appSettings.ApiConfig.AccountActivationAPI, token);
             var templateKey = nameof(_appSettings.EmailTemplateConfig.SignUpMailContent);
             var template = _appSettings.EmailTemplateConfig.SignUpMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });

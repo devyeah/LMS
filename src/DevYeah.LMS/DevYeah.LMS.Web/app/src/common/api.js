@@ -7,3 +7,7 @@ export const createAccount = (signupInfo) => {
 export const signIn = (signinInfo) => {
   return axios.post("/identity/login", signinInfo);
 }
+
+export const activeAccount = (token) => {
+  return axios.post("/identity/active", token);
+}

@@ -23,7 +23,7 @@ namespace DevYeah.LMS.Web.Controllers
         public IActionResult SignIn(SignInRequest request) => GetResult(() => _accountService.SignIn(request));
 
         // Get api/v1/identity/activate
-        [HttpGet("active")]
+        [HttpPost("active")]
         public IActionResult Activate(string token) => GetResult(() => _accountService.ActivateAccount(token));
 
         // POST api/v1/identity/recoverypassword
