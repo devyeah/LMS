@@ -24,6 +24,7 @@ namespace DevYeah.LMS.Business
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
         private static readonly string InvalidTokenMsg = "The token is invalid.";
+        private static readonly string AccountIsAlreadyActive = "Cannot activate the same account repeatedly.";
         private static readonly string EmptyFileErrorMsg = "No file has been upload in request.";
 
         private readonly IAccountRepository _accountRepo;
@@ -54,9 +55,12 @@ namespace DevYeah.LMS.Business
                 var account = _accountRepo.GetAccount(Guid.Parse(keyClaim.Value));
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+                if ((AccountStatus)account.Status == AccountStatus.Active)
+                    return BuildResult(false, IdentityResultCode.InvalidToken, AccountIsAlreadyActive);
 
                 account.Status = (int)AccountStatus.Active;
                 _accountRepo.Update(account);
+                _accountRepo.SaveChanges();
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
             catch (Exception ex)

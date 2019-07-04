@@ -21,7 +21,8 @@ export default class ActiveAccount extends Component {
     this.state = {
       isActiveSuccess: false,
       isTriggered: false,
-      isTouched: false
+      isTouched: false,
+      errorMessage: null
     };
 
     this.handleActiveAccount = this.handleActiveAccount.bind(this);
@@ -32,20 +33,21 @@ export default class ActiveAccount extends Component {
       isTouched: true
     });
     const token = this.props.match.params.token;
-    api.activeAccount({token: token})
-      .then(
-        response => {
+    api.activeAccount(token)
+      .then(response => {
           this.setState({
             isActiveSuccess: true,
-            isTriggered: true
+            isTriggered: true,
+            errorMessage: null
           });
-        },
-        error => {
+      })
+      .catch(error => {
           this.setState({
-            isTriggered: true
+            isTouched: false,
+            isTriggered: true,
+            errorMessage: error.request.responseText
           });
-        }
-      );
+      });
   }
 
   render() {
@@ -58,40 +60,36 @@ export default class ActiveAccount extends Component {
               header={validHeaderProps}
             />  
             {
-              this.state.isTriggered
-              ? (
-                this.state.isActiveSuccess 
-                ? (
-                  <div className="alert alert-success" role="alert">
-                    <span
-                      id="successActiveAccountMsg"
-                    >
-                      Your account has been activated successfully.
-                    </span>
-                  </div>
-                )
-                : (
-                  <div className="alert alert-danger" role="alert">
-                    <span
-                      id="failureActiveAccountMsg"
-                    >
-                      The activation to your account is failed.
-                    </span>
-                  </div>
-                )
-                
-              ):(
-                <button
-                  type="button" 
-                  className="btn btn-danger btn-block font-weight-bold" 
-                  id="activeAccountBtn"
-                  disabled={this.state.isTouched ? true : false}
-                  onClick={this.handleActiveAccount}
-                > 
-                  Active Account
-                </button>
-              )
+              this.state.isActiveSuccess 
+              &&
+              <div className="alert alert-success" role="alert">
+                <span
+                  id="successActiveAccountMsg"
+                >
+                  Your account has been activated successfully.
+                </span>
+              </div>
             }
+            {
+              !this.state.isActiveSuccess && this.state.isTriggered
+              &&
+              <div className="alert alert-danger" role="alert">
+                <span
+                  id="failureActiveAccountMsg"
+                >
+                  {this.state.errorMessage}
+                </span>
+              </div>
+            }
+            <button
+              type="button" 
+              className="btn btn-danger btn-block font-weight-bold" 
+              id="activeAccountBtn"
+              disabled={this.state.isTouched ? true : false}
+              onClick={this.handleActiveAccount}
+            >
+              Active Account
+            </button>
           </div>
         </div>
       </div>

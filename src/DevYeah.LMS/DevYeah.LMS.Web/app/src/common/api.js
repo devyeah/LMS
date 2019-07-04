@@ -9,5 +9,9 @@ export const signIn = (signinInfo) => {
 }
 
 export const activeAccount = (token) => {
-  return axios.post("/identity/active", token);
+  return axios.post(
+    "/identity/active", 
+    null,
+    { params: {token} }
+  );
 }

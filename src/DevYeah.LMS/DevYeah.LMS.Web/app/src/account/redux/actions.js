@@ -18,7 +18,7 @@ export function signup(signupInfo) {
         response => {
           dispatch({
             type: ACCOUNT_AUTH_SUCCESS,
-            payload: response
+            payload: response.data
           })
         },
         error => {
