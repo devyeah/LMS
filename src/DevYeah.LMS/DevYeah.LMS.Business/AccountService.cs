@@ -26,6 +26,7 @@ namespace DevYeah.LMS.Business
         private static readonly string InvalidTokenMsg = "The token is invalid.";
         private static readonly string AccountIsAlreadyActive = "Cannot activate the same account repeatedly.";
         private static readonly string EmptyFileErrorMsg = "No file has been upload in request.";
+        private static readonly string ResetPasswordSuccess = "Your password has been successfully resetted.";
 
         private readonly IAccountRepository _accountRepo;
         private readonly IEmailClient _mailClient;
@@ -126,8 +127,9 @@ namespace DevYeah.LMS.Business
                 var hashedNewPassword = IdentityHelper.HashPassword(request.NewPassword);
                 account.Password = hashedNewPassword;
                 _accountRepo.Update(account);
+                _accountRepo.SaveChanges();
 
-                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+                return BuildResult(true, IdentityResultCode.Success, message: ResetPasswordSuccess, resultObj: account);
             }
             catch (Exception ex)
             {
@@ -249,7 +251,7 @@ namespace DevYeah.LMS.Business
         private string BuildPasswordRecoveryMail(Account account)
         {
             var token = GeneratePasswordRecoveryToken(account.Email);
-            var link = string.Concat(_appSettings.ApiConfig.PasswordRecoveryAPI, "?token=", token);
+            var link = string.Concat(_appSettings.ApiConfig.PasswordRecoveryAPI, token);
             var templateKey = nameof(_appSettings.EmailTemplateConfig.PasswordRecoveryMailContent);
             var template = _appSettings.EmailTemplateConfig.PasswordRecoveryMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });

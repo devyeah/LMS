@@ -24,7 +24,7 @@ function App() {
             <Route path="/signup" component={SignUp} />
             <Route path="/signin" component={SignIn} />
             <Route path="/forgetPassword" component={ForgetPassword} />
-            <Route path="/resetPassword" component={ResetPassword} />
+            <Route path="/account/resetpassword/:token" component={ResetPassword} />
             <Route path="/account/active/:token" component={ActiveAccount} />
             <Route path="/account/active" component={IllegalActiveAccount} />
             <Redirect path="/account/editProfile" exact to="/account/editProfile/profile" />

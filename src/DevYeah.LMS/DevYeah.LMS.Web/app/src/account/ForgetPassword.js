@@ -1,18 +1,29 @@
 import React, { Component } from 'react';
 import {formMeta, formValidation} from './formMeta/forgetPasswordFormMeta';
 import DynamicForm from './DynamicForm';
+import * as api from '../common/api';
 
 export default class ForgetPassword extends Component {
   constructor(props){
     super(props);
+    this.state = {
+      successMsg: null
+    }
 
-    this.submitHandler = this.submitHandler.bind(this);
+    this.handleRecoveryPassword = this.handleRecoveryPassword.bind(this);
   }
 
-  submitHandler(values, actions) {
-    //todo: submit values to backend server
-    actions.resetForm();
-    actions.setSubmitting(true);
+  handleRecoveryPassword(values, actions) {
+    api.recoveryPassword(values.email)
+      .then(
+        response => {
+          this.setState({
+            successMsg: response.data || 'An email for recovering your password has been sent.'
+          });
+          actions.resetForm();
+          actions.setSubmitting(false);
+        }
+      );
   }
 
   render() {
@@ -21,7 +32,8 @@ export default class ForgetPassword extends Component {
         formName="forgetPasswordForm"
         formMeta={formMeta}
         formValidation={formValidation}
-        submitHandler={this.submitHandler} 
+        submitHandler={this.handleRecoveryPassword} 
+        success={this.state.successMsg}
       />
     );
   }

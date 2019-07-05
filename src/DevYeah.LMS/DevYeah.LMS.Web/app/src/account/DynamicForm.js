@@ -6,7 +6,7 @@ import { getClassName } from '../common/utilities';
 import CardHeader from './CardHeader';
 import './account.css';
 
-export default function DynamicForm({isEmbedded, formName, formValidation, formMeta, submitHandler, error}){
+export default function DynamicForm({isEmbedded, formName, formValidation, formMeta, submitHandler, error, success}){
   const { initialValues, header, elements, button, extraLink } = formMeta;
   return (
     <Formik
@@ -38,7 +38,17 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
 
                 {error 
                   && 
-                  <Alert error={error} />
+                  <Alert 
+                    message={error} 
+                    type="error"
+                  />
+                }
+                {success
+                  &&
+                  <Alert 
+                    message={success}
+                    type="success"
+                  />
                 }
                 
                 {elements.map((item, index) => {
@@ -106,10 +116,12 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
   );
 }
 
-function Alert({error}) {
+function Alert({message, type}) {
+  const style = type === 'error' ? "alert alert-danger" : "alert alert-success";
+  
   return (
-    <div className="alert alert-danger" role="alert">
-      {error}
+    <div className={style} role="alert">
+      {message}
       <button type="button" className="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>

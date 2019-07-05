@@ -15,3 +15,15 @@ export const activeAccount = (token) => {
     { params: {token} }
   );
 }
+
+export const recoveryPassword = (email) => {
+  return axios.post(
+    "/identity/recoverypassword", 
+    null,
+    { params: {email}} 
+  );
+}
+
+export const resetPassword = (resetPwdInfo) => {
+  return axios.post("/identity/updatepassword", resetPwdInfo);
+}
