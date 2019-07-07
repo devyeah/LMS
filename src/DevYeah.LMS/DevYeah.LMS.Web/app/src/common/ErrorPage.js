@@ -14,6 +14,7 @@ export default function ErrorPage() {
           The page you are looking for might have been removed had its name changed or is temporarilly unavailable.
         </p>
         <Link 
+          id="homePageLink"
           to="/"
         >
           Go To Homepage
