@@ -44,9 +44,11 @@ export default function PhotoUpload() {
 
   function handleUploadImage() {
     if (images.length === 0) return;
+
     setIsDisableSaveBtn(true);
     const formData = new FormData();
     formData.append("image", images[0]);
+    
     api.uploadImage(formData)
       .then(response => {
         setAvatarUrl(response.data);
