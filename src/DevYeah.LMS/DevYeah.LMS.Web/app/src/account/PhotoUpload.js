@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import * as api from '../common/api';
+import Alert from './Alert';
 import defaultAvatar from '../images/user_pic-225x225.png';
 import './account.css';
 
 export default function PhotoUpload() {
   const [images, setImages] = useState([]);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploadErrorMsg, setUploadErrorMsg] = useState("");
+  const [isDisableSaveBtn, setIsDisableSaveBtn] = useState(true);
   const {getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
     onDrop: acceptedImages => {
+      setIsDisableSaveBtn(false);
       setImages(acceptedImages.map(image => Object.assign(image, {
         preview: URL.createObjectURL(image),
       })));
     }
+  });
+
+  useEffect(() => {
+    api.fetchAvatar()
+      .then(response => {
+        setAvatarUrl(response.data);
+      })
+      .catch(error => {});
   });
 
   useEffect(() => () => {
@@ -28,6 +42,22 @@ export default function PhotoUpload() {
     />
   ));
 
+  function handleUploadImage() {
+    if (images.length === 0) return;
+    setIsDisableSaveBtn(true);
+    const formData = new FormData();
+    formData.append("image", images[0]);
+    api.uploadImage(formData)
+      .then(response => {
+        setAvatarUrl(response.data);
+        setImages([]);
+      })
+      .catch(error => {
+        setUploadErrorMsg(error.request.responseText)
+        setIsDisableSaveBtn(false);
+      });
+  }
+
   return (
     <div className="card">
       <div className="card-header font-weight-bold">
@@ -43,12 +73,24 @@ export default function PhotoUpload() {
                   alt="avatar"
                   title="avatar"
                   className="avatar"
-                  src={defaultAvatar}
+                  src={avatarUrl ? avatarUrl : defaultAvatar}
+                />
+              )
+            }
+            {uploadErrorMsg 
+              && (
+                <Alert
+                  message={uploadErrorMsg}
+                  type="error"  
                 />
               )
             }
             <div className="mt-2">
-              <button className="btn btn-danger btn-block font-weight-bold">
+              <button 
+                className="btn btn-danger btn-block font-weight-bold"
+                onClick={handleUploadImage}
+                disabled={isDisableSaveBtn}
+              >
                 save
               </button>
             </div>
@@ -61,7 +103,7 @@ export default function PhotoUpload() {
             </p>
             <div {...getRootProps({className: 'dropzone'})}>
               <input {...getInputProps()} />
-              <p id="avatarUploadPlaceHolder">Drag 'n' drop your photo here, or click to select files</p>
+              <p id="avatarUploadPlaceHolder">Drag 'n' drop your photo here, or click to select photo</p>
             </div>
           </div>
         </div>

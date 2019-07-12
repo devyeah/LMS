@@ -27,3 +27,15 @@ export const recoveryPassword = (email) => {
 export const resetPassword = (resetPwdInfo) => {
   return axios.post("/identity/updatepassword", resetPwdInfo);
 }
+
+export const fetchAvatar = () => {
+  return axios.get("/identity/getavatar");
+}
+
+export const uploadImage = (formData) => {
+  return axios.post("/identity/uploadphoto", formData, {
+    headers: {
+      'content-type': 'multipart/form-data'
+    }
+  });
+}

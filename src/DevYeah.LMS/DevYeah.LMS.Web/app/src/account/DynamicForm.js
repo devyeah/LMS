@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { getClassName } from '../common/utilities';
 import CardHeader from './CardHeader';
 import './account.css';
+import Alert from './Alert';
 
 export default function DynamicForm({isEmbedded, formName, formValidation, formMeta, submitHandler, error, success}){
   const { initialValues, header, elements, button, extraLink } = formMeta;
@@ -113,19 +114,6 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
         </div>
       )}
     </Formik>
-  );
-}
-
-function Alert({message, type}) {
-  const style = type === 'error' ? "alert alert-danger" : "alert alert-success";
-  
-  return (
-    <div className={style} role="alert">
-      {message}
-      <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
   );
 }
 

@@ -16,7 +16,7 @@ namespace DevYeah.LMS.Web.Controllers
 
         // POST api/v1/identity/signup
         [HttpPost("register")]
-        public IActionResult SignUp(SignUpRequest request) => GetResult(() =>_accountService.SignUp(request));
+        public IActionResult SignUp(SignUpRequest request) => GetResult(() => _accountService.SignUp(request));
 
         // POST api/v1/identity/signin
         [HttpPost("login")]
@@ -33,6 +33,13 @@ namespace DevYeah.LMS.Web.Controllers
         // POST api/v1/identity/resetpassword
         [HttpPost("updatepassword")]
         public IActionResult ResetPassword(ResetPasswordRequest request) => GetResult(() => _accountService.ResetPassword(request));
+
+        // GET api/v1/identity/getavatar
+        [HttpGet]
+        public IActionResult FetchAvatar()
+        {
+            return null;
+        }
 
         // POST api/v1/identity/uploadphoto
         [HttpPost("uploadphoto")]
