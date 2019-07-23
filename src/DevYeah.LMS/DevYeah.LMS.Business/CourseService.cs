@@ -26,7 +26,7 @@ namespace DevYeah.LMS.Business
         public ServiceResult<CourseServiceResultCode> CreateCourse(SaveOrUpdateCourseRequest request)
         {
             var isValidRequest = ValidateCreateCourseRequest(request);
-            if (!isValidRequest) return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
+            if (!isValidRequest) return ArgumentErrorResult();
 
             try
             {
@@ -37,9 +37,151 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception)
             {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
+                return InternalErrorResult();
             }
             
+        }
+
+        public ServiceResult<CourseServiceResultCode> DeleteCourse(Guid courseId)
+        {
+            if (courseId == null || courseId.Equals(Guid.Empty))
+                return ArgumentErrorResult();
+
+            try
+            {
+                var course = _courseRepository.Get(courseId);
+                if (course == null) return DataErrorResult();
+                _courseRepository.Delete(course);
+                return BuildResult(true, CourseServiceResultCode.Success);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetCourse(Guid courseId)
+        {
+            if (courseId == null || courseId.Equals(Guid.Empty)) return ArgumentErrorResult();
+
+            try
+            {
+                var course = _courseRepository.Get(courseId);
+                if (course == null) return DataErrorResult();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> UpdateCourse(SaveOrUpdateCourseRequest request)
+        {
+            var isValidRequest = ValidateUpdateCourseRequest(request);
+            if (!isValidRequest) return ArgumentErrorResult();            
+
+            try
+            {
+                var course = _courseRepository.Get(request.Id);
+                if (course == null) return DataErrorResult();
+                UpdateDataOfCourse(course, request);
+                _courseRepository.Update(course);
+                _courseRepository.SaveChanges();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> AddCategory(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return ArgumentErrorResult();
+
+            var category = new Category { Id = Guid.NewGuid(), Name = name };
+            try
+            {
+                _categoryRepository.Add(category);
+                _categoryRepository.SaveChanges();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> DeleteCategory(Guid categoryId)
+        {
+            if (categoryId == null || categoryId.Equals(Guid.Empty))
+                return ArgumentErrorResult();
+
+            try
+            {
+                var category = _categoryRepository.Get(categoryId);
+                if (category == null) return DataErrorResult();
+                _categoryRepository.Delete(category);
+                _categoryRepository.SaveChanges();
+                return BuildResult(true, CourseServiceResultCode.Success);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
+        {
+            if (categoryId == null || categoryId.Equals(Guid.Empty) || string.IsNullOrWhiteSpace(name))
+                return ArgumentErrorResult();
+
+            try
+            {
+                var category = _categoryRepository.Get(categoryId);
+                if (category == null) return DataErrorResult();
+                if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+                category.Name = name;
+                _categoryRepository.Update(category);
+                _categoryRepository.SaveChanges();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetCategory(Guid key)
+        {
+            if (key == null || key.Equals(Guid.Empty)) return ArgumentErrorResult();
+
+            try
+            {
+                var category = _categoryRepository.Get(key);
+                if (category == null) return DataErrorResult();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCategories()
+        {
+            try
+            {
+                var allCategories = _categoryRepository.FindAll(cat => true);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCategories);
+            }
+            catch (Exception)
+            {
+                return InternalErrorResult();
+
+            }
+
         }
 
         private Course MakeNewCourse(SaveOrUpdateCourseRequest request)
@@ -63,11 +205,12 @@ namespace DevYeah.LMS.Business
         {
             var resultCats = new List<CourseCategory>();
             Category cat;
-            foreach(var item in categories)
+            foreach (var item in categories)
             {
                 cat = _categoryRepository.Get(item);
-                if(cat != null)
-                    resultCats.Add(new CourseCategory {
+                if (cat != null)
+                    resultCats.Add(new CourseCategory
+                    {
                         Category = cat,
                         Course = course
                     });
@@ -86,113 +229,36 @@ namespace DevYeah.LMS.Business
             return true;
         }
 
-        public void DeleteCourse(string courseId)
+        private void UpdateDataOfCourse(Course course, SaveOrUpdateCourseRequest request)
         {
-            throw new NotImplementedException();
+            course.InstructorId = request.InstructorId;
+            course.Level = request.Level;
+            course.Overview = request.Overview;
+            course.Name = request.Name;
+            course.AvgLearningTime = request.AvgLearningTime;
+            course.CourseCategory = ClassifyCourseCategory(request.Categories, course);
         }
 
-        public ServiceResult<CourseServiceResultCode> GetAllTopicsOfCourse(string courseId)
+        private bool ValidateUpdateCourseRequest(SaveOrUpdateCourseRequest request)
         {
-            throw new NotImplementedException();
+            var isValidContent = ValidateCreateCourseRequest(request);
+            var isValidKey = !(request.Id == null || request.Id.Equals(Guid.Empty));
+            return (isValidContent && isValidKey);
         }
 
-        public ServiceResult<CourseServiceResultCode> GetCourse(string courseId)
+        private ServiceResult<CourseServiceResultCode> ArgumentErrorResult()
         {
-            throw new NotImplementedException();
+            return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
         }
 
-        public ServiceResult<CourseServiceResultCode> UpdateCourse(SaveOrUpdateCourseRequest request)
+        private ServiceResult<CourseServiceResultCode> InternalErrorResult()
         {
-            throw new NotImplementedException();
+            return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
         }
 
-        public ServiceResult<CourseServiceResultCode> AddCategory(string name)
+        private ServiceResult<CourseServiceResultCode> DataErrorResult()
         {
-            if (string.IsNullOrWhiteSpace(name)) return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
-
-            var category = new Category { Id = Guid.NewGuid(), Name = name };
-            try
-            {
-                _categoryRepository.Add(category);
-                _categoryRepository.SaveChanges();
-                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-            }
-            catch (Exception)
-            {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
-            }
-        }
-
-        public ServiceResult<CourseServiceResultCode> DeleteCategory(Guid categoryId)
-        {
-            if (categoryId == null || categoryId.Equals(Guid.Empty))
-                return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
-
-            try
-            {
-                var category = _categoryRepository.Get(categoryId);
-                if (category == null) return BuildResult(false, CourseServiceResultCode.DataNotExist, RequestFailureMsg);
-                _categoryRepository.Delete(category);
-                _categoryRepository.SaveChanges();
-                return BuildResult(true, CourseServiceResultCode.Success);
-            }
-            catch (Exception)
-            {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
-            }
-        }
-
-        public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
-        {
-            if (categoryId == null || categoryId.Equals(Guid.Empty) || string.IsNullOrWhiteSpace(name))
-                return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
-
-            try
-            {
-                var category = _categoryRepository.Get(categoryId);
-                if (category == null) return BuildResult(false, CourseServiceResultCode.DataNotExist, RequestFailureMsg);
-                if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-                category.Name = name;
-                _categoryRepository.Update(category);
-                _categoryRepository.SaveChanges();
-                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-            }
-            catch (Exception)
-            {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
-            }
-        }
-
-        public ServiceResult<CourseServiceResultCode> GetCategory(Guid key)
-        {
-            if (key == null || key.Equals(Guid.Empty))
-                return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
-
-            try
-            {
-                var category = _categoryRepository.Get(key);
-                if (category == null) return BuildResult(false, CourseServiceResultCode.DataNotExist, RequestFailureMsg);
-                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-            }
-            catch (Exception)
-            {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
-            }
-        }
-
-        public ServiceResult<CourseServiceResultCode> GetAllCategories()
-        {
-            try
-            {
-                var allCategories = _categoryRepository.FindAll(cat => true);
-                return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCategories);
-            }
-            catch (Exception)
-            {
-                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
-
-            }
-
+            return BuildResult(false, CourseServiceResultCode.DataNotExist, RequestFailureMsg);
         }
     }
 }

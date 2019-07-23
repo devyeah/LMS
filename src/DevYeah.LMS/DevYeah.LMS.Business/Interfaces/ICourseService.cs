@@ -8,9 +8,8 @@ namespace DevYeah.LMS.Business.Interfaces
     {
         ServiceResult<CourseServiceResultCode> CreateCourse(SaveOrUpdateCourseRequest request);
         ServiceResult<CourseServiceResultCode> UpdateCourse(SaveOrUpdateCourseRequest request);
-        void DeleteCourse(string courseId);
-        ServiceResult<CourseServiceResultCode> GetCourse(string courseId);
-        ServiceResult<CourseServiceResultCode> GetAllTopicsOfCourse(string courseId);
+        ServiceResult<CourseServiceResultCode> DeleteCourse(Guid courseId);
+        ServiceResult<CourseServiceResultCode> GetCourse(Guid courseId);
         ServiceResult<CourseServiceResultCode> AddCategory(string name);
         ServiceResult<CourseServiceResultCode> DeleteCategory(Guid categoryId);
         ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name);

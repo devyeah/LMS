@@ -4,6 +4,7 @@ namespace DevYeah.LMS.Business.RequestModels
 {
     public class SaveOrUpdateCourseRequest
     {
+        public Guid Id { get; set; }
         public Guid InstructorId { get; set; }
         public string Name { get; set; }
         public string Overview { get; set; }
