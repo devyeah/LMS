@@ -76,12 +76,7 @@
     public enum CourseServiceResultCode
     {
         Success = 1,
-        CourseNotExist = 2,
-        CourseSaveFailure = 3,
-        CourseUpdateFailure = 4,
-        CourseDeleteFailure = 5,
-        NoTopic = 6,
-        NoResource = 7,
+        ArgumentError = 2,
         BackenException = 99,
         NetworkException = 88,
     }

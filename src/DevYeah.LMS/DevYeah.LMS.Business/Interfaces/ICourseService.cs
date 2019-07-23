@@ -10,6 +10,5 @@ namespace DevYeah.LMS.Business.Interfaces
         void DeleteCourse(string courseId);
         ServiceResult<CourseServiceResultCode> GetCourse(string courseId);
         ServiceResult<CourseServiceResultCode> GetAllTopicsOfCourse(string courseId);
-        ServiceResult<CourseServiceResultCode> GetAllResourceOfTopic(string topicId);
     }
 }

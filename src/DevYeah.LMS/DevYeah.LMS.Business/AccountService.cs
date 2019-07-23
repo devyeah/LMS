@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DevYeah.LMS.Business
 {
-    public class AccountService : IAccountService
+    public class AccountService : ServiceBase, IAccountService
     {
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
@@ -331,16 +331,16 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
-        {
-            return new ServiceResult<IdentityResultCode>
-            {
-                IsSuccess = isSuccess,
-                ResultCode = code,
-                Message = message,
-                ResultObj = resultObj
-            };
-        }
+        //private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
+        //{
+        //    return new ServiceResult<IdentityResultCode>
+        //    {
+        //        IsSuccess = isSuccess,
+        //        ResultCode = code,
+        //        Message = message,
+        //        ResultObj = resultObj
+        //    };
+        //}
 
         private bool CheckDuplicateEmailAddress(SignUpRequest request)
         {

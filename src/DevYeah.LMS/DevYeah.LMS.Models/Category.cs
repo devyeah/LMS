@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class Category
+    public partial class Category : IModel
     {
         public Category()
         {
