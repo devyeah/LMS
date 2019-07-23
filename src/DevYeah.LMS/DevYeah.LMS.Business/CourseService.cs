@@ -115,7 +115,7 @@ namespace DevYeah.LMS.Business
             {
                 _categoryRepository.Add(category);
                 _categoryRepository.SaveChanges();
-                return BuildResult(true, CourseServiceResultCode.Success);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
             }
             catch (Exception)
             {
@@ -144,7 +144,23 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
         {
-            throw new NotImplementedException();
+            if (categoryId == null || categoryId.Equals(Guid.Empty) || string.IsNullOrWhiteSpace(name))
+                return BuildResult(false, CourseServiceResultCode.ArgumentError, ArgumentErrorMsg);
+
+            try
+            {
+                var category = _categoryRepository.Get(categoryId);
+                if (category == null) return BuildResult(false, CourseServiceResultCode.DataNotExist, RequestFailureMsg);
+                if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+                category.Name = name;
+                _categoryRepository.Update(category);
+                _categoryRepository.SaveChanges();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+            }
+            catch (Exception)
+            {
+                return BuildResult(false, CourseServiceResultCode.BackenException, InternalErrorMsg);
+            }
         }
 
         public ServiceResult<CourseServiceResultCode> GetCategory(Guid key)
