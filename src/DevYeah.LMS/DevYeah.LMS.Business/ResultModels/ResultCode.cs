@@ -81,4 +81,13 @@
         BackenException = 99,
         NetworkException = 88,
     }
+
+    public enum TopicServiceResultCode
+    {
+        Success = 1,
+        ArgumentError = 2,
+        DataNotExist = 3,
+        BackenException = 99,
+        NetworkException = 88,
+    }
 }
