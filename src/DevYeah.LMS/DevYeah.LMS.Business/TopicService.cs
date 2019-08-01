@@ -35,19 +35,9 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        private bool ValidateAddTopicRequest(AddOrUpdateTopicRequest request)
-        {
-            if (request == null) return false;
-            if (request.CourseId == null || request.CourseId.Equals(Guid.Empty)) return false;
-            if (string.IsNullOrWhiteSpace(request.Title)) return false;
-            if (request.DisplayOrder <= 0) return false;
-
-            return true;
-        }
-
         public ServiceResult<TopicServiceResultCode> DeleteTopic(Guid topicId)
         {
-            if (topicId == null || topicId.Equals(Guid.Empty)) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
+            if (topicId == Guid.Empty) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
 
             try
             {
@@ -65,7 +55,7 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<TopicServiceResultCode> GetAllTopicsOfCourse(Guid courseId)
         {
-            if (courseId == null || courseId.Equals(Guid.Empty)) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
+            if (courseId == Guid.Empty) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
 
             try
             {
@@ -81,12 +71,63 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<TopicServiceResultCode> GetTopicByKey(Guid key)
         {
-            throw new NotImplementedException();
+            if (key == Guid.Empty) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
+
+            try
+            {
+                var topic = _topicRepo.Get(key);
+                if (topic == null) return DataErrorResult(TopicServiceResultCode.DataNotExist);
+                return BuildResult(true, TopicServiceResultCode.Success, resultObj: topic);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(TopicServiceResultCode.BackendException);
+            }
         }
 
         public ServiceResult<TopicServiceResultCode> UpdateTopic(AddOrUpdateTopicRequest request)
         {
-            throw new NotImplementedException();
+            var isValidRequest = ValidateUpdateTopicRequest(request);
+            if (!isValidRequest) return ArgumentErrorResult(TopicServiceResultCode.ArgumentError);
+
+            try
+            {
+                var targetTopic = _topicRepo.Get(request.Id);
+                if (targetTopic == null) return DataErrorResult(TopicServiceResultCode.DataNotExist);
+                UpdateDataOfTopic(targetTopic, request);
+                _topicRepo.Update(targetTopic);
+                _topicRepo.SaveChanges();
+                return BuildResult(true, TopicServiceResultCode.Success, resultObj: targetTopic);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(TopicServiceResultCode.BackendException);
+            }
+        }
+
+        private void UpdateDataOfTopic(Topic topic, AddOrUpdateTopicRequest request)
+        {
+            topic.Title = request.Title;
+            topic.DisplayOrder = request.DisplayOrder;
+        }
+
+        private bool ValidateUpdateTopicRequest(AddOrUpdateTopicRequest request)
+        {
+            var isValidData = ValidateAddTopicRequest(request);
+            var isValidKey = !(request.Id == Guid.Empty);
+            return (isValidData && isValidKey);
+        }
+
+        private bool ValidateAddTopicRequest(AddOrUpdateTopicRequest request)
+        {
+            if (request == null) return false;
+            if (request.CourseId == Guid.Empty) return false;
+            if (string.IsNullOrWhiteSpace(request.Title)) return false;
+            if (request.DisplayOrder <= 0) return false;
+
+            return true;
         }
     }
 }
