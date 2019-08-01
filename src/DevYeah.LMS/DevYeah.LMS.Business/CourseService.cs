@@ -10,13 +10,14 @@ namespace DevYeah.LMS.Business
 {
     public class CourseService : ServiceBase, ICourseService
     {
-        private readonly ICourseRepository _courseRepository;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICourseRepository _courseRepo;
+        private readonly ICategoryRepository _categoryRepo;
 
-        public CourseService(ICourseRepository courseRepository, ICategoryRepository categoryRepository)
+        public CourseService(ICourseRepository courseRepo, ICategoryRepository categoryRepo, ISystemErrorsRepository systemErrorsRepo) 
+            : base(systemErrorsRepo)
         {
-            _courseRepository = courseRepository;
-            _categoryRepository = categoryRepository;
+            _courseRepo = courseRepo;
+            _categoryRepo = categoryRepo;
         }
 
         public ServiceResult<CourseServiceResultCode> CreateCourse(SaveOrUpdateCourseRequest request)
@@ -27,48 +28,51 @@ namespace DevYeah.LMS.Business
             try
             {
                 var course = MakeNewCourse(request);
-                _courseRepository.Add(course);
-                _courseRepository.SaveChanges();
+                _courseRepo.Add(course);
+                _courseRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
             
         }
 
         public ServiceResult<CourseServiceResultCode> DeleteCourse(Guid courseId)
         {
-            if (courseId == null || courseId.Equals(Guid.Empty))
+            if (courseId == Guid.Empty)
                 return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var course = _courseRepository.Get(courseId);
+                var course = _courseRepo.Get(courseId);
                 if (course == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
-                _courseRepository.Delete(course);
+                _courseRepo.Delete(course);
                 return BuildResult(true, CourseServiceResultCode.Success);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
         public ServiceResult<CourseServiceResultCode> GetCourseByKey(Guid courseId)
         {
-            if (courseId == null || courseId.Equals(Guid.Empty)) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            if (courseId == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var course = _courseRepository.Get(courseId);
+                var course = _courseRepo.Get(courseId);
                 if (course == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
@@ -79,16 +83,17 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var course = _courseRepository.Get(request.Id);
+                var course = _courseRepo.Get(request.Id);
                 if (course == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 UpdateDataOfCourse(course, request);
-                _courseRepository.Update(course);
-                _courseRepository.SaveChanges();
+                _courseRepo.Update(course);
+                _courseRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
@@ -99,69 +104,73 @@ namespace DevYeah.LMS.Business
             var category = new Category { Id = Guid.NewGuid(), Name = name };
             try
             {
-                _categoryRepository.Add(category);
-                _categoryRepository.SaveChanges();
+                if (IsExistCategoryName(name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
+                _categoryRepo.Add(category);
+                _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
         public ServiceResult<CourseServiceResultCode> DeleteCategory(Guid categoryId)
         {
-            if (categoryId == null || categoryId.Equals(Guid.Empty))
-                return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            if (categoryId == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var category = _categoryRepository.Get(categoryId);
+                var category = _categoryRepo.Get(categoryId);
                 if (category == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
-                _categoryRepository.Delete(category);
-                _categoryRepository.SaveChanges();
+                _categoryRepo.Delete(category);
+                _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
         public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
         {
-            if (categoryId == null || categoryId.Equals(Guid.Empty) || string.IsNullOrWhiteSpace(name))
+            if (categoryId == Guid.Empty || string.IsNullOrWhiteSpace(name))
                 return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var category = _categoryRepository.Get(categoryId);
+                var category = _categoryRepo.Get(categoryId);
                 if (category == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
                 category.Name = name;
-                _categoryRepository.Update(category);
-                _categoryRepository.SaveChanges();
+                _categoryRepo.Update(category);
+                _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
         public ServiceResult<CourseServiceResultCode> GetCategoryByKey(Guid key)
         {
-            if (key == null || key.Equals(Guid.Empty)) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            if (key == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var category = _categoryRepository.Get(key);
+                var category = _categoryRepo.Get(key);
                 if (category == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
         }
 
@@ -169,13 +178,13 @@ namespace DevYeah.LMS.Business
         {
             try
             {
-                var allCategories = _categoryRepository.FindAll(cat => true);
+                var allCategories = _categoryRepo.FindAllCategories();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCategories);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(CourseServiceResultCode.BackenException);
-
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
 
         }
@@ -203,7 +212,7 @@ namespace DevYeah.LMS.Business
             Category cat;
             foreach (var item in categories)
             {
-                cat = _categoryRepository.Get(item);
+                cat = _categoryRepo.Get(item);
                 if (cat != null)
                     resultCats.Add(new CourseCategory
                     {
@@ -238,8 +247,14 @@ namespace DevYeah.LMS.Business
         private bool ValidateUpdateCourseRequest(SaveOrUpdateCourseRequest request)
         {
             var isValidContent = ValidateCreateCourseRequest(request);
-            var isValidKey = !(request.Id == null || request.Id.Equals(Guid.Empty));
+            var isValidKey = !(request.Id == Guid.Empty);
             return (isValidContent && isValidKey);
+        }
+
+        private bool IsExistCategoryName(string name)
+        {
+            var counts = _categoryRepo.CountByName(name);
+            return counts > 0;
         }
     }
 }

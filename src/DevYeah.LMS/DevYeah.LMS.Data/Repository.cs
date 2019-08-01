@@ -28,6 +28,8 @@ namespace DevYeah.LMS.Data
         
         public void Delete(T entity) => _dbContext.Remove<T>(entity);
 
+        public int Count(Expression<Func<T, bool>> expression) => _dbContext.Set<T>().Where(expression).Count();
+
         public void SaveChanges() => _dbContext.SaveChanges();
     }
 }

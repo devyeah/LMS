@@ -9,11 +9,11 @@ namespace DevYeah.LMS.Business
 {
     public class TopicService : ServiceBase, ITopicService
     {
-        private readonly ITopicRepository _topicRepository;
+        private readonly ITopicRepository _topicRepo;
 
-        public TopicService(ITopicRepository topicRepository)
+        public TopicService(ITopicRepository topicRepository, ISystemErrorsRepository systemErrorsRepo) : base(systemErrorsRepo)
         {
-            _topicRepository = topicRepository;
+            _topicRepo = topicRepository;
         }
 
         public ServiceResult<TopicServiceResultCode> AddTopic(AddOrUpdateTopicRequest request)
@@ -24,13 +24,14 @@ namespace DevYeah.LMS.Business
             var topic = new Topic { Id = Guid.NewGuid(), CourseId = request.CourseId, Title = request.Title, DisplayOrder = request.DisplayOrder };
             try
             {
-                _topicRepository.Add(topic);
-                _topicRepository.SaveChanges();
+                _topicRepo.Add(topic);
+                _topicRepo.SaveChanges();
                 return BuildResult(true, TopicServiceResultCode.Success, resultObj: topic);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(TopicServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(TopicServiceResultCode.BackendException);
             }
         }
 
@@ -50,14 +51,15 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var targetTopic = _topicRepository.Get(topicId);
+                var targetTopic = _topicRepo.Get(topicId);
                 if (targetTopic == null) return DataErrorResult(TopicServiceResultCode.DataNotExist);
-                _topicRepository.Delete(targetTopic);
+                _topicRepo.Delete(targetTopic);
                 return BuildResult(true, TopicServiceResultCode.Success);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(TopicServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(TopicServiceResultCode.BackendException);
             }
         }
 
@@ -67,12 +69,13 @@ namespace DevYeah.LMS.Business
 
             try
             {
-                var topicList = _topicRepository.GetAllTopicsByCourseId(courseId);
+                var topicList = _topicRepo.GetAllTopicsByCourseId(courseId);
                 return BuildResult(true, TopicServiceResultCode.Success, resultObj: topicList);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalErrorResult(TopicServiceResultCode.BackenException);
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(TopicServiceResultCode.BackendException);
             }
         }
 

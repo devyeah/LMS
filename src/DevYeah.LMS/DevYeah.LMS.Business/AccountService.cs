@@ -33,8 +33,8 @@ namespace DevYeah.LMS.Business
         private readonly AppSettings _appSettings;
         private readonly IBlobStorage _blobStorage;
 
-        public AccountService(IAccountRepository repository, IEmailClient mailClient,
-            IOptions<AppSettings> appSettings, IBlobStorage blobStorage)
+        public AccountService(IAccountRepository repository, ISystemErrorsRepository systemErrorsRepo, IEmailClient mailClient,
+            IOptions<AppSettings> appSettings, IBlobStorage blobStorage) : base(systemErrorsRepo)
         {
             _accountRepo = repository;
             _mailClient = mailClient;
@@ -66,6 +66,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.ActivateFailure, ex.Message);
             }
         }
@@ -87,6 +88,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
             }
         }
@@ -133,6 +135,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
             }
         }
@@ -193,6 +196,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
         }
@@ -325,22 +329,12 @@ namespace DevYeah.LMS.Business
                 var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
                 return principal;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return null;
             }
         }
-
-        //private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
-        //{
-        //    return new ServiceResult<IdentityResultCode>
-        //    {
-        //        IsSuccess = isSuccess,
-        //        ResultCode = code,
-        //        Message = message,
-        //        ResultObj = resultObj
-        //    };
-        //}
 
         private bool CheckDuplicateEmailAddress(SignUpRequest request)
         {
@@ -352,8 +346,9 @@ namespace DevYeah.LMS.Business
 
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return true;
             }
         }

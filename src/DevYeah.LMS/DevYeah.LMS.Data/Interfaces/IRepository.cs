@@ -14,5 +14,6 @@ namespace DevYeah.LMS.Data.Interfaces
         void Update(T entity);
         void Delete(T entity);
         void SaveChanges();
+        int Count(Expression<Func<T, bool>> expression);
     }
 }
