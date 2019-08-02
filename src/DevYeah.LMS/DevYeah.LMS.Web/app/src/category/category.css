@@ -1,0 +1,17 @@
+.cat-font {
+  font-family: Rubik,Lato,lucida grande,lucida sans unicode,Tahoma,Sans-Serif;
+  font-size: .8rem;
+  font-weight: 500;
+}
+
+.cat-nav-color {
+  color: gainsboro;
+}
+
+a.cat-nav-link:hover {
+  text-decoration: none;
+}
+
+div.cat-item:hover {
+  transform: scale(1.1);
+}
