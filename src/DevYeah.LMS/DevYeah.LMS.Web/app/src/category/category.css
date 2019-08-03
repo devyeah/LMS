@@ -5,13 +5,13 @@
 }
 
 .cat-nav-color {
-  color: gainsboro;
+  color: grey;
+}
+
+.cat-nav-hover-color {
+  color: white;
 }
 
 a.cat-nav-link:hover {
   text-decoration: none;
-}
-
-div.cat-item:hover {
-  transform: scale(1.1);
 }
