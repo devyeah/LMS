@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DevYeah.LMS.Business
 {
-    public class AccountService : IAccountService
+    public class AccountService : ServiceBase, IAccountService
     {
         private static readonly string ArgumentNullMsg = "The necessary information is incomplete.";
         private static readonly string EmailConflictMsg = "This email has been used.";
@@ -24,15 +24,17 @@ namespace DevYeah.LMS.Business
         private static readonly string PasswordErrorMsg = "Password is not correct.";
         private static readonly string InactivatedAccountMsg = "Your account has not been activated yet.";
         private static readonly string InvalidTokenMsg = "The token is invalid.";
+        private static readonly string AccountIsAlreadyActive = "Cannot activate the same account repeatedly.";
         private static readonly string EmptyFileErrorMsg = "No file has been upload in request.";
+        private static readonly string ResetPasswordSuccess = "Your password has been successfully resetted.";
 
         private readonly IAccountRepository _accountRepo;
         private readonly IEmailClient _mailClient;
         private readonly AppSettings _appSettings;
         private readonly IBlobStorage _blobStorage;
 
-        public AccountService(IAccountRepository repository, IEmailClient mailClient,
-            IOptions<AppSettings> appSettings, IBlobStorage blobStorage)
+        public AccountService(IAccountRepository repository, ISystemErrorsRepository systemErrorsRepo, IEmailClient mailClient,
+            IOptions<AppSettings> appSettings, IBlobStorage blobStorage) : base(systemErrorsRepo)
         {
             _accountRepo = repository;
             _mailClient = mailClient;
@@ -54,13 +56,17 @@ namespace DevYeah.LMS.Business
                 var account = _accountRepo.GetAccount(Guid.Parse(keyClaim.Value));
                 if (account == null)
                     return BuildResult(false, IdentityResultCode.AccountNotExist, AccountNotExistMsg);
+                if ((AccountStatus)account.Status == AccountStatus.Active)
+                    return BuildResult(false, IdentityResultCode.InvalidToken, AccountIsAlreadyActive);
 
                 account.Status = (int)AccountStatus.Active;
                 _accountRepo.Update(account);
+                _accountRepo.SaveChanges();
                 return BuildResult(true, IdentityResultCode.Success, resultObj: account);
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.ActivateFailure, ex.Message);
             }
         }
@@ -82,6 +88,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
             }
         }
@@ -122,11 +129,13 @@ namespace DevYeah.LMS.Business
                 var hashedNewPassword = IdentityHelper.HashPassword(request.NewPassword);
                 account.Password = hashedNewPassword;
                 _accountRepo.Update(account);
+                _accountRepo.SaveChanges();
 
-                return BuildResult(true, IdentityResultCode.Success, resultObj: account);
+                return BuildResult(true, IdentityResultCode.Success, message: ResetPasswordSuccess, resultObj: account);
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.BackendException, ex.Message);
             }
         }
@@ -187,6 +196,7 @@ namespace DevYeah.LMS.Business
             }
             catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return BuildResult(false, IdentityResultCode.SignUpFailure, ex.InnerException.Message);
             }
         }
@@ -235,7 +245,7 @@ namespace DevYeah.LMS.Business
         private string BuildAccountActivationMail(Account account)
         {
             var token = GenerateAccountActivationToken(account);
-            var link = string.Concat(_appSettings.ApiConfig.AccountActivationAPI, "?token=", token);
+            var link = string.Concat(_appSettings.ApiConfig.AccountActivationAPI, token);
             var templateKey = nameof(_appSettings.EmailTemplateConfig.SignUpMailContent);
             var template = _appSettings.EmailTemplateConfig.SignUpMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
@@ -245,7 +255,7 @@ namespace DevYeah.LMS.Business
         private string BuildPasswordRecoveryMail(Account account)
         {
             var token = GeneratePasswordRecoveryToken(account.Email);
-            var link = string.Concat(_appSettings.ApiConfig.PasswordRecoveryAPI, "?token=", token);
+            var link = string.Concat(_appSettings.ApiConfig.PasswordRecoveryAPI, token);
             var templateKey = nameof(_appSettings.EmailTemplateConfig.PasswordRecoveryMailContent);
             var template = _appSettings.EmailTemplateConfig.PasswordRecoveryMailContent;
             var content = RenderedEmailHelper.Parse(templateKey, template, new TemplateModel { Link = link });
@@ -319,21 +329,11 @@ namespace DevYeah.LMS.Business
                 var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
                 return principal;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return null;
             }
-        }
-
-        private static ServiceResult<IdentityResultCode> BuildResult(bool isSuccess, IdentityResultCode code, string message = "", object resultObj = null)
-        {
-            return new ServiceResult<IdentityResultCode>
-            {
-                IsSuccess = isSuccess,
-                ResultCode = code,
-                Message = message,
-                ResultObj = resultObj
-            };
         }
 
         private bool CheckDuplicateEmailAddress(SignUpRequest request)
@@ -346,8 +346,9 @@ namespace DevYeah.LMS.Business
 
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _systemErrorsRepo.AddLog(ex);
                 return true;
             }
         }

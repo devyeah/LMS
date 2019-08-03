@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DevYeah.LMS.Models;
+﻿using DevYeah.LMS.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace DevYeah.LMS.Data
 {
@@ -25,6 +26,7 @@ namespace DevYeah.LMS.Data
         public virtual DbSet<PracticeRepo> PracticeRepo { get; set; }
         public virtual DbSet<QuizRepo> QuizRepo { get; set; }
         public virtual DbSet<Resource> Resource { get; set; }
+        public virtual DbSet<SystemErrors> SystemErrors { get; set; }
         public virtual DbSet<Topic> Topic { get; set; }
         public virtual DbSet<TopicProgress> TopicProgress { get; set; }
         public virtual DbSet<UserProfile> UserProfile { get; set; }
@@ -41,10 +43,14 @@ namespace DevYeah.LMS.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
+            modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity<Account>(entity =>
             {
+                entity.HasIndex(e => e.Email)
+                    .HasName("Idx_Email")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
@@ -56,7 +62,7 @@ namespace DevYeah.LMS.Data
 
                 entity.Property(e => e.Password)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.UserName)
                     .IsRequired()
@@ -115,8 +121,6 @@ namespace DevYeah.LMS.Data
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Grade).HasColumnName("grade");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -268,6 +272,23 @@ namespace DevYeah.LMS.Data
                     .HasForeignKey(d => d.TopicId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Resource_Topic");
+            });
+
+            modelBuilder.Entity<SystemErrors>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CallerFilePath).HasMaxLength(500);
+
+                entity.Property(e => e.CallerMemberName)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
+
+                entity.Property(e => e.Exception)
+                    .IsRequired()
+                    .HasMaxLength(4000);
             });
 
             modelBuilder.Entity<Topic>(entity =>

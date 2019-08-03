@@ -16,8 +16,8 @@
         ActivateFailure = 12,
         SaveImageFailure = 13,
         UploadImageFailure = 14,
-        BackendException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum StudentServiceResultCode
@@ -25,8 +25,8 @@
         Success = 1,
         StudentNotExist = 2,
         StudentUpdateFail = 3,
-        BackenException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum VideoServiceResultCode
@@ -36,8 +36,8 @@
         VideoSaveFailure = 3,
         VideoUpdateFailure = 4,
         VideoDeleteFailure = 5,
-        BackenException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum PracticeServiceResultCode
@@ -47,8 +47,8 @@
         PracticeSaveFailure = 3,
         PracticeUpdateFailure = 4,
         PracticeDeleteFailure = 5,
-        BackenException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum FileServiceResultCode
@@ -58,8 +58,8 @@
         FileSaveFailure = 3,
         FileUpdateFailure = 4,
         FileDeleteFailure = 5,
-        BackenException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum QuizServiceResultCode
@@ -69,20 +69,26 @@
         QuizSaveFailure = 3,
         QuizUpdateFailure = 4,
         QuizDeleteFailure = 5,
-        BackenException = 99,
-        NetworkException = 88,
+        BackendException = 88,
+        NetworkException = 99,
     }
 
     public enum CourseServiceResultCode
     {
         Success = 1,
-        CourseNotExist = 2,
-        CourseSaveFailure = 3,
-        CourseUpdateFailure = 4,
-        CourseDeleteFailure = 5,
-        NoTopic = 6,
-        NoResource = 7,
-        BackenException = 99,
-        NetworkException = 88,
+        ArgumentError = 2,
+        DataNotExist = 3,
+        DataDuplicated = 4,
+        BackendException = 88,
+        NetworkException = 99,
+    }
+
+    public enum TopicServiceResultCode
+    {
+        Success = 1,
+        ArgumentError = 2,
+        DataNotExist = 3,
+        BackendException = 88,
+        NetworkException = 99,
     }
 }

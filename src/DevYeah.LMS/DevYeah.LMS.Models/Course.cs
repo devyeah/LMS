@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DevYeah.LMS.Models
 {
-    public partial class Course
+    public partial class Course : IModel
     {
         public Course()
         {
@@ -19,7 +19,6 @@ namespace DevYeah.LMS.Models
         public byte Edition { get; set; }
         public double AvgLearningTime { get; set; }
         public byte Level { get; set; }
-        public byte Grade { get; set; }
 
         public virtual Account Instructor { get; set; }
         public virtual ICollection<AccountCourse> AccountCourse { get; set; }

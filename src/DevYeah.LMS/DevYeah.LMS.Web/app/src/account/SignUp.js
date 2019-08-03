@@ -12,11 +12,13 @@ class SignUp extends Component {
   }
 
   submitHandler(values, actions){
-    this.props.onSubmit(values)
+    this.props.signup(values)
       .then(
-        (response) => {
+        (error) => {
           actions.setSubmitting(false);
-          actions.resetForm();
+          if (!error) {
+            actions.resetForm();
+          }
         }
       );
   }
@@ -46,5 +48,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {onSubmit: signup}
+  {signup}
 )(SignUp);

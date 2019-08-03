@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {formMeta, formValidation} from './formMeta/signInFormMeta';
+import { signin } from './redux/actions';
 import DynamicForm from './DynamicForm';
 
-export default class SignIn extends Component {
+class SignIn extends Component {
   constructor(props){
     super(props);
 
@@ -10,19 +12,38 @@ export default class SignIn extends Component {
   }
 
   submitHandler(values, actions) {
-    //todo: submit values to backend server
-    actions.setSubmitting(false);
-    actions.resetForm();
+    this.props.signin(values)
+      .then(
+        error => {
+          actions.setSubmitting(false);
+          if (!error) {
+            actions.resetForm();
+          }
+        }
+      );
   }
 
   render() {
+    var { error } = this.props;
     return (
       <DynamicForm 
         formName="signInForm"
         formMeta={formMeta}
         formValidation={formValidation}
         submitHandler={this.submitHandler} 
+        error={error ? error : undefined}
       />
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    error: state.authenticate.errorMessage
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  {signin}
+)(SignIn);

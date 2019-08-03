@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace DevYeah.LMS.Business
 {
-    class BlobStorage : IBlobStorage
+    public class BlobStorage : IBlobStorage
     {
         private static readonly string INTERNAL_ERROR_MSG = "File Uploading Is Failed.";
 

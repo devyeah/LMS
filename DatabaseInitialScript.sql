@@ -169,6 +169,18 @@ IF NOT EXISTS (SELECT NULL FROM sys.tables WHERE NAME='OperationHistory')
   )
   GO
 
+  IF NOT EXISTS (SELECT NULL FROM sys.tables WHERE NAME='SystemErrors')
+    CREATE TABLE dbo.SystemErrors (
+      [Id]                 UNIQUEIDENTIFIER  NOT NULL DEFAULT newid(),
+      [Exception]          NVARCHAR(4000)    NOT NULL,
+      [CallerMemberName]   NVARCHAR(500)     NOT NULL,
+      [CallerLineNumber]   INT               NOT NULL,
+      [CallerFilePath]     NVARCHAR(500),
+      [CreatedDate]        DATETIME2(7)      DEFAULT SYSUTCDATETIME(),
+      PRIMARY KEY ([Id])
+    )
+    GO
+
 /** Alter table **/
 IF NOT EXISTS (SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Course' AND COLUMN_NAME = 'Level')
   ALTER TABLE dbo.Course

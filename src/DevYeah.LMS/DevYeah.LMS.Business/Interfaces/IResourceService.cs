@@ -5,6 +5,8 @@ namespace DevYeah.LMS.Business.Interfaces
 {
     interface IResourceService
     {
+        ServiceResult<CourseServiceResultCode> GetAllResourceOfTopic(string topicId);
+
         #region video resource
         ServiceResult<VideoServiceResultCode> AddVideoResource(SaveOrUpdateVideoRequest request);
         ServiceResult<VideoServiceResultCode> UpdateVideoResource(SaveOrUpdateVideoRequest request);

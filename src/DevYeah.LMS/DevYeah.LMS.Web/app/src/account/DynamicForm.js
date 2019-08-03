@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { getClassName } from '../common/utilities';
+import CardHeader from './CardHeader';
 import './account.css';
+import Alert from './Alert';
 
-export default function DynamicForm({isEmbedded, formName, formValidation, formMeta, submitHandler, error}){
+export default function DynamicForm({isEmbedded, formName, formValidation, formMeta, submitHandler, error, success}){
   const { initialValues, header, elements, button, extraLink } = formMeta;
   return (
     <Formik
@@ -32,12 +34,22 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
               >
                 {!isEmbedded 
                   && 
-                  <FormHeader header={header} />
+                  <CardHeader header={header} />
                 }
 
                 {error 
                   && 
-                  <Alert error={error} />
+                  <Alert 
+                    message={error} 
+                    type="error"
+                  />
+                }
+                {success
+                  &&
+                  <Alert 
+                    message={success}
+                    type="success"
+                  />
                 }
                 
                 {elements.map((item, index) => {
@@ -102,26 +114,6 @@ export default function DynamicForm({isEmbedded, formName, formValidation, formM
         </div>
       )}
     </Formik>
-  );
-}
-
-function Alert({error}) {
-  return (
-    <div className="alert alert-danger" role="alert">
-      {error}
-      <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  );
-}
-
-function FormHeader({ header }) {
-  return (
-    <div className={header.alignStyle}>
-      <h1 id={header.id} className={header.style}>{header.text}</h1>
-      {header.tips && <p className={header.tips.style} id={header.tips.id}>{header.tips.message}</p>}
-    </div>
   );
 }
 

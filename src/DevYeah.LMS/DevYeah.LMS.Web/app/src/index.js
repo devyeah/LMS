@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import configureStore from './common/storeConfig';
+import axios from 'axios';
 import Root from './Root';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 
-const store = configureStore();
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 
 ReactDOM.render(
-  <Root store={store} />, 
+  <Root />, 
   document.getElementById('root')
 );
 

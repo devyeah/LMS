@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { signout } from '../account/redux/actions';
 
-export default function DropDownMenu() {
+function DropDownMenu({ signout, account }) {
+
   return (
     <div className="dropdown">
       <button 
@@ -12,7 +15,9 @@ export default function DropDownMenu() {
         aria-haspopup="true" 
         aria-expanded="false"
       >
-        Mario
+        <span id="navbarUserMenu">
+          { `Welcome, ${account.username}` }
+        </span>
       </button>
       <div 
         className="dropdown-menu" 
@@ -27,8 +32,9 @@ export default function DropDownMenu() {
         </Link>
         <Link 
           className="dropdown-item"
-          to="/"
           id="logoutMenu"
+          to="/"
+          onClick={() => (signout())}
         >
           Log out
         </Link>
@@ -36,3 +42,14 @@ export default function DropDownMenu() {
     </div>
   );
 }
+
+const mapStateToProps = state => {
+  return {
+    account: state.authenticate.account
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  {signout}
+)(DropDownMenu);
