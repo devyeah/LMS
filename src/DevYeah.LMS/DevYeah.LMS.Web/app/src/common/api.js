@@ -39,3 +39,7 @@ export const uploadImage = (formData) => {
     }
   });
 }
+
+export const fetchAllCategories = () => {
+  return axios("/category/all");
+}

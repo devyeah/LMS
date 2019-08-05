@@ -1,34 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import CategoryItem from './CategoryItem';
+import * as api from '../common/api';
 import './category.css';
 
 export default function CategoryList() {
-  //const [activeCat, setActiveCat] = useState();
+  const [categories, setCategories] = useState([]);
+  const activeCat = useSelector(state => state => state.category.activeCategory);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const cats = await api.fetchAllCategories();
+      setCategories(cats);
+    }
+
+    fetchCategories();
+  }, []);
 
   return (
     <div>
       <ul className="nav nav-fill">
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
-        <li className="nav-item border">
-          <CategoryItem />
-        </li>
+        {categories.map(cat => (
+          <li 
+            key={cat.Id} 
+            className="nav-item border"
+          >
+            <CategoryItem 
+              id={cat.Id}
+              name={cat.Name} 
+              activeCat={activeCat}
+            />
+          </li>
+        ))}
       </ul>
     </div>
   );
