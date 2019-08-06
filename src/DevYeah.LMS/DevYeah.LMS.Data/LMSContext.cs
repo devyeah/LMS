@@ -93,6 +93,10 @@ namespace DevYeah.LMS.Data
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.Property(e => e.AvatarUrl)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
                 entity.Property(e => e.Dimension)
                     .IsRequired()
                     .HasMaxLength(1)
@@ -112,6 +116,10 @@ namespace DevYeah.LMS.Data
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Icon)
+                    .IsRequired()
+                    .HasMaxLength(1000);
 
                 entity.Property(e => e.Name)
                     .IsRequired()

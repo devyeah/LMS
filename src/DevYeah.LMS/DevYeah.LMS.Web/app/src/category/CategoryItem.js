@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { switchCategory } from './redux/actions';
 
-export default function CategoryItem({id, name, activeCat}) {
+export default function CategoryItem({ id, name, isSelected }) {
   const [isHover, setIsHover] = useState(false);
-  const isChoosen = (activeCat == null) ? false : activeCat.Id === id;
-  const isActive = isHover || isChoosen;
+    const isActive = isHover || isSelected;
   const dispatch = useDispatch();
 
   return (

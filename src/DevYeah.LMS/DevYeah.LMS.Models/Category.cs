@@ -12,6 +12,7 @@ namespace DevYeah.LMS.Models
 
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Icon { get; set; }
 
         public virtual ICollection<CourseCategory> CourseCategory { get; set; }
     }

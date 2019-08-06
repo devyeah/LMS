@@ -18,6 +18,11 @@ namespace DevYeah.LMS.BusinessTest.Mock
             _accounts.Add(entity);
         }
 
+        public int Count(Expression<Func<Account, bool>> expression)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Delete(Account entity)
         {
             _accounts.Remove(entity);

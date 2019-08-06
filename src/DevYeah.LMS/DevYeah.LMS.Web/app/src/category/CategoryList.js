@@ -4,6 +4,11 @@ import CategoryItem from './CategoryItem';
 import * as api from '../common/api';
 import './category.css';
 
+function isActiveCat(activeCat, Id) {
+    if (activeCat == null) return false;
+    return activeCat.Id === Id;
+}
+
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
   const activeCat = useSelector(state => state => state.category.activeCategory);
@@ -26,8 +31,8 @@ export default function CategoryList() {
           >
             <CategoryItem 
               id={cat.Id}
-              name={cat.Name} 
-              activeCat={activeCat}
+              name={cat.Name}
+              isSelected={isActiveCat(activeCat, cat.Id)}
             />
           </li>
         ))}

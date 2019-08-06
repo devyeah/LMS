@@ -97,14 +97,15 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        public ServiceResult<CourseServiceResultCode> AddCategory(string name)
+        public ServiceResult<CourseServiceResultCode> AddCategory(AddOrUpdateCategoryRequest request)
         {
-            if (string.IsNullOrWhiteSpace(name)) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            var isValidArgs = ValidateAddCategoryRequest(request);
+            if (!isValidArgs) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
-            var category = new Category { Id = Guid.NewGuid(), Name = name };
+            var category = new Category { Id = Guid.NewGuid(), Name = request.Name, Icon = request.Icon };
             try
             {
-                if (IsExistCategoryName(name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
+                if (IsExistCategoryName(request.Name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
                 _categoryRepo.Add(category);
                 _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
@@ -135,17 +136,19 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
+        public ServiceResult<CourseServiceResultCode> UpdateCategory(AddOrUpdateCategoryRequest request)
         {
-            if (categoryId == Guid.Empty || string.IsNullOrWhiteSpace(name))
-                return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            var isValidArgs = ValidateUpdateCategoryRequest(request);
+            if (!isValidArgs) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var category = _categoryRepo.Get(categoryId);
+                var category = _categoryRepo.Get(request.Id);
                 if (category == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
-                if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-                category.Name = name;
+                if (request.Name == category.Name && request.Icon == request.Icon)
+                    return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+                category.Name = request.Name;
+                category.Icon = request.Icon;
                 _categoryRepo.Update(category);
                 _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
@@ -255,6 +258,22 @@ namespace DevYeah.LMS.Business
         {
             var counts = _categoryRepo.CountByName(name);
             return counts > 0;
+        }
+
+        private bool ValidateAddCategoryRequest(AddOrUpdateCategoryRequest request)
+        {
+            if (request == null) return false;
+            if (string.IsNullOrWhiteSpace(request.Name)) return false;
+            if (string.IsNullOrWhiteSpace(request.Icon)) return false;
+
+            return true;
+        }
+
+        private bool ValidateUpdateCategoryRequest(AddOrUpdateCategoryRequest request)
+        {
+            var isValidData = ValidateAddCategoryRequest(request);
+            var isValidKey = request.Id == Guid.Empty;
+            return (isValidData && isValidKey);
         }
     }
 }
