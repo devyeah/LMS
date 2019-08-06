@@ -17,8 +17,4 @@
     <ProjectReference Include="..\DevYeah.LMS.Models\DevYeah.LMS.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>
