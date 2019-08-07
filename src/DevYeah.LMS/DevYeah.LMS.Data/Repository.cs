@@ -16,6 +16,8 @@ namespace DevYeah.LMS.Data
         {
             this._dbContext = dbContext;
         }
+
+        protected DbContext GetDbContext() { return _dbContext; }
         public T Get(Guid key) => _dbContext.Set<T>().Where(p => p.Id == key).Single();
         
         public void Add(T entity) => _dbContext.Add<T>(entity);

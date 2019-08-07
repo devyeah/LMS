@@ -43,6 +43,8 @@ namespace DevYeah.LMS.Web
             services.AddScoped<IBlobStorage, BlobStorage>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
             #endregion
         }
 

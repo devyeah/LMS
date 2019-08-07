@@ -10,6 +10,8 @@ namespace DevYeah.LMS.Business.Interfaces
         ServiceResult<CourseServiceResultCode> UpdateCourse(SaveOrUpdateCourseRequest request);
         ServiceResult<CourseServiceResultCode> DeleteCourse(Guid courseId);
         ServiceResult<CourseServiceResultCode> GetCourseByKey(Guid courseId);
+        ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId);
+        ServiceResult<CourseServiceResultCode> GetAllCourses();
         ServiceResult<CourseServiceResultCode> AddCategory(AddOrUpdateCategoryRequest request);
         ServiceResult<CourseServiceResultCode> DeleteCategory(Guid categoryId);
         ServiceResult<CourseServiceResultCode> UpdateCategory(AddOrUpdateCategoryRequest request);

@@ -76,6 +76,34 @@ namespace DevYeah.LMS.Business
             }
         }
 
+        public ServiceResult<CourseServiceResultCode> GetAllCourses()
+        {
+            try
+            {
+                var allCourses = _courseRepo.GetAllCourses();
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCourses);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId)
+        {
+            try
+            {
+                var courses = _courseRepo.GetCoursesByCategory(catId);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
         public ServiceResult<CourseServiceResultCode> UpdateCourse(SaveOrUpdateCourseRequest request)
         {
             var isValidRequest = ValidateUpdateCourseRequest(request);
