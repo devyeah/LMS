@@ -45,6 +45,8 @@ namespace DevYeah.LMS.Web
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<ISystemErrorsRepository, SystemErrorsRepository>();
+            services.AddScoped<ICourseService, CourseService>();
             #endregion
         }
 
