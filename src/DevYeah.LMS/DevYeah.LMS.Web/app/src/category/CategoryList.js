@@ -30,8 +30,7 @@ export default function CategoryList() {
             className="nav-item border"
           >
             <CategoryItem 
-              id={cat.Id}
-              name={cat.Name}
+              data={cat}
               isSelected={isActiveCat(activeCat, cat.Id)}
             />
           </li>

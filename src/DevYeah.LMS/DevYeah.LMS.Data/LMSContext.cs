@@ -37,7 +37,7 @@ namespace DevYeah.LMS.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-8A51TKG;Database=LMS;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("");
             }
         }
 
@@ -137,6 +137,11 @@ namespace DevYeah.LMS.Data
                 entity.Property(e => e.Overview)
                     .IsRequired()
                     .HasMaxLength(800);
+
+                entity.Property(e => e.ScreenCast)
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .HasDefaultValueSql("('https://res.cloudinary.com/funfood/image/upload/v1565220505/courses/default_cover.gif')");
 
                 entity.HasOne(d => d.Instructor)
                     .WithMany(p => p.Course)
