@@ -92,8 +92,11 @@ namespace DevYeah.LMS.Business
 
         public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId)
         {
+            if (catId == Guid.Empty) return GetAllCourses();
             try
             {
+                var isValidCat = _categoryRepo.IsExisted(catId);
+                if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 var courses = _courseRepo.GetCoursesByCategory(catId);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
             }
@@ -133,7 +136,7 @@ namespace DevYeah.LMS.Business
             var category = new Category { Id = Guid.NewGuid(), Name = request.Name, Icon = request.Icon };
             try
             {
-                if (IsExistCategoryName(request.Name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
+                if (_categoryRepo.IsExistedName(request.Name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
                 _categoryRepo.Add(category);
                 _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
@@ -280,12 +283,6 @@ namespace DevYeah.LMS.Business
             var isValidContent = ValidateCreateCourseRequest(request);
             var isValidKey = !(request.Id == Guid.Empty);
             return (isValidContent && isValidKey);
-        }
-
-        private bool IsExistCategoryName(string name)
-        {
-            var counts = _categoryRepo.CountByName(name);
-            return counts > 0;
         }
 
         private bool ValidateAddCategoryRequest(AddOrUpdateCategoryRequest request)

@@ -17,14 +17,23 @@ namespace DevYeah.LMS.Data
 
         public IEnumerable<Course> GetCoursesByCategory(Guid catId)
         {
-            if (catId == Guid.Empty) return GetAllCourses();
             var dbCtx = GetDbContext();
-            var coursesFilterByCat = dbCtx.Set<Course>()
-                .Include(crs => crs.CourseCategory)
-                    .ThenInclude(cc => cc.Category.Id == catId)
+            var coursesFilterByCat = dbCtx.Set<Category>()
+                .Include(t => t.CourseCategory)
+                    .ThenInclude(c => c.Course)
+                        .ThenInclude(c => c.Instructor)
+                .Where(t => t.Id == catId)
                 .AsNoTracking()
-                .ToList();
-            return coursesFilterByCat;
+                .FirstOrDefault();
+            return coursesFilterByCat.CourseCategory.Select(t => new Course{
+                Id = t.Course.Id,
+                Name = t.Course.Name,
+                InstructorId = t.Course.Instructor.Id,
+                Overview = t.Course.Overview,
+                Edition = t.Course.Edition,
+                Level = t.Course.Level,
+                AvgLearningTime = t.Course.AvgLearningTime
+            });
         }
     }
 }

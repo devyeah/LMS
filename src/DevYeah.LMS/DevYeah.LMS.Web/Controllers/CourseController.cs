@@ -26,7 +26,7 @@ namespace DevYeah.LMS.Web.Controllers
         [HttpPost("addcourse")]
         public IActionResult CreateNewCourse(SaveOrUpdateCourseRequest request) => GetResult(() => _courseService.CreateCourse(request));
 
-        [HttpGet("findcats/{catId}")]
+        [HttpGet("findcourses/{catId}")]
         public IActionResult FetchCoursesByCategory(Guid catId) => GetResult(() => _courseService.GetAllCoursesOfCategory(catId));
 
         [HttpGet("findallcourses")]
