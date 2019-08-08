@@ -4,34 +4,34 @@ import CategoryItem from './CategoryItem';
 import * as api from '../common/api';
 import './category.css';
 
-function isActiveCat(activeCat, Id) {
-    if (activeCat == null) return false;
-    return activeCat.Id === Id;
+function isActiveCat(activeCatId, Id) {
+    if (activeCatId == null) return false;
+    return activeCatId === Id;
 }
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
-  const activeCat = useSelector(state => state => state.category.activeCategory);
+  const activeCatId = useSelector(state => state.category.activeCategory);
   useEffect(() => {
     const fetchCategories = async () => {
-      const cats = await api.fetchAllCategories();
-      setCategories(cats);
+      const response = await api.fetchAllCategories();
+      setCategories(response.data);
     }
 
     fetchCategories();
   }, []);
-
+  
   return (
     <div>
       <ul className="nav nav-fill">
-        {categories.map(cat => (
+        {categories.map((cat, index) => (
           <li 
-            key={cat.Id} 
             className="nav-item border"
+            key={index}
           >
             <CategoryItem 
               data={cat}
-              isSelected={isActiveCat(activeCat, cat.Id)}
+              isSelected={isActiveCat(activeCatId, cat.id)}
             />
           </li>
         ))}
