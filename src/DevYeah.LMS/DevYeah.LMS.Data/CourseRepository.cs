@@ -32,7 +32,8 @@ namespace DevYeah.LMS.Data
                 Overview = t.Course.Overview,
                 Edition = t.Course.Edition,
                 Level = t.Course.Level,
-                AvgLearningTime = t.Course.AvgLearningTime
+                AvgLearningTime = t.Course.AvgLearningTime,
+                ScreenCast = t.Course.ScreenCast
             });
         }
     }

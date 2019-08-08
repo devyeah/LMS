@@ -43,3 +43,13 @@ export const uploadImage = (formData) => {
 export const fetchAllCategories = () => {
   return axios("/course/findallcats");
 }
+
+export const fetchCourses = (catId) => {
+  let remoteUrl = "/course/"
+  if (catId == null) 
+    remoteUrl = remoteUrl.concat("findallcourses");
+  else 
+    remoteUrl = remoteUrl.concat(`findcourses/${catId}`);
+  
+  return axios(remoteUrl);
+}

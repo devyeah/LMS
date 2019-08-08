@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import CategoryItem from './CategoryItem';
 import * as api from '../common/api';
 import './category.css';
 
-function isActiveCat(activeCatId, Id) {
-    if (activeCatId == null) return false;
-    return activeCatId === Id;
+function isActiveCat(activeId, Id) {
+    if (activeId == null) return false;
+    return activeId === Id;
 }
 
-export default function CategoryList() {
+export default function CategoryList({activeCat}) {
   const [categories, setCategories] = useState([]);
-  const activeCatId = useSelector(state => state.category.activeCategory);
   useEffect(() => {
     const fetchCategories = async () => {
       const response = await api.fetchAllCategories();
       setCategories(response.data);
-    }
+    };
 
     fetchCategories();
   }, []);
@@ -31,7 +29,7 @@ export default function CategoryList() {
           >
             <CategoryItem 
               data={cat}
-              isSelected={isActiveCat(activeCatId, cat.id)}
+              isSelected={isActiveCat(activeCat, cat.id)}
             />
           </li>
         ))}
