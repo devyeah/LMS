@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import CourseItem from './CourseItem';
 import * as api from '../common/api';
+import './course.css';
 
 export default function CourseList({activeCat}) {
   const [courses, setCourses] = useState([]);
@@ -14,11 +16,10 @@ export default function CourseList({activeCat}) {
   return (
     <div>
       {courses.map((course, index) => (
-        <div key={index}>
-          <span>{course.name}</span>
-          <img src={course.screenCast} alt="img" />
-          <span>{course.overview}</span>
-        </div>
+        <CourseItem 
+          key={index}
+          course={course}
+        />
       ))}
     </div>
   );

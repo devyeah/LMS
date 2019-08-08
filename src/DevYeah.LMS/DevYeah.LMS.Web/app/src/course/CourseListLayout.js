@@ -8,10 +8,14 @@ export default function CourseListLayout() {
   return (
     <div className="container">
       <div id="catNav" className="py-4">
-        <CategoryList activeCat={activeCatId} />
+        <CategoryList 
+          activeCat={activeCatId} 
+        />
       </div>
       <div id="courseList">
-        <CourseList activeCat={activeCatId} />
+        <CourseList 
+          activeCat={activeCatId} 
+        />
       </div>
       <div id="pagination">
 
