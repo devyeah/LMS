@@ -18,10 +18,10 @@ namespace DevYeah.LMS.Data
         public IEnumerable<Course> GetCoursesByCategory(Guid catId)
         {
             var dbCtx = GetDbContext();
-            var coursesFilterByCat = dbCtx.Set<Course>()
+            var filteredCourses = dbCtx.Set<Course>()
                 .Where(c => c.CourseCategory.Any(t => t.CategoryId == catId))
                 .ToList();
-            return coursesFilterByCat;
+            return filteredCourses;
         }
     }
 }
