@@ -24,17 +24,21 @@ namespace DevYeah.LMS.Data
                         .ThenInclude(c => c.Instructor)
                 .Where(t => t.Id == catId)
                 .AsNoTracking()
-                .FirstOrDefault();
-            return coursesFilterByCat.CourseCategory.Select(t => new Course{
-                Id = t.Course.Id,
-                Name = t.Course.Name,
-                InstructorId = t.Course.Instructor.Id,
-                Overview = t.Course.Overview,
-                Edition = t.Course.Edition,
-                Level = t.Course.Level,
-                AvgLearningTime = t.Course.AvgLearningTime,
-                ScreenCast = t.Course.ScreenCast
-            });
+                .FirstOrDefault()
+                .CourseCategory
+                .Select(t => new Course
+                {
+                    Id = t.Course.Id,
+                    Name = t.Course.Name,
+                    InstructorId = t.Course.Instructor.Id,
+                    Overview = t.Course.Overview,
+                    Edition = t.Course.Edition,
+                    Level = t.Course.Level,
+                    AvgLearningTime = t.Course.AvgLearningTime,
+                    ScreenCast = t.Course.ScreenCast
+                })
+                .ToList();
+            return coursesFilterByCat;
         }
     }
 }
