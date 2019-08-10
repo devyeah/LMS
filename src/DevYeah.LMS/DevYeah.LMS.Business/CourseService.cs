@@ -97,7 +97,7 @@ namespace DevYeah.LMS.Business
             {
                 var isValidCat = _categoryRepo.IsExisted(catId);
                 if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
-                var courses = _courseRepo.GetCoursesByCategory(catId);
+                var courses = _courseRepo.GetCoursesOfCategory(catId);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
             }
             catch (Exception ex)

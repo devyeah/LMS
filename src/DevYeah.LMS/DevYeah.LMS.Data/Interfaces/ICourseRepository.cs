@@ -7,6 +7,6 @@ namespace DevYeah.LMS.Data.Interfaces
     public interface ICourseRepository : IRepository<Course>
     {
         IEnumerable<Course> GetAllCourses();
-        IEnumerable<Course> GetCoursesByCategory(Guid catId);
+        IEnumerable<Course> GetCoursesOfCategory(Guid catId);
     }
 }
