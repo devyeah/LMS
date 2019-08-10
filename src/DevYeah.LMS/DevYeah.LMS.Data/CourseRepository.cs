@@ -13,12 +13,20 @@ namespace DevYeah.LMS.Data
         {
         }
 
-        public IEnumerable<Course> GetAllCourses() => FindAll(c => true);
+        public IEnumerable<Course> GetAllCourses()
+        {
+            var dbCtx = GetDbContext();
+            var allCourses = dbCtx.Set<Course>()
+                .Include(c => c.Instructor)
+                .ToList();
+            return allCourses;
+        }
 
         public IEnumerable<Course> GetCoursesByCategory(Guid catId)
         {
             var dbCtx = GetDbContext();
             var filteredCourses = dbCtx.Set<Course>()
+                .Include(c => c.Instructor)
                 .Where(c => c.CourseCategory.Any(t => t.CategoryId == catId))
                 .ToList();
             return filteredCourses;

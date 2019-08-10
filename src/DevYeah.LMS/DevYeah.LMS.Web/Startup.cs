@@ -29,7 +29,10 @@ namespace DevYeah.LMS.Web
             var lmsConfig = Configuration.GetSection("LMSConfig");
             var dbConnection = lmsConfig.GetSection("DbConfig").GetValue<string>("DefaultConnection");
             services.AddDbContext<LMSContext>(options => options.UseSqlServer(dbConnection));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options => {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
             services.Configure<AppSettings>(lmsConfig);
             services.AddSpaStaticFiles(configuration =>
             {

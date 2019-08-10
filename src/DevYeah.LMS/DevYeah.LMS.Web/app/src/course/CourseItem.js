@@ -34,6 +34,7 @@ export default function CourseItem({course}) {
             </div>
             <div className="mt-3">
               <p className="card-text">{course.overview}</p>
+              <span>By {course.instructor.userName}</span>
             </div>
           </div>
         </div>

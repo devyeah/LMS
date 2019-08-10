@@ -8,6 +8,7 @@ export default function CourseList({activeCat}) {
   useEffect(() => {
     const courseItems = async () => {
       const response = await api.fetchCourses(activeCat);
+      console.log(response.data);
       setCourses(response.data);
     };
 
