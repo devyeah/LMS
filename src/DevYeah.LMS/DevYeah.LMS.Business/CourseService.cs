@@ -90,6 +90,22 @@ namespace DevYeah.LMS.Business
             }
         }
 
+        public ServiceResult<CourseServiceResultCode> GetAllCourses(int page, int pageSize)
+        {
+            if (page == 0 || pageSize == 0) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+
+            try
+            {
+                var coursesPagedResult = _courseRepo.GetPaginatedCourses(page, pageSize);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: coursesPagedResult);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
         public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId)
         {
             if (catId == Guid.Empty) return GetAllCourses();
@@ -99,6 +115,23 @@ namespace DevYeah.LMS.Business
                 if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 var courses = _courseRepo.GetCoursesOfCategory(catId);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId, int page, int pageSize)
+        {
+            if (page == 0 || pageSize == 0 || catId == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            try
+            {
+                var isValidCat = _categoryRepo.IsExisted(catId);
+                if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
+                var paginatedQueryResult = _courseRepo.GetPaginatedCoursesOfCategory(catId, page, pageSize);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: paginatedQueryResult);
             }
             catch (Exception ex)
             {

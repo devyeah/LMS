@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DevYeah.LMS.Data.paginate;
 using DevYeah.LMS.Models;
 
 namespace DevYeah.LMS.Data.Interfaces
@@ -8,5 +9,7 @@ namespace DevYeah.LMS.Data.Interfaces
     {
         IEnumerable<Course> GetAllCourses();
         IEnumerable<Course> GetCoursesOfCategory(Guid catId);
+        PagedResult<Course> GetPaginatedCourses(int page, int pageSize);
+        PagedResult<Course> GetPaginatedCoursesOfCategory(Guid catId, int page, int pageSize);
     }
 }

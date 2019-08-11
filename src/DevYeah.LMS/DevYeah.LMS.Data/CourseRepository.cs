@@ -50,7 +50,8 @@ namespace DevYeah.LMS.Data
         {
             var dbCtx = GetDbContext();
             var query = dbCtx.Set<Course>()
-                .Include(c => c.Instructor);
+                .Include(c => c.Instructor)
+                .AsNoTracking();
             return query;
         }
     }

@@ -17,9 +17,6 @@ export default function CourseListLayout() {
           activeCat={activeCatId} 
         />
       </div>
-      <div id="pagination">
-
-      </div>
     </div>
   );
 }
