@@ -7,12 +7,12 @@ export default function CourseList({activeCat}) {
   const [courseList, setCourseList] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [pageNumbers, setPageNumbers] = useState([1]);
+  const [pageNumbers, setPageNumbers] = useState([]);
 
   const fillList = async () => {
     const response = await api.fetchCourses(page, pageSize, activeCat);
     setCourseList(response.data.results);
-    if (pageNumbers.length != response.data.pageCount) {
+    if (pageNumbers.length !== response.data.pageCount) {
       const totalPage = response.data.pageCount;
       const pageArr = [];
       for (let index = 1; index <= totalPage; index++) {
@@ -24,7 +24,7 @@ export default function CourseList({activeCat}) {
 
   useEffect(() => {
     fillList();
-  }, [activeCat, page, pageSize]);
+  }, [page, pageSize]);
 
   useEffect(() => {
     setPage(1);
