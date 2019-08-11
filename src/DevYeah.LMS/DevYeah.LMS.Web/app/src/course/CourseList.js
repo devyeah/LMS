@@ -5,8 +5,8 @@ import './course.css';
 
 export default function CourseList({activeCat}) {
   const [courseList, setCourseList] = useState([]);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [page, setPage] = useState(process.env.REACT_APP_FIRST_PAGE);
+  const [pageSize, setPageSize] = useState(process.env.REACT_APP_DFAULT_PAGESIZE);
   const [pageNumbers, setPageNumbers] = useState([]);
 
   const fillList = async () => {
@@ -27,8 +27,8 @@ export default function CourseList({activeCat}) {
   }, [page, pageSize]);
 
   useEffect(() => {
-    setPage(1);
-    setPageSize(5);
+    setPage(process.env.REACT_APP_FIRST_PAGE);
+    setPageSize(process.env.REACT_APP_DFAULT_PAGESIZE);
     fillList();
   }, [activeCat]);
 
