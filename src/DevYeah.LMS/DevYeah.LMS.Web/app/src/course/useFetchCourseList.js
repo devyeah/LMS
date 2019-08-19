@@ -55,6 +55,11 @@ export default function useFetchCourseList(initialData) {
   });
 
   useEffect(() => {
+    setPage(process.env.REACT_APP_FIRST_PAGE);
+    setPageSize(process.env.REACT_APP_DFAULT_PAGESIZE);
+  }, [category]);
+
+  useEffect(() => {
     const fetchData = async () => {
       dispatch({type: FETCH_INIT});
       try {

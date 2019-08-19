@@ -8,15 +8,9 @@ import './course.css';
 
 export default function CourseList({activeCat}) {
   const {state, page, pageSize, setPage, setPageSize, setCategory} = useFetchCourseList([]);
-  const updateCategory = useCallback(() => {
+  useEffect(() => {
     setCategory(activeCat);
   }, [activeCat, setCategory]);
-
-  useEffect(() => {
-    setPage(process.env.REACT_APP_FIRST_PAGE);
-    setPageSize(process.env.REACT_APP_DFAULT_PAGESIZE);
-    updateCategory();
-  }, [setPage, setPageSize, updateCategory]);
 
   return (
     <div>
