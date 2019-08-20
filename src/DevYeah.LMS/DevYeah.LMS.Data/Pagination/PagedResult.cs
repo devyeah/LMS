@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace DevYeah.LMS.Data.paginate
+namespace DevYeah.LMS.Data.Pagination
 {
     public class PagedResult<T> : PagedResultBase
     {
         public IList<T> Results { get; set; }
 
-        public PagedResult()
-        {
-            Results = new List<T>();
-        }
+        public PagedResult() => new List<T>();
     }
 }

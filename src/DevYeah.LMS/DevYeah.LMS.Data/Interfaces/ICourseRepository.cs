@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DevYeah.LMS.Data.paginate;
+using DevYeah.LMS.Data.Pagination;
 using DevYeah.LMS.Models;
 
 namespace DevYeah.LMS.Data.Interfaces

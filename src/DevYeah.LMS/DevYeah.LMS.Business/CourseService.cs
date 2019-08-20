@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.Data.Interfaces;
 using DevYeah.LMS.Models;
+using Microsoft.Extensions.Options;
 
 namespace DevYeah.LMS.Business
 {
@@ -12,12 +15,14 @@ namespace DevYeah.LMS.Business
     {
         private readonly ICourseRepository _courseRepo;
         private readonly ICategoryRepository _categoryRepo;
+        private readonly AppSettings _appSettings;
 
-        public CourseService(ICourseRepository courseRepo, ICategoryRepository categoryRepo, ISystemErrorsRepository systemErrorsRepo) 
+        public CourseService(ICourseRepository courseRepo, ICategoryRepository categoryRepo, ISystemErrorsRepository systemErrorsRepo, IOptions<AppSettings> appSettings) 
             : base(systemErrorsRepo)
         {
             _courseRepo = courseRepo;
             _categoryRepo = categoryRepo;
+            _appSettings = appSettings.Value;
         }
 
         public ServiceResult<CourseServiceResultCode> CreateCourse(SaveOrUpdateCourseRequest request)
@@ -67,6 +72,7 @@ namespace DevYeah.LMS.Business
             {
                 var course = _courseRepo.Get(courseId);
                 if (course == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
+                if (string.IsNullOrWhiteSpace(course.ScreenCast)) course.ScreenCast = _appSettings.DefaultCourseScreenCast;
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
             }
             catch (Exception ex)
@@ -81,6 +87,7 @@ namespace DevYeah.LMS.Business
             try
             {
                 var allCourses = _courseRepo.GetAllCourses();
+                GetLastestOrDefaultScreenCast(allCourses);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCourses);
             }
             catch (Exception ex)
@@ -97,6 +104,7 @@ namespace DevYeah.LMS.Business
             try
             {
                 var coursesPagedResult = _courseRepo.GetPaginatedCourses(page, pageSize);
+                GetLastestOrDefaultScreenCast(coursesPagedResult.Results);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: coursesPagedResult);
             }
             catch (Exception ex)
@@ -111,9 +119,8 @@ namespace DevYeah.LMS.Business
             if (catId == Guid.Empty) return GetAllCourses();
             try
             {
-                var isValidCat = _categoryRepo.IsExisted(catId);
-                if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 var courses = _courseRepo.GetCoursesOfCategory(catId);
+                GetLastestOrDefaultScreenCast(courses);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
             }
             catch (Exception ex)
@@ -128,9 +135,8 @@ namespace DevYeah.LMS.Business
             if (page == 0 || pageSize == 0 || catId == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
             try
             {
-                var isValidCat = _categoryRepo.IsExisted(catId);
-                if (!isValidCat) return DataErrorResult(CourseServiceResultCode.DataNotExist);
                 var paginatedQueryResult = _courseRepo.GetPaginatedCoursesOfCategory(catId, page, pageSize);
+                GetLastestOrDefaultScreenCast(paginatedQueryResult.Results);
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: paginatedQueryResult);
             }
             catch (Exception ex)
@@ -254,6 +260,16 @@ namespace DevYeah.LMS.Business
                 return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
 
+        }
+
+        private void GetLastestOrDefaultScreenCast(IEnumerable<Course> courses)
+        {
+            courses.ToList().ForEach(c =>
+            {
+                if (string.IsNullOrWhiteSpace(c.ScreenCast))
+                    c.ScreenCast = _appSettings.DefaultCourseScreenCast;
+                return;
+            });
         }
 
         private Course MakeNewCourse(SaveOrUpdateCourseRequest request)

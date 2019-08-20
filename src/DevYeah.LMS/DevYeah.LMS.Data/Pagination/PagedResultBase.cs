@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DevYeah.LMS.Data.paginate
+namespace DevYeah.LMS.Data.Pagination
 {
     public abstract class PagedResultBase
     {

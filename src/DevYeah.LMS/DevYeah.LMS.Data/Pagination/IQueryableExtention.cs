@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace DevYeah.LMS.Data.paginate
+namespace DevYeah.LMS.Data.Pagination
 {
     public static class IQueryableExtention
     {

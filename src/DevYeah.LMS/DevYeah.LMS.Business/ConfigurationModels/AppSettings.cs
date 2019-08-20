@@ -6,6 +6,8 @@
 
         public int SleepPeriod { get; set; }
 
+        public string DefaultCourseScreenCast { get; set; }
+
         public DbSettings DbConfig { get; set; } = new DbSettings();
 
         public ApiSettings ApiConfig { get; set; } = new ApiSettings();
