@@ -264,12 +264,8 @@ namespace DevYeah.LMS.Business
 
         private void GetLastestOrDefaultScreenCast(IEnumerable<Course> courses)
         {
-            courses.ToList().ForEach(c =>
-            {
-                if (string.IsNullOrWhiteSpace(c.ScreenCast))
-                    c.ScreenCast = _appSettings.DefaultCourseScreenCast;
-                return;
-            });
+            foreach(var course in courses.Where(c => string.IsNullOrWhiteSpace(c.ScreenCast)))
+                course.ScreenCast = _appSettings.DefaultCourseScreenCast;
         }
 
         private Course MakeNewCourse(SaveOrUpdateCourseRequest request)
