@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import thunk from 'redux-thunk';
 import { authenticate } from '../account/redux/reducers';
+import { category } from '../category/redux/reducers';
 
 const storeConfig = {
   key: 'root',
@@ -14,7 +15,8 @@ const storeConfig = {
 const configureStore = () => {
   const middlewares = [thunk];
   const rawReducer = combineReducers({
-    authenticate
+    authenticate,
+    category
   });
   const rootReducer = persistReducer(storeConfig, rawReducer);
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

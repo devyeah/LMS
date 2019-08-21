@@ -9,7 +9,7 @@ import LandingPage from './common/LandingPage';
 import EditProfile from './account/EditProfileLayout';
 import ActiveAccount from './account/ActiveAccount';
 import ErrorPage from './common/ErrorPage';
-import CourseListPage from './course/CourseListPage';
+import CourseListLayout from './course/CourseListLayout';
 import './index.css';
 
 function App() {
@@ -29,7 +29,7 @@ function App() {
             <Route path="/account/active/:token" component={ActiveAccount} />
             <Redirect path="/account/editProfile" exact to="/account/editProfile/profile" />
             <Route path="/account/editProfile" component={EditProfile} />
-            <Route path="/course/list" component={CourseListPage} />
+            <Route path="/course/list" component={CourseListLayout} />
             <Route component={ErrorPage} />
           </Switch>
         </main>

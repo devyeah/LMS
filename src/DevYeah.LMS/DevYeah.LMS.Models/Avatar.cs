@@ -10,6 +10,7 @@ namespace DevYeah.LMS.Models
         public string Dimension { get; set; }
         public string MimeType { get; set; }
         public short? Size { get; set; }
+        public string AvatarUrl { get; set; }
 
         public virtual UserProfile UserProfile { get; set; }
     }

@@ -12,6 +12,6 @@
   color: white;
 }
 
-a.cat-nav-link:hover {
-  text-decoration: none;
+div.cat-nav-link:hover {
+  cursor: pointer;
 }

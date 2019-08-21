@@ -14,34 +14,27 @@ namespace DevYeah.LMS.Web.Controllers
 
         public IdentityController(IAccountService accountService) => _accountService = accountService;
 
-        // POST api/v1/identity/signup
         [HttpPost("register")]
         public IActionResult SignUp(SignUpRequest request) => GetResult(() => _accountService.SignUp(request));
 
-        // POST api/v1/identity/signin
         [HttpPost("login")]
         public IActionResult SignIn(SignInRequest request) => GetResult(() => _accountService.SignIn(request));
 
-        // Get api/v1/identity/activate
         [HttpPost("launch")]
         public IActionResult Activate(string token) => GetResult(() => _accountService.ActivateAccount(token));
 
-        // POST api/v1/identity/recoverypassword
         [HttpPost("recoverypassword")]
         public void SendRecoverEmail(string email) => _accountService.RecoverPassword(email);
 
-        // POST api/v1/identity/resetpassword
         [HttpPost("updatepassword")]
         public IActionResult ResetPassword(ResetPasswordRequest request) => GetResult(() => _accountService.ResetPassword(request));
 
-        // GET api/v1/identity/getavatar
         [HttpGet]
         public IActionResult FetchAvatar()
         {
             return null;
         }
 
-        // POST api/v1/identity/uploadphoto
         [HttpPost("uploadphoto")]
         public IActionResult UploadImage(UploadImageRequest request) => GetResult(() => _accountService.SetAvatar(request));
 

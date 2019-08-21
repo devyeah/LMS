@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using DevYeah.LMS.Business.ConfigurationModels;
 using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.Data.Interfaces;
 using DevYeah.LMS.Models;
+using Microsoft.Extensions.Options;
 
 namespace DevYeah.LMS.Business
 {
@@ -12,12 +15,14 @@ namespace DevYeah.LMS.Business
     {
         private readonly ICourseRepository _courseRepo;
         private readonly ICategoryRepository _categoryRepo;
+        private readonly AppSettings _appSettings;
 
-        public CourseService(ICourseRepository courseRepo, ICategoryRepository categoryRepo, ISystemErrorsRepository systemErrorsRepo) 
+        public CourseService(ICourseRepository courseRepo, ICategoryRepository categoryRepo, ISystemErrorsRepository systemErrorsRepo, IOptions<AppSettings> appSettings) 
             : base(systemErrorsRepo)
         {
             _courseRepo = courseRepo;
             _categoryRepo = categoryRepo;
+            _appSettings = appSettings.Value;
         }
 
         public ServiceResult<CourseServiceResultCode> CreateCourse(SaveOrUpdateCourseRequest request)
@@ -67,7 +72,72 @@ namespace DevYeah.LMS.Business
             {
                 var course = _courseRepo.Get(courseId);
                 if (course == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
+                if (string.IsNullOrWhiteSpace(course.ScreenCast)) course.ScreenCast = _appSettings.DefaultCourseScreenCast;
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: course);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCourses()
+        {
+            try
+            {
+                var allCourses = _courseRepo.GetAllCourses();
+                GetLastestOrDefaultScreenCast(allCourses);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: allCourses);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCourses(int page, int pageSize)
+        {
+            if (page == 0 || pageSize == 0) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+
+            try
+            {
+                var coursesPagedResult = _courseRepo.GetPaginatedCourses(page, pageSize);
+                GetLastestOrDefaultScreenCast(coursesPagedResult.Results);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: coursesPagedResult);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId)
+        {
+            if (catId == Guid.Empty) return GetAllCourses();
+            try
+            {
+                var courses = _courseRepo.GetCoursesOfCategory(catId);
+                GetLastestOrDefaultScreenCast(courses);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: courses);
+            }
+            catch (Exception ex)
+            {
+                _systemErrorsRepo.AddLog(ex);
+                return InternalErrorResult(CourseServiceResultCode.BackendException);
+            }
+        }
+
+        public ServiceResult<CourseServiceResultCode> GetAllCoursesOfCategory(Guid catId, int page, int pageSize)
+        {
+            if (page == 0 || pageSize == 0 || catId == Guid.Empty) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            try
+            {
+                var paginatedQueryResult = _courseRepo.GetPaginatedCoursesOfCategory(catId, page, pageSize);
+                GetLastestOrDefaultScreenCast(paginatedQueryResult.Results);
+                return BuildResult(true, CourseServiceResultCode.Success, resultObj: paginatedQueryResult);
             }
             catch (Exception ex)
             {
@@ -97,14 +167,15 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        public ServiceResult<CourseServiceResultCode> AddCategory(string name)
+        public ServiceResult<CourseServiceResultCode> AddCategory(AddOrUpdateCategoryRequest request)
         {
-            if (string.IsNullOrWhiteSpace(name)) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            var isValidArgs = ValidateAddCategoryRequest(request);
+            if (!isValidArgs) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
-            var category = new Category { Id = Guid.NewGuid(), Name = name };
+            var category = new Category { Id = Guid.NewGuid(), Name = request.Name, Icon = request.Icon };
             try
             {
-                if (IsExistCategoryName(name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
+                if (_categoryRepo.IsExistedName(request.Name)) return DataErrorResult(CourseServiceResultCode.DataDuplicated);
                 _categoryRepo.Add(category);
                 _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
@@ -135,17 +206,19 @@ namespace DevYeah.LMS.Business
             }
         }
 
-        public ServiceResult<CourseServiceResultCode> UpdateCategory(Guid categoryId, string name)
+        public ServiceResult<CourseServiceResultCode> UpdateCategory(AddOrUpdateCategoryRequest request)
         {
-            if (categoryId == Guid.Empty || string.IsNullOrWhiteSpace(name))
-                return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
+            var isValidArgs = ValidateUpdateCategoryRequest(request);
+            if (!isValidArgs) return ArgumentErrorResult(CourseServiceResultCode.ArgumentError);
 
             try
             {
-                var category = _categoryRepo.Get(categoryId);
+                var category = _categoryRepo.Get(request.Id);
                 if (category == null) return DataErrorResult(CourseServiceResultCode.DataNotExist);
-                if (name == category.Name) return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
-                category.Name = name;
+                if (request.Name == category.Name && request.Icon == request.Icon)
+                    return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
+                category.Name = request.Name;
+                category.Icon = request.Icon;
                 _categoryRepo.Update(category);
                 _categoryRepo.SaveChanges();
                 return BuildResult(true, CourseServiceResultCode.Success, resultObj: category);
@@ -187,6 +260,12 @@ namespace DevYeah.LMS.Business
                 return InternalErrorResult(CourseServiceResultCode.BackendException);
             }
 
+        }
+
+        private void GetLastestOrDefaultScreenCast(IEnumerable<Course> courses)
+        {
+            foreach(var course in courses.Where(c => string.IsNullOrWhiteSpace(c.ScreenCast)))
+                course.ScreenCast = _appSettings.DefaultCourseScreenCast;
         }
 
         private Course MakeNewCourse(SaveOrUpdateCourseRequest request)
@@ -251,10 +330,20 @@ namespace DevYeah.LMS.Business
             return (isValidContent && isValidKey);
         }
 
-        private bool IsExistCategoryName(string name)
+        private bool ValidateAddCategoryRequest(AddOrUpdateCategoryRequest request)
         {
-            var counts = _categoryRepo.CountByName(name);
-            return counts > 0;
+            if (request == null) return false;
+            if (string.IsNullOrWhiteSpace(request.Name)) return false;
+            if (string.IsNullOrWhiteSpace(request.Icon)) return false;
+
+            return true;
+        }
+
+        private bool ValidateUpdateCategoryRequest(AddOrUpdateCategoryRequest request)
+        {
+            var isValidData = ValidateAddCategoryRequest(request);
+            var isValidKey = request.Id == Guid.Empty;
+            return (isValidData && isValidKey);
         }
     }
 }

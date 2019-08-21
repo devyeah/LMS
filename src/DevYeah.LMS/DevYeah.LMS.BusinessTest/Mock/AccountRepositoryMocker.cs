@@ -9,29 +9,17 @@ namespace DevYeah.LMS.BusinessTest.Mock
     public class AccountRepositoryMocker : IAccountRepository
     {
         private readonly List<Account> _accounts;
-        public AccountRepositoryMocker()
-        {
-            _accounts = new List<Account>();
-        }
-        public void Add(Account entity)
-        {
-            _accounts.Add(entity);
-        }
+        public AccountRepositoryMocker() => _accounts = new List<Account>();
+ 
+        public void Add(Account entity) => _accounts.Add(entity);
 
-        public void Delete(Account entity)
-        {
-            _accounts.Remove(entity);
-        }
+        public int Count(Expression<Func<Account, bool>> expression) => throw new NotImplementedException();
 
-        public Account Find(Expression<Func<Account, bool>> expression)
-        {
-            return null;
-        }
+        public void Delete(Account entity) => _accounts.Remove(entity);
 
-        public IEnumerable<Account> FindAll(Expression<Func<Account, bool>> expression)
-        {
-            return null;
-        }
+        public Account Find(Expression<Func<Account, bool>> expression) => null;
+
+        public IEnumerable<Account> FindAll(Expression<Func<Account, bool>> expression) => null;
 
         public Account Get(Guid key)
         {
@@ -43,10 +31,7 @@ namespace DevYeah.LMS.BusinessTest.Mock
             return null;
         }
 
-        public Account GetAccount(Guid key)
-        {
-            return Get(key);
-        }
+        public Account GetAccount(Guid key) => Get(key);
 
         public Account GetUniqueAccountByEmail(string email)
         {

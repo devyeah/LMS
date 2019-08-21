@@ -1,0 +1,13 @@
+.course-screenshot {
+  max-height: 14rem;
+  max-width: 20rem;
+}
+
+a.course-list-item {
+  text-decoration: none;
+  color: rgba(35, 70, 151, 0.9);
+}
+
+.page-number {
+  cursor: pointer;
+}

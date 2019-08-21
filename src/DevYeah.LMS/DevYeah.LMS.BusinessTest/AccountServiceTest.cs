@@ -7,6 +7,7 @@ using DevYeah.LMS.Business.Interfaces;
 using DevYeah.LMS.Business.RequestModels;
 using DevYeah.LMS.Business.ResultModels;
 using DevYeah.LMS.BusinessTest.Mock;
+using DevYeah.LMS.Data.Interfaces;
 using DevYeah.LMS.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -25,6 +26,7 @@ namespace DevYeah.LMS.BusinessTest
         Account testAccount;
         Mock<IBlobStorage> fileUpload;
         Mock<IFormFile> imageFile;
+        Mock<ISystemErrorsRepository> systemErrorsRepo;
 
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
@@ -38,6 +40,7 @@ namespace DevYeah.LMS.BusinessTest
             var mailClient = new MailClientMocker();
             fileUpload = new Mock<IBlobStorage>();
             imageFile = new Mock<IFormFile>();
+            systemErrorsRepo = new Mock<ISystemErrorsRepository>();
             using (var fileStream = new FileStream($"{testRootPath}\\TestImages\\hot-air-ballooning.jpg", FileMode.Open, FileAccess.Read))
             {
                 imageFile.Setup(f => f.FileName).Returns("hot-air-ballooning.jpg");
@@ -59,7 +62,7 @@ namespace DevYeah.LMS.BusinessTest
                 Password = "123456"
             };
             accountRepo = new AccountRepositoryMocker();
-            service = new AccountService(accountRepo, mailClient, appSettings, fileUpload.Object);
+            service = new AccountService(accountRepo, systemErrorsRepo.Object, mailClient, appSettings, fileUpload.Object);
             testAccount = new Account
             {
                 Id = Guid.Parse("bc8ee12e-cf6a-4765-a112-7c9e29469b36"),

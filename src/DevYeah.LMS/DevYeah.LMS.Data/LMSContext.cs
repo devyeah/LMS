@@ -93,6 +93,10 @@ namespace DevYeah.LMS.Data
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.Property(e => e.AvatarUrl)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
                 entity.Property(e => e.Dimension)
                     .IsRequired()
                     .HasMaxLength(1)
@@ -113,6 +117,10 @@ namespace DevYeah.LMS.Data
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.Property(e => e.Icon)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -129,6 +137,11 @@ namespace DevYeah.LMS.Data
                 entity.Property(e => e.Overview)
                     .IsRequired()
                     .HasMaxLength(800);
+
+                entity.Property(e => e.ScreenCast)
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .HasDefaultValueSql("('https://res.cloudinary.com/funfood/image/upload/v1565220505/courses/default_cover.gif')");
 
                 entity.HasOne(d => d.Instructor)
                     .WithMany(p => p.Course)
